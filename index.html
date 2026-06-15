@@ -1,1 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sky Blueprint — Your Digital Life, Unified</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-inner">
+    <div class="logo" onclick="showPage('home')">
+      <svg class="fp-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#fpgrad)"/>
+        <path d="M11 13c0-2.8 2.2-5 5-5s5 2.2 5 5c0 1.5-.7 2.9-1.7 3.8" stroke="#fff" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+        <path d="M13 13c0-1.7 1.3-3 3-3s3 1.3 3 3" stroke="#fff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.7"/>
+        <circle cx="16" cy="13" r="1.2" fill="#fff"/>
+        <defs>
+          <linearGradient id="fpgrad" x1="5" y1="2" x2="27" y2="30">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#6366f1"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      Sky <span>Blueprint</span>
+    </div>
+    <div class="nav-links">
+      <a href="#tools">Tools</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#about">About</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-ghost-sm" onclick="showPage('login')">Log In</button>
+      <button class="btn-primary-sm" onclick="showPage('signup')">Start Free Trial</button>
+    </div>
+    <button class="hamburger" onclick="toggleMobileNav()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#tools" onclick="closeMobileNav()">Tools</a>
+    <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
+    <a href="#about" onclick="closeMobileNav()">About</a>
+    <button class="btn-ghost-sm" onclick="showPage('login');closeMobileNav()">Log In</button>
+    <button class="btn-primary-sm" onclick="showPage('signup');closeMobileNav()">Start Free Trial</button>
+  </div>
+</nav>
+
+<!-- PAGES CONTAINER -->
+<div id="pages">
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-glow g1"></div>
+      <div class="hero-glow g2"></div>
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="#38bdf8"/></svg>
+          🇿🇦 Made for South Africa
+        </div>
+        <h1>Build. Protect.<br><span class="grad-text">Grow.</span></h1>
+        <p class="hero-p">Sky Blueprint gives South African entrepreneurs, job seekers and professionals six powerful tools — all in one platform — for one simple monthly fee.</p>
+        <div class="hero-ctas">
+          <button class="btn-primary" onclick="showPage('signup')">Start Free 7-Day Trial</button>
+          <button class="btn-outline" onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'})">See All Tools</button>
+        </div>
+        <div class="trust-row">
+          <span>✅ No contracts</span>
+          <span>✅ Cancel anytime</span>
+          <span>✅ Pay with Paystack</span>
+        </div>
+      </div>
+      <div class="hero-cards">
+        <div class="hc hc1">
+          <span>📧</span>
+          <div><strong>Email Cleaner</strong><small>3 spam emails removed</small></div>
+        </div>
+        <div class="hc hc2">
+          <span>📍</span>
+          <div><strong>Phone Located</strong><small>Cape Town, 2 mins ago</small></div>
+        </div>
+        <div class="hc hc3">
+          <span>💼</span>
+          <div><strong>Jobs Found</strong><small>12 matches for your CV</small></div>
+        </div>
+        <div class="hc hc4">
+          <span>🤖</span>
+          <div><strong>AI Mentor</strong><small>Business plan ready</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOOLS -->
+    <section class="tools-sec" id="tools">
+      <div class="sec-label">WHAT YOU GET</div>
+      <h2 class="sec-title">Six Powerful Tools.<br>One Monthly Price.</h2>
+      <div class="tools-grid">
+        <div class="tool-card" onclick="requireAuth('website-builder')">
+          <div class="tc-top">
+            <div class="tc-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">🌐</div>
+            <div class="tc-badge">Popular</div>
+          </div>
+          <h3>Website Builder</h3>
+          <p>Create a professional website for your business in minutes. No coding required.</p>
+          <div class="tc-arrow">Open Tool →</div>
+        </div>
+        <div class="tool-card" onclick="requireAuth('email-cleaner')">
+          <div class="tc-top">
+            <div class="tc-icon" style="background:linear-gradient(135deg,#10b981,#059669)">📧</div>
+          </div>
+          <h3>Email Cleaner</h3>
+          <p>AI automatically separates important emails from spam. Never miss what matters.</p>
+          <div class="tc-arrow">Open Tool →</div>
+        </div>
+        <div class="tool-card" onclick="requireAuth('find-phone')">
+          <div class="tc-top">
+            <div class="tc-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">📍</div>
+            <div class="tc-badge new">New</div>
+          </div>
+          <h3>Find My Phone</h3>
+          <p>Register your device. Track it live on a South African map if lost or stolen.</p>
+          <div class="tc-arrow">Open Tool →</div>
+        </div>
+        <div class="tool-card" onclick="requireAuth('ai-mentor')">
+          <div class="tc-top">
+            <div class="tc-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">🤖</div>
+          </div>
+          <h3>AI Business Mentor</h3>
+          <p>24/7 AI coach that helps young SA entrepreneurs plan, launch and grow their business.</p>
+          <div class="tc-arrow">Open Tool →</div>
+        </div>
+        <div class="tool-card" onclick="requireAuth('cv-builder')">
+          <div class="tc-top">
+            <div class="tc-icon" style="background:linear-gradient(135deg,#14b8a6,#0ea5e9)">📄</div>
+          </div>
+          <h3>CV Builder & Jobs</h3>
+          <p>Build your CV and search matching jobs on LinkedIn and Indeed — all in one place.</p>
+          <div class="tc-arrow">Open Tool →</div>
+        </div>
+        <div class="tool-card" onclick="requireAuth('sa-map')">
+          <div class="tc-top">
+            <div class="tc-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)">🗺️</div>
+          </div>
+          <h3>SA Map & Location</h3>
+          <p>Live South African map. Search any province, city or suburb instantly.</p>
+          <div class="tc-arrow">Open Tool →</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing-sec" id="pricing">
+      <div class="sec-label">SIMPLE PRICING</div>
+      <h2 class="sec-title">One Plan. Everything Included.</h2>
+              <div class="pricing-cards">
+
+          <!-- WEBSITE -->
+          <div class="price-card">
+            <div class="pc-label">WEBSITE BUILD</div>
+            <div class="pc-price">R450<span> once-off</span></div>
+            <div class="pc-desc">We build your professional website</div>
+            <ul class="pc-features">
+              <li>✅ Custom professional website</li>
+              <li>✅ Your business name &amp; logo</li>
+              <li>✅ Mobile friendly design</li>
+              <li>✅ Contact &amp; WhatsApp button</li>
+              <li>✅ Hosted free on GitHub</li>
+              <li>✅ Delivered in 24-48 hours</li>
+            </ul>
+            <button class="btn-outline" style="width:100%" onclick="startPaystack('website')">Order My Website — R450</button>
+          </div>
+
+          <!-- MONTHLY -->
+          <div class="price-card featured">
+            <div class="pc-popular">MOST POPULAR</div>
+            <div class="pc-label">MONTHLY PLAN</div>
+            <div class="pc-price">R55<span>/month</span></div>
+            <div class="pc-desc">Access all 6 Sky Blueprint tools</div>
+            <ul class="pc-features">
+              <li>✅ All 6 tools — unlimited access</li>
+              <li>✅ AI Business Mentor 24/7</li>
+              <li>✅ CV Builder &amp; Job Finder</li>
+              <li>✅ Email Cleaner</li>
+              <li>✅ Find My Phone</li>
+              <li>✅ SA Map &amp; Location</li>
+              <li>✅ Cancel anytime</li>
+            </ul>
+            <button class="btn-primary" style="width:100%" onclick="startPaystack('monthly')">Subscribe — R55/month</button>
+            <div style="text-align:center;font-size:11px;color:#64748b;margin-top:10px">Auto-debit via Paystack · Secure</div>
+          </div>
+
+          <!-- 3-YEAR -->
+          <div class="price-card">
+            <div class="pc-popular" style="background:linear-gradient(135deg,#10b981,#059669)">BEST VALUE</div>
+            <div class="pc-label">3-YEAR PLAN</div>
+            <div class="pc-price">R1,980<span> once-off</span></div>
+            <div class="pc-desc">Pay once, use for 3 full years</div>
+            <ul class="pc-features">
+              <li>✅ Everything in Monthly plan</li>
+              <li>✅ 36 months full access</li>
+              <li>✅ Save R1,980 vs monthly</li>
+              <li>✅ Priority customer support</li>
+              <li>✅ First access to new tools</li>
+              <li>✅ One payment — no monthly stress</li>
+            </ul>
+            <button class="btn-outline" style="width:100%" onclick="startPaystack('yearly')">Get 3-Year Plan — R1,980</button>
+            <div style="text-align:center;font-size:11px;color:#10b981;margin-top:10px">Save money — pay once, done</div>
+          </div>
+
+        </div>
+      </section>
+
+    <!-- ABOUT -->
+    <section class="about-sec" id="about">
+      <div class="about-inner">
+        <div class="sec-label">ABOUT SKY BLUEPRINT</div>
+        <h2 class="sec-title">Built by a South African,<br>for South Africans.</h2>
+        <p>Sky Blueprint was created to give every South African — whether you are a student, entrepreneur, job seeker or professional — access to powerful digital tools that big companies take for granted. We believe technology should be affordable, simple and built for the African context.</p>
+        <div class="about-stats">
+          <div class="as"><strong>6</strong><span>Powerful Tools</span></div>
+          <div class="as"><strong>24/7</strong><span>Always Available</span></div>
+          <div class="as"><strong>R99</strong><span>Per Month Only</span></div>
+          <div class="as"><strong>🇿🇦</strong><span>SA Built</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-inner">
+        <div class="logo" style="justify-content:center;margin-bottom:12px">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#fpgrad2)"/><defs><linearGradient id="fpgrad2" x1="5" y1="2" x2="27" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs></svg>
+          Sky <span>Blueprint</span>
+        </div>
+        <p style="color:#475569;font-size:13px;margin-bottom:20px">Your digital life, unified. Built for South Africa.</p>
+        <div class="footer-links">
+          <a href="#tools">Tools</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#about">About</a>
+          <a href="mailto:lethumkapu561@gmail.com">Contact</a>
+        </div>
+        <p style="color:#1e293b;font-size:12px;margin-top:24px">© 2026 Sky Blueprint. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- LOGIN PAGE -->
+  <div class="page" id="page-login">
+    <div class="auth-wrap">
+      <div class="auth-box">
+        <div class="logo" style="justify-content:center;margin-bottom:28px;font-size:20px">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#fpg3)"/><defs><linearGradient id="fpg3" x1="5" y1="2" x2="27" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs></svg>
+          Sky <span>Blueprint</span>
+        </div>
+        <h2 class="auth-title">Welcome back</h2>
+        <p class="auth-sub">Log in to access your tools</p>
+        <div class="form-group"><label>Email Address</label><input type="email" id="login-email" placeholder="your@email.com"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="Enter your password"></div>
+        <button class="btn-primary" style="width:100%;margin-top:8px" onclick="doLogin()">Log In</button>
+        <div class="auth-alt">Don't have an account? <a href="#" onclick="showPage('signup')">Sign up free</a></div>
+        <button class="back-link" onclick="showPage('home')">← Back to home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGNUP PAGE -->
+  <div class="page" id="page-signup">
+    <div class="auth-wrap">
+      <div class="auth-box">
+        <div class="logo" style="justify-content:center;margin-bottom:28px;font-size:20px">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#fpg4)"/><defs><linearGradient id="fpg4" x1="5" y1="2" x2="27" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs></svg>
+          Sky <span>Blueprint</span>
+        </div>
+        <h2 class="auth-title">Start free today</h2>
+        <p class="auth-sub">7-day free trial · No credit card needed</p>
+        <div class="form-row">
+          <div class="form-group"><label>First Name</label><input type="text" id="su-fname" placeholder="Sipho"></div>
+          <div class="form-group"><label>Last Name</label><input type="text" id="su-lname" placeholder="Dlamini"></div>
+        </div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="su-email" placeholder="your@email.com"></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="su-phone" placeholder="082 345 6789"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="su-pass" placeholder="Create a strong password"></div>
+        <button class="btn-primary" style="width:100%;margin-top:8px" onclick="doSignup()">Create Free Account</button>
+        <div class="auth-alt">Already have an account? <a href="#" onclick="showPage('login')">Log in</a></div>
+        <button class="back-link" onclick="showPage('home')">← Back to home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page" id="page-dashboard">
+    <div class="dash-wrap">
+      <div class="dash-header">
+        <div class="logo">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#fpg5)"/><defs><linearGradient id="fpg5" x1="5" y1="2" x2="27" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs></svg>
+          Sky <span>Blueprint</span>
+        </div>
+        <div class="dash-user">
+          <span id="dash-greeting">Welcome!</span>
+          <button class="btn-ghost-sm" onclick="doLogout()">Log Out</button>
+        </div>
+      </div>
+      <div class="dash-body">
+        <div class="trial-banner" id="trial-banner">
+          🎉 You have <strong>7 days</strong> left on your free trial.
+          <button onclick="startPaystack('pro')">Upgrade to Pro — R55/month</button>
+        </div>
+        <h2 class="dash-title">Your Tools</h2>
+        <div class="tools-grid">
+          <div class="tool-card" onclick="openTool('website-builder')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">🌐</div><div class="tc-badge">Popular</div></div><h3>Website Builder</h3><p>Create your business website in minutes.</p><div class="tc-arrow">Open →</div></div>
+          <div class="tool-card" onclick="openTool('email-cleaner')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#10b981,#059669)">📧</div></div><h3>Email Cleaner</h3><p>Sort important emails from spam automatically.</p><div class="tc-arrow">Open →</div></div>
+          <div class="tool-card" onclick="openTool('find-phone')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">📍</div></div><h3>Find My Phone</h3><p>Register and track your device on SA map.</p><div class="tc-arrow">Open →</div></div>
+          <div class="tool-card" onclick="openTool('ai-mentor')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">🤖</div></div><h3>AI Business Mentor</h3><p>Get 24/7 business coaching from AI.</p><div class="tc-arrow">Open →</div></div>
+          <div class="tool-card" onclick="openTool('cv-builder')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#14b8a6,#0ea5e9)">📄</div></div><h3>CV Builder & Jobs</h3><p>Build CV and find matching jobs.</p><div class="tc-arrow">Open →</div></div>
+          <div class="tool-card" onclick="openTool('sa-map')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)">🗺️</div></div><h3>SA Map</h3><p>Explore South Africa on live map.</p><div class="tc-arrow">Open →</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOL SCREEN -->
+  <div class="page" id="page-tool">
+    <div class="tool-page-wrap">
+      <div class="tool-page-header">
+        <button class="back-btn" onclick="showPage('dashboard')">← Dashboard</button>
+        <div class="tool-page-title" id="tool-page-title">Tool</div>
+        <div></div>
+      </div>
+      <div class="tool-page-body" id="tool-page-body"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAYSTACK MODAL -->
+<div class="modal-overlay hidden" id="pay-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div style="text-align:center;margin-bottom:24px">
+      <svg width="48" height="48" viewBox="0 0 32 32" fill="none"><path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#fpgm)"/><defs><linearGradient id="fpgm" x1="5" y1="2" x2="27" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs></svg>
+    </div>
+    <h3 class="modal-title" id="modal-title">Subscribe to Sky Blueprint Pro</h3>
+    <p class="modal-sub" id="modal-sub">R55/month · Cancel anytime</p>
+    <div class="form-group"><label>Full Name</label><input type="text" id="pay-name" placeholder="Sipho Dlamini"></div>
+    <div class="form-group"><label>Email Address</label><input type="email" id="pay-email" placeholder="your@email.com"></div>
+    <div class="form-group"><label>Phone Number</label><input type="tel" id="pay-phone" placeholder="082 345 6789"></div>
+    <button class="btn-primary" style="width:100%;margin-top:8px" onclick="processPayment()">
+      🔐 Pay Securely with Paystack
+    </button>
+    <div class="pay-logos">
+      <span>Visa</span><span>Mastercard</span><span>EFT</span><span>Ozow</span>
+    </div>
+    <p style="text-align:center;font-size:11px;color:#475569;margin-top:12px">Your payment is processed securely by Paystack. Sky Blueprint never stores your card details.</p>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
