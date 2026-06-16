@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:h
 .grad-text{background:linear-gradient(135deg,var(--sky),var(--indigo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero-p{font-size:17px;color:var(--muted);line-height:1.75;margin-bottom:36px;max-width:460px}
 .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
-.btn-primary{background:linear-gradient(135deg,var(--sky),var(--indigo));color:#fff;border:none;border-radius:12px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);transition:transform 0.15s,opacity 0.15s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--sky),var(--indigo));color:#fff;border:none;border-radius:12px;padding:14px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:transform 0.15s,opacity 0.15s;white-space:normal;word-break:break-word;box-sizing:border-box;width:100%;display:block;text-align:center}
 .btn-primary:hover{transform:translateY(-2px);opacity:0.9}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:12px;padding:14px 28px;font-size:15px;font-weight:500;cursor:pointer;font-family:var(--font);transition:border-color 0.2s;white-space:nowrap}
 .btn-outline:hover{border-color:rgba(255,255,255,0.25)}
@@ -173,9 +173,9 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:48px 24px
 .map-frame iframe{width:100%;height:100%;border:none}
 
 /* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.hidden{display:none}
-.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:40px;width:100%;max-width:440px;position:relative}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:28px 20px;width:calc(100% - 40px);max-width:420px;position:relative;box-sizing:border-box;overflow:hidden}
 .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer}
 .modal-title{font-family:var(--display);font-size:22px;font-weight:800;color:#fff;margin-bottom:6px;text-align:center}
 .modal-sub{color:var(--muted);font-size:14px;margin-bottom:24px;text-align:center}
