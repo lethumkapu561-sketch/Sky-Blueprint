@@ -264,7 +264,7 @@ function scanEmails(provider) {
     </div>
     <style>@keyframes progress{from{width:0}to{width:95%}}</style>`;
 
-  fetch(BACKEND_URL + '/scan-emails', {
+  fetch(BACKEND_URL + '/api/scan-emails', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ provider, email, password })
