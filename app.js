@@ -6,7 +6,7 @@ var PRICES = { website: 45000, monthly: 5500, yearly: 198000 }; // amounts in ce
 var currentPlan = 'pro';
 var currentUser = null;
 // ── Backend URL — update this after deploying to Railway ──
-var BACKEND_URL = 'https://sky-blueprint-backend.up.railway.app';
+var BACKEND_URL = 'https://sky-blueprint-backend-production.up.railway.app';
 
 // ── Navigation ──
 function toggleMobileNav() {
@@ -1201,3 +1201,343 @@ document.addEventListener('DOMContentLoaded', function() {
   ps.src = 'https://js.paystack.co/v1/inline.js';
   document.head.appendChild(ps);
 });
+
+// ══════════════════════════════════════
+// SKY BLUEPRINT AI GUIDE ASSISTANT
+// Step-by-step optional helper
+// ══════════════════════════════════════
+
+var guideOpen = false;
+var guideState = { step: 'welcome', tool: null, data: {} };
+var guideTyping = false;
+
+function toggleGuide() {
+  guideOpen = !guideOpen;
+  var win = document.getElementById('guide-window');
+  var fab = document.getElementById('guide-fab-label');
+  if (guideOpen) {
+    win.classList.remove('guide-hidden');
+    fab.textContent = 'Close guide';
+    if (document.getElementById('guide-messages').children.length === 0) {
+      startGuide();
+    }
+  } else {
+    win.classList.add('guide-hidden');
+    fab.textContent = 'Need help?';
+  }
+}
+
+function guideMsg(text, delay) {
+  delay = delay || 0;
+  return new Promise(function(resolve) {
+    // Show typing
+    setTimeout(function() {
+      var msgs = document.getElementById('guide-messages');
+      var typing = document.createElement('div');
+      typing.className = 'gm-bot';
+      typing.id = 'gm-typing-indicator';
+      typing.innerHTML = '<div class="gm-bot-icon">🤖</div><div class="gm-bot-bubble"><div class="gm-typing"><span></span><span></span><span></span></div></div>';
+      msgs.appendChild(typing);
+      msgs.scrollTop = msgs.scrollHeight;
+
+      setTimeout(function() {
+        var t = document.getElementById('gm-typing-indicator');
+        if (t) t.remove();
+        var bubble = document.createElement('div');
+        bubble.className = 'gm-bot';
+        bubble.innerHTML = '<div class="gm-bot-icon">🤖</div><div class="gm-bot-bubble">' + text + '</div>';
+        msgs.appendChild(bubble);
+        msgs.scrollTop = msgs.scrollHeight;
+        resolve();
+      }, 800 + text.length * 10);
+    }, delay);
+  });
+}
+
+function guideUserSay(text) {
+  var msgs = document.getElementById('guide-messages');
+  var bubble = document.createElement('div');
+  bubble.className = 'gm-user';
+  bubble.innerHTML = '<div class="gm-user-bubble">' + text + '</div>';
+  msgs.appendChild(bubble);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function guideOptions(opts) {
+  var el = document.getElementById('guide-options');
+  el.innerHTML = '';
+  opts.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'g-opt';
+    btn.textContent = opt.label;
+    btn.onclick = function() {
+      el.innerHTML = '';
+      guideUserSay(opt.label);
+      opt.action();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function guideClear() {
+  document.getElementById('guide-options').innerHTML = '';
+}
+
+function guideUserInput() {
+  var inp = document.getElementById('guide-input');
+  var val = inp.value.trim();
+  if (!val) return;
+  inp.value = '';
+  guideUserSay(val);
+  guideHandleInput(val);
+}
+
+// ── GUIDE FLOWS ──
+
+async function startGuide() {
+  guideState = { step: 'welcome', tool: null, data: {} };
+  await guideMsg('👋 Hello! I\'m <strong>Sky Guide</strong> — your personal assistant on Sky Blueprint.<br><br>I can walk you through any tool step by step. Would you like my help?');
+  guideOptions([
+    { label: '✅ Yes, help me please!', action: function() { showToolMenu(); } },
+    { label: '😊 No thanks, I know what to do', action: function() { guideDismiss(); } }
+  ]);
+}
+
+async function showToolMenu() {
+  await guideMsg('Great! Which tool would you like help with?');
+  guideOptions([
+    { label: '🌐 Website Builder', action: function() { guideTool('website-builder'); } },
+    { label: '📧 Email Cleaner', action: function() { guideTool('email-cleaner'); } },
+    { label: '📍 Find My Phone', action: function() { guideTool('find-phone'); } },
+    { label: '🤖 AI Business Mentor', action: function() { guideTool('ai-mentor'); } },
+    { label: '📄 CV Builder & Jobs', action: function() { guideTool('cv-builder'); } },
+    { label: '🗺️ SA Map', action: function() { guideTool('sa-map'); } },
+  ]);
+}
+
+async function guideTool(tool) {
+  guideState.tool = tool;
+  var flows = {
+    'website-builder': guideWebsite,
+    'email-cleaner': guideEmail,
+    'find-phone': guidePhone,
+    'ai-mentor': guideAI,
+    'cv-builder': guideCV,
+    'sa-map': guideMap,
+  };
+  if (flows[tool]) flows[tool]();
+}
+
+// ── WEBSITE BUILDER GUIDE ──
+async function guideWebsite() {
+  await guideMsg('Perfect! Let me open the <strong>Website Builder</strong> for you now.');
+  requireAuth('website-builder');
+  await guideMsg('Step 1️⃣ — Type your <strong>business name</strong> in the first box.<br><br>For example: "M&H Dynamic Tech" or "Sipho\'s Salon"<br><br>What is your business name?');
+  guideState.step = 'wb-name';
+  document.getElementById('guide-input').placeholder = 'Type your business name...';
+}
+
+// ── EMAIL CLEANER GUIDE ──
+async function guideEmail() {
+  await guideMsg('I\'ll help you clean your inbox! Let me open the Email Cleaner.');
+  requireAuth('email-cleaner');
+  await guideMsg('Step 1️⃣ — Choose your email provider.<br><br>Which email do you use?');
+  guideOptions([
+    { label: '📧 Gmail (Google)', action: async function() {
+      guideState.step = 'email-gmail';
+      await guideMsg('Good choice! Click the <strong>Gmail</strong> button on screen.<br><br>Step 2️⃣ — Enter your Gmail address in the email box.');
+      await guideMsg('⚠️ <strong>Important for Gmail:</strong> You need an App Password — not your normal Gmail password.<br><br>Here\'s how to get it:<br>1. Go to <strong>myaccount.google.com</strong><br>2. Click <strong>Security</strong><br>3. Click <strong>App Passwords</strong><br>4. Create one for "Sky Blueprint"<br>5. Copy that 16-digit password<br><br>Shall I wait while you do that?');
+      guideOptions([
+        { label: '✅ I have my App Password ready', action: async function() {
+          await guideMsg('Step 3️⃣ — Paste your App Password in the password box, then click <strong>Scan My Inbox</strong>.<br><br>Sky Guide will wait while it scans...');
+          guideState.step = 'email-scanning';
+        }},
+        { label: '❓ I don\'t know how to get it', action: async function() {
+          await guideMsg('No problem! Open a new tab → go to <strong>myaccount.google.com/apppasswords</strong> → sign in → under "App name" type Sky Blueprint → click Create → Google shows you a 16-digit code → copy it → come back here and paste it in the password box.');
+        }}
+      ]);
+    }},
+    { label: '📬 Outlook / Hotmail', action: async function() {
+      await guideMsg('Step 2️⃣ — Click <strong>Outlook</strong> on screen → enter your Outlook email address and password → click <strong>Scan My Inbox</strong>.<br><br>Outlook uses your normal password — no special setup needed! ✅');
+    }},
+    { label: '📮 Yahoo Mail', action: async function() {
+      await guideMsg('Step 2️⃣ — Click <strong>Yahoo Mail</strong> on screen → enter your Yahoo email → you will need a Yahoo App Password.<br><br>Go to: <strong>login.yahoo.com → Account Security → Generate App Password</strong>');
+    }},
+  ]);
+}
+
+// ── FIND MY PHONE GUIDE ──
+async function guidePhone() {
+  await guideMsg('I\'ll help you protect your phone! Let me open Find My Phone.');
+  requireAuth('find-phone');
+  await guideMsg('Find My Phone has a once-off fee of <strong>R450</strong> to activate.<br><br>This funds the Sky Blueprint tracking app development.<br><br>Would you like to proceed?');
+  guideOptions([
+    { label: '✅ Yes, activate for R450', action: async function() {
+      await guideMsg('Step 1️⃣ — Click <strong>Pay R450 & Activate Now</strong> on screen.<br><br>Fill in your name, email and phone number → click <strong>Pay Securely with Paystack</strong>.<br><br>Once paid, you will be taken to the registration page.');
+      guideState.step = 'phone-pay';
+    }},
+    { label: '❓ Tell me more first', action: async function() {
+      await guideMsg('Find My Phone lets you:<br><br>📍 See your phone\'s live location on a South African map<br>🔔 Ring your phone remotely even on silent<br>🔒 Lock it remotely if stolen<br>🗑️ Wipe all data if you cannot get it back<br>📅 See 7 days of location history<br><br>All for a once-off R450 payment — no monthly fee for this feature!');
+      guideOptions([
+        { label: '✅ Let\'s do it!', action: function() { guidePhone(); }},
+        { label: '⬅️ Back to tools', action: function() { showToolMenu(); }}
+      ]);
+    }}
+  ]);
+}
+
+// ── AI MENTOR GUIDE ──
+async function guideAI() {
+  await guideMsg('The AI Business Mentor is the easiest tool — just talk to it like a person!');
+  requireAuth('ai-mentor');
+  await guideMsg('Step 1️⃣ — Type your business question in the chat box at the bottom.<br><br>Here are some great questions to start with:');
+  guideOptions([
+    { label: '💡 How do I register my business in SA?', action: async function() {
+      await guideMsg('Great question! Type that in the AI chat box and press Send. The AI will give you a step-by-step answer about CIPC registration in South Africa.');
+      document.getElementById('guide-input').placeholder = 'Or ask me anything else...';
+    }},
+    { label: '💰 How do I get funding for my business?', action: async function() {
+      await guideMsg('Perfect! Type that in the AI chat. It will tell you about SEFA, IDC, NEF and other SA funding sources you qualify for.');
+    }},
+    { label: '📊 How do I write a business plan?', action: async function() {
+      await guideMsg('Good one! The AI will walk you through every section of a proper South African business plan. Just type it in the chat!');
+    }},
+    { label: '✏️ I want to ask my own question', action: async function() {
+      await guideMsg('Go ahead! Type anything in the AI chat box and press Send. The mentor knows everything about SA business, SARS, BEE, marketing and more. I\'m here if you need me! 😊');
+    }}
+  ]);
+}
+
+// ── CV BUILDER GUIDE ──
+async function guideCV() {
+  await guideMsg('I\'ll guide you through building your CV step by step!');
+  requireAuth('cv-builder');
+  await guideMsg('Step 1️⃣ — Enter your <strong>First Name</strong> in the first box.<br><br>What is your first name?');
+  guideState.step = 'cv-firstname';
+  document.getElementById('guide-input').placeholder = 'Type your first name...';
+}
+
+// ── SA MAP GUIDE ──
+async function guideMap() {
+  await guideMsg('The SA Map is free for everyone — no login needed! Let me open it.');
+  openTool('sa-map');
+  await guideMsg('Step 1️⃣ — Type any South African city, suburb or address in the search box at the top.<br><br>For example: "Cape Town CBD" or "Sandton, Johannesburg"<br><br>Or just click one of the quick buttons below the map!');
+  guideOptions([
+    { label: '✅ Got it, I\'ll try it now!', action: async function() {
+      await guideMsg('Great! Have fun exploring 🇿🇦 Come back if you need anything!');
+      guideDismiss();
+    }},
+    { label: '📍 Can I find a specific address?', action: async function() {
+      await guideMsg('Yes! Type the full address in the search box — for example:<br><br><em>"15 Long Street, Cape Town, 8001"</em><br><br>Then click Search or press Enter. The map will zoom in to that exact location!');
+    }}
+  ]);
+}
+
+// ── HANDLE USER TEXT INPUT ──
+function guideHandleInput(val) {
+  var step = guideState.step;
+
+  if (step === 'wb-name') {
+    guideState.data.businessName = val;
+    guideState.step = 'wb-desc';
+    guideMsg('Excellent! <strong>' + val + '</strong> is a great business name! 👍<br><br>Step 2️⃣ — Now describe what your business does in the <strong>second box</strong>.<br><br>For example: "We sell refurbished laptops at affordable prices across South Africa"<br><br>What does your business do?');
+    document.getElementById('guide-input').placeholder = 'Describe your business...';
+    return;
+  }
+
+  if (step === 'wb-desc') {
+    guideState.data.desc = val;
+    guideState.step = 'wb-contact';
+    guideMsg('Perfect description! ✅<br><br>Step 3️⃣ — Enter your <strong>phone number</strong> and <strong>email address</strong> in the contact boxes.<br><br>Then choose your <strong>business type</strong> and <strong>colour theme</strong> from the dropdowns.<br><br>When you\'re done with all fields, click the big <strong>"Generate My Website"</strong> button!');
+    guideOptions([
+      { label: '✅ Done — I clicked Generate!', action: async function() {
+        await guideMsg('Amazing! 🎉 Your website has been generated!<br><br>Follow the steps shown on screen to publish it live on GitHub for free.<br><br>Need help with anything else?');
+        guideOptions([
+          { label: '⬅️ Back to tools menu', action: function() { showToolMenu(); }},
+          { label: '👋 No thanks, I\'m done!', action: function() { guideDismiss(); }}
+        ]);
+      }}
+    ]);
+    return;
+  }
+
+  if (step === 'cv-firstname') {
+    guideState.data.fname = val;
+    guideState.step = 'cv-lastname';
+    guideMsg('Nice to meet you, <strong>' + val + '</strong>! 👋<br><br>Step 2️⃣ — Now enter your <strong>Last Name / Surname</strong> in the second box.');
+    document.getElementById('guide-input').placeholder = 'Type your surname...';
+    return;
+  }
+
+  if (step === 'cv-lastname') {
+    guideState.data.lname = val;
+    guideState.step = 'cv-qual';
+    guideMsg('Great! <strong>' + guideState.data.fname + ' ' + val + '</strong> ✅<br><br>Step 3️⃣ — Fill in your <strong>email</strong> and <strong>phone number</strong>.<br><br>Step 4️⃣ — Then select your <strong>highest qualification</strong> from the dropdown — this is very important because it determines which jobs you qualify for!');
+    guideOptions([
+      { label: '✅ I selected my qualification', action: async function() {
+        await guideMsg('Step 5️⃣ — Fill in your <strong>work experience</strong> — your last job title, company and dates.<br><br>If you have no experience, just leave it blank — that\'s okay! ✅');
+        guideOptions([
+          { label: '✅ Done with experience', action: async function() {
+            await guideMsg('Almost there! Step 6️⃣ — Add your <strong>skills</strong> separated by commas.<br><br>For example: Microsoft Office, Customer Service, Driving Licence, Python<br><br>Then click <strong>"Build CV & Find Matching Jobs"</strong>!');
+            guideOptions([
+              { label: '🚀 I clicked Build CV!', action: async function() {
+                await guideMsg('🎉 Your CV is built and job matches are showing!<br><br>Only apply to jobs that match your qualification level — this saves you time and increases your chances!<br><br>You can also print your CV as PDF using the print button. Need anything else?');
+                guideOptions([
+                  { label: '⬅️ Back to tools menu', action: function() { showToolMenu(); }},
+                  { label: '👋 I\'m all done, thanks!', action: function() { guideDismiss(); }}
+                ]);
+              }}
+            ]);
+          }}
+        ]);
+      }}
+    ]);
+    return;
+  }
+
+  // Default — AI answers any free question
+  guideAIAnswer(val);
+}
+
+async function guideAIAnswer(question) {
+  await guideMsg('Let me think about that... 🤔');
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        system: 'You are Sky Guide, a friendly helpful assistant inside the Sky Blueprint web platform. You help South African users navigate the platform tools: Website Builder, Email Cleaner, Find My Phone (R450 once-off), AI Business Mentor, CV Builder with LinkedIn/Indeed/Pnet/YouthMobi job matching, and SA Map. Keep answers short, friendly and practical. Speak simply like explaining to someone new to tech.',
+        messages: [{ role: 'user', content: question }]
+      })
+    });
+    var data = await res.json();
+    var reply = data.content?.[0]?.text || 'I\'m not sure about that — try asking the AI Business Mentor for detailed help!';
+    await guideMsg(reply.replace(/\n/g, '<br>'));
+  } catch(e) {
+    await guideMsg('I\'m having trouble connecting right now. Try the AI Business Mentor tool for detailed help!');
+  }
+  guideOptions([
+    { label: '⬅️ Back to tools menu', action: function() { showToolMenu(); }},
+    { label: '❓ Ask another question', action: function() {
+      guideClear();
+      document.getElementById('guide-input').placeholder = 'Type your question...';
+    }}
+  ]);
+}
+
+async function guideDismiss() {
+  await guideMsg('No problem! I\'m always here if you need me. Just click the <strong>"Need help?"</strong> button anytime. Good luck! 🚀');
+  guideOptions([
+    { label: '👋 Thanks, bye!', action: function() { toggleGuide(); }}
+  ]);
+}
+
+// Auto-greet after 8 seconds on homepage (once per session)
+setTimeout(function() {
+  if (!sessionStorage.getItem('guide_greeted') && !guideOpen) {
+    sessionStorage.setItem('guide_greeted', '1');
+    toggleGuide();
+  }
+}, 8000);
