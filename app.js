@@ -691,6 +691,9 @@ function renderCVBuilder(el) {
       <div class="form-group">
         <select id="cv-qual-level" onchange="updateQualHint()">
           <option value="">-- Select your highest qualification --</option>
+           <option value="grade9">Grade 9</option>
+           <option value="grade10">Grade 10</option>
+           <option value="grade11">Grade 11</option>
           <option value="matric">Grade 12 / Matric</option>
           <option value="n4">N4 Certificate</option>
           <option value="n5">N5 Certificate</option>
