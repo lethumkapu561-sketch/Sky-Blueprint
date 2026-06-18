@@ -26,10 +26,24 @@ function showPage(name) {
 }
 
 // ── Auth ──
+// Owner email - free access no payment
+var OWNER_EMAIL = 'lethumkapu561@gmail.com';
+
 function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   if (!email || !pass) { alert('Please enter your email and password.'); return; }
+
+  // Owner gets free access always
+  if (email === OWNER_EMAIL) {
+    var ownerUser = { fname: 'Wongalethu', lname: 'Mkapu', email: OWNER_EMAIL, plan: 'owner', phone: '0656013544' };
+    currentUser = ownerUser;
+    localStorage.setItem('sb_current', JSON.stringify(ownerUser));
+    document.getElementById('dash-greeting').textContent = 'Welcome back, Owner 👑 Wongalethu!';
+    document.getElementById('trial-banner').style.display = 'none';
+    showPage('dashboard');
+    return;
+  }
 
   // Check stored users
   const users = JSON.parse(localStorage.getItem('sb_users') || '[]');
@@ -38,7 +52,13 @@ function doLogin() {
 
   currentUser = user;
   localStorage.setItem('sb_current', JSON.stringify(user));
-  document.getElementById('dash-greeting').textContent = 'Hi ' + user.fname + ' ' + (user.lname||'') + ' 👋 Welcome back!';
+  document.getElementById('dash-greeting').textContent = 'Hi ' + user.fname + ' ' + (user.lname||'') + ' Welcome back!';
+  
+  // Hide trial banner if paid
+  if (user.plan === 'pro' || user.plan === 'business' || user.plan === 'paid') {
+    document.getElementById('trial-banner').style.display = 'none';
+  }
+  
   showPage('dashboard');
 }
 
@@ -61,6 +81,14 @@ function doSignup() {
   localStorage.setItem('sb_current', JSON.stringify(user));
 
   document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' 👋 Welcome to Sky Blueprint!';
+
+  // Send welcome email to customer
+  fetch(BACKEND_URL + '/api/welcome-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, fname: fname, lname: lname })
+  }).catch(function(){});
+
   showPage('dashboard');
 }
 
@@ -344,53 +372,83 @@ function scanEmails(provider) {
 function showRealEmails(data) {
   var important = data.important || [];
   var spam = data.spam || [];
-  var spamUids = spam.map(e=>e.uid);
+  var spamUids = spam.map(function(e){ return e.uid; });
+  var blockedSenders = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
 
-  document.getElementById('et-inbox').innerHTML = `
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-      <div style="flex:1;min-width:80px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px;text-align:center">
-        <div style="font-size:24px;font-weight:800;color:#fff">${important.length}</div>
-        <div style="font-size:11px;color:var(--green)">Important</div>
-      </div>
-      <div style="flex:1;min-width:80px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px;text-align:center">
-        <div style="font-size:24px;font-weight:800;color:#fff">${spam.length}</div>
-        <div style="font-size:11px;color:#f87171">Spam</div>
-      </div>
-      <button onclick="deleteAllRealSpam()" style="background:#ef4444;border:none;border-radius:10px;color:#fff;font-weight:700;font-family:var(--font);padding:12px 14px;cursor:pointer;font-size:12px;flex-shrink:0;box-sizing:border-box">🗑️ Delete All Spam</button>
-    </div>
-    <div style="font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700">✅ Important Emails (${important.length})</div>
-    <div id="important-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
-      ${important.map((e,i)=>`
-        <div class="email-item important">
-          <div class="email-info" style="flex:1">
-            <strong>${e.from}</strong>
-            <small>${e.subject}</small>
-            <small style="color:#555">${e.date}</small>
-          </div>
-        </div>`).join('')}
-    </div>
-    <div style="font-size:11px;color:#f87171;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700">🚨 Spam Emails (${spam.length})</div>
-    <div id="spam-list" style="display:flex;flex-direction:column;gap:8px">
-      ${spam.map((e,i)=>`
-        <div class="email-item spam" id="sp-${e.uid}">
-          <div class="email-info" style="flex:1">
-            <strong>${e.from}</strong>
-            <small>${e.subject}</small>
-            <small style="color:#555">${e.date}</small>
-          </div>
-          <button onclick="deleteOneSpam(${e.uid},'sp-${e.uid}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:11px;white-space:nowrap;font-family:var(--font)">Delete</button>
-        </div>`).join('')}
-    </div>`;
+  document.getElementById('et-inbox').innerHTML =
+    // Stats row
+    '<div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">' +
+    '<div style="flex:1;min-width:80px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#fff">' + important.length + '</div><div style="font-size:11px;color:var(--green)">Important</div></div>' +
+    '<div style="flex:1;min-width:80px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#fff">' + spam.length + '</div><div style="font-size:11px;color:#f87171">Spam</div></div>' +
+    '<div style="flex:1;min-width:80px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#fff">' + blockedSenders.length + '</div><div style="font-size:11px;color:#f59e0b">Blocked</div></div>' +
+    '</div>' +
 
+    // Action buttons
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">' +
+    '<button onclick="deleteAllRealSpam()" style="flex:1;background:#ef4444;border:none;border-radius:10px;color:#fff;font-weight:700;font-family:var(--font);padding:10px;cursor:pointer;font-size:13px;box-sizing:border-box">🗑️ Delete All Spam</button>' +
+    '<button onclick="showBlockedSenders()" style="flex:1;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:10px;color:#f59e0b;font-weight:700;font-family:var(--font);padding:10px;cursor:pointer;font-size:13px;box-sizing:border-box">🚫 Blocked Senders</button>' +
+    '</div>' +
+
+    // Important emails
+    '<div style="font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700">✅ Important Emails (' + important.length + ')</div>' +
+    '<div id="important-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">' +
+    important.map(function(e,i) {
+      return '<div class="email-item important" id="imp-' + e.uid + '">' +
+        '<div class="email-info" style="flex:1"><strong>' + e.from + '</strong><small>' + e.subject + '</small><small style="color:#555">' + e.date + '</small></div>' +
+        '<button onclick="blockSender(this.dataset.sender)" data-sender="' + e.from.replace(/"/g,'') + '" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#f59e0b;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:11px;font-family:var(--font);white-space:nowrap">Block</button>' +
+        '</div>';
+    }).join('') +
+    '</div>' +
+
+    // Spam emails
+    '<div style="font-size:11px;color:#f87171;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700">🚨 Spam Emails (' + spam.length + ')</div>' +
+    '<div id="spam-list" style="display:flex;flex-direction:column;gap:8px">' +
+    spam.map(function(e,i) {
+      return '<div class="email-item spam" id="sp-' + e.uid + '">' +
+        '<input type="checkbox" checked style="margin-right:8px;width:16px;height:16px;flex-shrink:0" id="chk-' + e.uid + '">' +
+        '<div class="email-info" style="flex:1"><strong>' + e.from + '</strong><small>' + e.subject + '</small><small style="color:#555">' + e.date + '</small></div>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0">' +
+        '<button onclick="deleteOneSpam(' + e.uid + ', this)" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:11px;font-family:var(--font)">Delete</button>' +
+        '<button onclick="blockSender(this.dataset.sender)" data-sender="' + e.from.replace(/"/g,'') + '" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#f59e0b;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:11px;font-family:var(--font)">Block</button>' +
+        '</div></div>';
+    }).join('') +
+    '</div>';
+
+  // Switch to inbox tab
   var tabs = document.querySelectorAll('.tab');
-  tabs.forEach(t=>t.classList.remove('active'));
+  tabs.forEach(function(t){ t.classList.remove('active'); });
   if(tabs[1]) tabs[1].classList.add('active');
   document.getElementById('et-connect').style.display='none';
   document.getElementById('et-inbox').style.display='block';
 
-  // Store spam UIDs for bulk delete
   window._spamUids = spamUids;
+  window._emailSession = window._emailSession || {};
 }
+
+function blockSender(senderEmail) {
+  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+  if (!blocked.includes(senderEmail)) {
+    blocked.push(senderEmail);
+    localStorage.setItem('sb_blocked', JSON.stringify(blocked));
+    alert('Sender blocked: ' + senderEmail + '\nEmails from this sender will always be marked as spam.');
+  } else {
+    alert(senderEmail + ' is already blocked.');
+  }
+}
+
+function showBlockedSenders() {
+  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+  if (blocked.length === 0) {
+    alert('You have not blocked any senders yet.\nClick "Block" next to any email to block that sender.');
+    return;
+  }
+  var list = blocked.map(function(b, i) { return (i+1) + '. ' + b; }).join('\n');
+  if (confirm('Blocked senders:\n\n' + list + '\n\nClick OK to unblock all, Cancel to keep them.')) {
+    localStorage.removeItem('sb_blocked');
+    alert('All senders unblocked.');
+  }
+}
+
 
 function deleteOneSpam(uid, elementId) {
   if (!window._emailSession) return;
@@ -813,66 +871,110 @@ function updateQualHint() {
 
 async function buildAndMatchCV() {
   var fn = document.getElementById('cv-fn').value;
+  var ln = document.getElementById('cv-ln').value || '';
+  var em = document.getElementById('cv-em').value || '';
+  var ph = document.getElementById('cv-ph').value || '';
+  var ci = document.getElementById('cv-ci').value || 'South Africa';
   var qual = document.getElementById('cv-qual-level').value;
   var exp = document.getElementById('cv-exp').value;
   var jt = document.getElementById('cv-jt').value;
-  var loc = document.getElementById('cv-ci').value || 'South Africa';
-  var skills = document.getElementById('cv-sk').value;
-  var summary = document.getElementById('cv-sum').value;
+  var co = document.getElementById('cv-co').value || '';
+  var sd = document.getElementById('cv-sd').value || '';
+  var ed = document.getElementById('cv-ed').value || '';
+  var qu = document.getElementById('cv-qu').value || '';
+  var ins = document.getElementById('cv-in').value || '';
+  var yr = document.getElementById('cv-yr').value || '';
+  var sk = document.getElementById('cv-sk').value || '';
+  var su = document.getElementById('cv-sum').value || '';
+  var photo = window._cvPhoto || '';
 
   if (!fn || !qual) {
     alert('Please enter your name and select your highest qualification');
     return;
   }
 
-  document.getElementById('cv-msg').innerHTML = '<div style="text-align:center;padding:16px;color:var(--muted)">🤖 AI is matching your CV to jobs...</div>';
+  document.getElementById('cv-msg').innerHTML = '<div style="text-align:center;padding:16px;color:var(--muted)">Building your professional CV...</div>';
 
-  // Build CV text for analysis
-  var cvText = `Name: ${fn} ${document.getElementById('cv-ln').value}
-Qualification: ${qual}
-Experience: ${exp} years
-Job Title: ${jt}
-Skills: ${skills}
-Summary: ${summary}`;
+  // Build CV HTML
+  var skills_arr = sk ? sk.split(',').map(function(s){return s.trim();}) : [];
+  var skills_html = skills_arr.map(function(s){ return '<span style="background:#e8f4ff;color:#0d4f8a;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block;margin:3px;">' + s + '</span>'; }).join('');
 
-  try {
-    // Use backend for CV matching
-    var res = await fetch(BACKEND_URL + '/api/match-jobs', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ cvText, jobTitle: jt || skills.split(',')[0], location: loc })
-    });
-    var data = await res.json();
-    showMatchingJobs(data, fn, loc, jt);
-  } catch(e) {
-    // Fallback if backend not connected yet
-    var levelData = detectLevel(qual, exp);
-    showMatchingJobs(levelData, fn, loc, jt);
-  }
+  var cvHTML = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + fn + ' ' + ln + ' - CV</title>' +
+  '<style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;color:#1a1a2e;background:#fff;}' +
+  '.wrap{max-width:800px;margin:0 auto;}' +
+  '.header{background:linear-gradient(135deg,#0d1f3c,#1a1040);color:#fff;padding:36px 40px;display:flex;align-items:center;gap:24px;}' +
+  '.photo{width:90px;height:90px;border-radius:50%;border:3px solid #38bdf8;object-fit:cover;flex-shrink:0;}' +
+  '.avatar{width:90px;height:90px;border-radius:50%;border:3px solid #38bdf8;background:#1e3a5f;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;}' +
+  '.name{font-size:28px;font-weight:700;margin-bottom:6px;}' +
+  '.jobtitle{font-size:16px;color:#38bdf8;margin-bottom:10px;}' +
+  '.contact{font-size:13px;color:#ccc;display:flex;gap:20px;flex-wrap:wrap;}' +
+  '.body{padding:32px 40px;}' +
+  '.section{margin-bottom:28px;}' +
+  '.sec-title{font-size:12px;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:2px;border-bottom:2px solid #38bdf8;padding-bottom:6px;margin-bottom:14px;}' +
+  '.summary{font-size:14px;line-height:1.7;color:#444;}' +
+  '.job-title{font-size:15px;font-weight:700;}' +
+  '.job-company{font-size:14px;color:#38bdf8;font-weight:600;}' +
+  '.job-dates{font-size:12px;color:#888;margin-top:2px;}' +
+  '.edu-row{display:flex;justify-content:space-between;align-items:flex-start;}' +
+  '.edu-name{font-size:15px;font-weight:700;}' +
+  '.edu-school{font-size:13px;color:#666;}' +
+  '.edu-year{font-size:13px;color:#888;}' +
+  '.footer{background:#f8f9fa;padding:14px 40px;text-align:center;font-size:11px;color:#888;border-top:1px solid #eee;}' +
+  '@media print{.no-print{display:none!important;}}' +
+  '</style></head><body><div class="wrap">' +
+  '<div class="header">' +
+  (photo ? '<img src="' + photo + '" class="photo">' : '<div class="avatar">👤</div>') +
+  '<div><div class="name">' + fn + ' ' + ln + '</div>' +
+  '<div class="jobtitle">' + (jt || 'Professional') + '</div>' +
+  '<div class="contact">' +
+  (em ? '<span>✉ ' + em + '</span>' : '') +
+  (ph ? '<span>📞 ' + ph + '</span>' : '') +
+  (ci ? '<span>📍 ' + ci + '</span>' : '') +
+  '</div></div></div>' +
+  '<div class="body">' +
+  (su ? '<div class="section"><div class="sec-title">Professional Summary</div><div class="summary">' + su + '</div></div>' : '') +
+  ((jt || co) ? '<div class="section"><div class="sec-title">Work Experience</div><div class="job-title">' + jt + '</div><div class="job-company">' + co + '</div><div class="job-dates">' + sd + ' – ' + ed + '</div></div>' : '') +
+  ((qu || ins) ? '<div class="section"><div class="sec-title">Education</div><div class="edu-row"><div><div class="edu-name">' + qu + '</div><div class="edu-school">' + ins + '</div></div><div class="edu-year">' + yr + '</div></div></div>' : '') +
+  (sk ? '<div class="section"><div class="sec-title">Skills</div><div>' + skills_html + '</div></div>' : '') +
+  '</div>' +
+  '<div class="footer">Created with Sky Blueprint — Your Digital Life, Unified</div>' +
+  '</div></body></html>';
+
+  window._cvHTML = cvHTML;
+  window._cvName = fn + '_' + ln + '_CV';
+
+  // Show CV preview inline + buttons
+  document.getElementById('cv-msg').innerHTML =
+    '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:14px;padding:20px">' +
+    '<strong style="color:var(--green);font-size:16px;display:block;margin-bottom:4px">CV Ready for ' + fn + ' ' + ln + '!</strong>' +
+    '<p style="color:var(--muted);font-size:13px;margin-bottom:16px">Your professional CV is built. Download it as PDF or preview it first.</p>' +
+    '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+    '<button class="btn-primary" style="flex:1;min-width:140px;box-sizing:border-box" onclick="downloadCV()">📥 Download CV PDF</button>' +
+    '<button style="flex:1;min-width:140px;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:12px;font-family:var(--font);cursor:pointer;font-weight:600" onclick="previewCV()">👁 Preview CV</button>' +
+    '</div></div>';
+
+  // Also show job matches
+  var cvText = 'Qualification: ' + qual + ' Experience: ' + exp + ' years Skills: ' + sk;
+  var levelData = detectLevel(qual, exp);
+  showMatchingJobs(levelData, fn, ci, jt);
 }
 
-function detectLevel(qual, exp) {
-  var levelMap = {
-    grade9: {level:'basic', levelLabel:'Basic Level (Grade 9)', advice:'Apply for general worker, domestic worker, garden worker and basic labour positions. Also look for learnerships that accept Grade 9.'},
-    grade10: {level:'basic', levelLabel:'Basic Level (Grade 10)', advice:'Apply for general worker, retail packer, basic trade assistant and domestic positions. Some learnerships accept Grade 10.'},
-    grade11: {level:'entry', levelLabel:'Junior Level (Grade 11)', advice:'Apply for junior clerk, retail sales assistant, receptionist and basic admin positions. Many learnerships accept Grade 11.'},
-    matric: {level:'entry', levelLabel:'Entry Level (Matric)', advice:'Apply for junior, learnership and entry-level positions. Matric opens many more doors — apply for clerk, sales rep, call centre and admin roles.'},
-    n4: {level:'entry', levelLabel:'Technical Entry Level (N4)', advice:'Apply for N4 technical and vocational entry positions including engineering assistant and technical support roles.'},
-    n5: {level:'trade', levelLabel:'Technical Level (N5)', advice:'Apply for skilled technical positions and trade assistant roles. High demand in SA manufacturing and engineering!'},
-    n6: {level:'trade', levelLabel:'Trade / Artisan Level (N6)', advice:'Apply for artisan, technician and trade positions. Electricians, plumbers, welders and mechanics are in very high demand in South Africa!'},
-    diploma: {level:'mid', levelLabel:'Mid Level (Diploma)', advice:'Apply for professional mid-level roles requiring a diploma — including accounting, HR, marketing and IT positions.'},
-    degree: {level:'mid', levelLabel:'Graduate Level (Degree)', advice:'Apply for graduate, specialist and professional roles requiring a degree. LinkedIn and Pnet have many graduate programs.'},
-    honours: {level:'senior', levelLabel:'Senior Specialist (Honours)', advice:'Apply for senior analyst, specialist and team lead roles. Your Honours degree opens senior positions in most industries.'},
-    masters: {level:'senior', levelLabel:'Senior Management (Masters)', advice:'Apply for senior management, research and executive positions. Masters degree holders are highly sought after in SA.'},
-    phd: {level:'executive', levelLabel:'Executive / Research (PhD)', advice:'Apply for director, executive, academic and research positions. PhD holders qualify for the highest level roles in SA.'},
-  };
-  return {...(levelMap[qual] || levelMap.matric), success:true, searchUrls:{
-    linkedin: 'https://www.linkedin.com/jobs/search/?location=South+Africa',
-    indeed: 'https://za.indeed.com/jobs',
-    pnet: 'https://www.pnet.co.za/jobs/south-africa/',
-    youthmobi: 'https://youthmobi.com/jobs'
-  }};
+function downloadCV() {
+  if (!window._cvHTML) { alert('Please build your CV first'); return; }
+  var win = window.open('', '_blank');
+  win.document.write(window._cvHTML);
+  win.document.close();
+  win.focus();
+  setTimeout(function() { win.print(); }, 600);
 }
+
+function previewCV() {
+  if (!window._cvHTML) { alert('Please build your CV first'); return; }
+  var win = window.open('', '_blank');
+  win.document.write(window._cvHTML);
+  win.document.close();
+}
+
 
 function showMatchingJobs(data, name, loc, jobTitle) {
   var q = encodeURIComponent(jobTitle || '');
