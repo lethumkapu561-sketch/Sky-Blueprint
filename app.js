@@ -54,9 +54,20 @@ function doLogin() {
   localStorage.setItem('sb_current', JSON.stringify(user));
   document.getElementById('dash-greeting').textContent = 'Hi ' + user.fname + ' ' + (user.lname||'') + ' Welcome back!';
   
-  // Hide trial banner if paid
-  if (user.plan === 'pro' || user.plan === 'business' || user.plan === 'paid') {
-    document.getElementById('trial-banner').style.display = 'none';
+  // Show account status
+  var banner = document.getElementById('trial-banner');
+  if (banner) {
+    if (user.plan === 'pro' || user.plan === 'business' || user.plan === 'paid') {
+      banner.innerHTML = '✅ <strong>Account Active — ' + user.email + '</strong> You are subscribed. All tools unlocked.';
+      banner.style.background = 'rgba(16,185,129,0.08)';
+      banner.style.borderColor = 'rgba(16,185,129,0.3)';
+    } else {
+      // Calculate trial days left
+      var joined = user.joined || Date.now();
+      var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined) / (1000*60*60*24)));
+      banner.innerHTML = '⏳ <strong>Trial Account — ' + user.email + '</strong> ' + daysLeft + ' day(s) left on free trial. ' +
+        '<button onclick="startPaystack(&quot;monthly&quot;)" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Subscribe R55/month</button>';
+    }
   }
   
   showPage('dashboard');
@@ -81,6 +92,13 @@ function doSignup() {
   localStorage.setItem('sb_current', JSON.stringify(user));
 
   document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' 👋 Welcome to Sky Blueprint!';
+  
+  // Show account active confirmation
+  var banner = document.getElementById('trial-banner');
+  if (banner) {
+    banner.innerHTML = '🎉 <strong>Account Created for ' + email + '!</strong> Your 7-day free trial is now active. ' +
+      '<button onclick="startPaystack(&quot;monthly&quot;)" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Subscribe R55/month</button>';
+  }
 
   // Send welcome email to customer
   fetch(BACKEND_URL + '/api/welcome-email', {
@@ -881,9 +899,9 @@ async function buildAndMatchCV() {
   var co = document.getElementById('cv-co').value || '';
   var sd = document.getElementById('cv-sd').value || '';
   var ed = document.getElementById('cv-ed').value || '';
-  var qu = document.getElementById('cv-qu').value || '';
-  var ins = document.getElementById('cv-in').value || '';
-  var yr = document.getElementById('cv-yr').value || '';
+  var qu = (document.getElementById('cv-qu') || document.getElementById('cv-qual-level') || {value:''}).value || '';
+  var ins = (document.getElementById('cv-in') || document.getElementById('cv-inst') || {value:''}).value || '';
+  var yr = (document.getElementById('cv-yr') || document.getElementById('cv-year') || {value:''}).value || '';
   var sk = document.getElementById('cv-sk').value || '';
   var su = document.getElementById('cv-sum').value || '';
   var photo = window._cvPhoto || '';
@@ -953,10 +971,22 @@ async function buildAndMatchCV() {
     '<button style="flex:1;min-width:140px;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:12px;font-family:var(--font);cursor:pointer;font-weight:600" onclick="previewCV()">👁 Preview CV</button>' +
     '</div></div>';
 
-  // Also show job matches
-  var cvText = 'Qualification: ' + qual + ' Experience: ' + exp + ' years Skills: ' + sk;
+  // Show job matches
   var levelData = detectLevel(qual, exp);
   showMatchingJobs(levelData, fn, ci, jt);
+  
+  // Switch to jobs tab to show matches
+  setTimeout(function() {
+    var tabs = document.querySelectorAll('.tab');
+    if (tabs.length > 1) {
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      tabs[1].classList.add('active');
+      var buildDiv = document.getElementById('cvt-build');
+      var jobsDiv = document.getElementById('cvt-jobs');
+      if (buildDiv) buildDiv.style.display = 'none';
+      if (jobsDiv) jobsDiv.style.display = 'block';
+    }
+  }, 100);
 }
 
 function downloadCV() {
