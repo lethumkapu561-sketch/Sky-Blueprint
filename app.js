@@ -38,7 +38,7 @@ function doLogin() {
 
   currentUser = user;
   localStorage.setItem('sb_current', JSON.stringify(user));
-  document.getElementById('dash-greeting').textContent = 'Welcome back, ' + user.fname + '! 👋';
+  document.getElementById('dash-greeting').textContent = Hi + firstname + lastname 👋 Welcome back!
   showPage('dashboard');
 }
 
@@ -60,7 +60,7 @@ function doSignup() {
   currentUser = user;
   localStorage.setItem('sb_current', JSON.stringify(user));
 
-  document.getElementById('dash-greeting').textContent = 'Welcome, ' + fname + '! 🎉';
+  document.getElementById('dash-greeting').textContent = Hi + firstname + lastname 👋 Welcome to Sky Blueprint!
   showPage('dashboard');
 }
 
