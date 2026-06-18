@@ -42,9 +42,9 @@
     </button>
   </div>
   <div class="mobile-menu" id="mobileMenu">
-    <a href="#tools" onclick="closeMobileNav()">Tools</a>
-    <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
-    <a href="#about" onclick="closeMobileNav()">About</a>
+    <a href="#tools" onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'});return false;">Tools</a>
+    <a href="#pricing" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'});return false;">Pricing</a>
+    <a href="#about" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'});return false;">About</a>
     <button class="btn-ghost-sm" onclick="showPage('login');closeMobileNav()">Log In</button>
     <button class="btn-primary-sm" onclick="showPage('signup');closeMobileNav()">Start Free Trial</button>
   </div>
