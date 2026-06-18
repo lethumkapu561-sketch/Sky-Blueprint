@@ -1367,7 +1367,7 @@ async function guideTool(tool) {
 async function guideWebsite() {
   await guideMsg('Let me open the Website Builder for you!');
   requireAuth('website-builder');
-  await guideMsg('The Website Builder creates a professional website for your business in minutes. Here are the steps:<br><br><strong>Step 1</strong> — Type your <strong>Business Name</strong> in the first box<br>Example: "Sipho's Tech Shop" or "M&H Dynamic Tech"<br><br>What is your business name?');
+  await guideMsg('The Website Builder creates a professional website for your business in minutes. Here are the steps:<br><br><strong>Step 1</strong> — Type your <strong>Business Name</strong> in the first box<br>Example: Sipho Tech Shop or "M&H Dynamic Tech"<br><br>What is your business name?');
   guideState.step = 'wb-name';
   document.getElementById('guide-input').placeholder = 'Type your business name...';
 }
@@ -1441,9 +1441,9 @@ async function guidePhone() {
       ]);
     }},
     { label: '❓ Tell me more first', action: async function() {
-      await guideMsg('Find My Phone works with the Sky Blueprint tracking app on your device.<br><br>📱 Once you register your device and download the app, it silently records your phone's GPS location every few minutes.<br><br>🚨 If your phone is stolen — log into Sky Blueprint from any device → open Find My Phone → see the last known location on the SA map → ring it, lock it or wipe it remotely.<br><br>This has already helped many people recover their stolen phones in South Africa!');
+      await guideMsg('Find My Phone works with the Sky Blueprint tracking app on your device.<br><br>📱 Once you register your device and download the app, it silently records your phone GPS location every few minutes.<br><br>🚨 If your phone is stolen — log into Sky Blueprint from any device → open Find My Phone → see the last known location on the SA map → ring it, lock it or wipe it remotely.<br><br>This has already helped many people recover their stolen phones in South Africa!');
       guideOptions([
-        { label: '✅ Let's activate it!', action: function() { guideTool('find-phone'); }},
+        { label: '✅ Lets activate it!', action: function() { guideTool('find-phone'); }},
         { label: '⬅️ Back to tools', action: showToolMenu },
       ]);
     }}
@@ -1459,7 +1459,7 @@ async function guidePhoneRegister() {
 }
 
 async function guidePhoneTrack() {
-  await guideMsg('To track your phone:<br><br>1️⃣ Click the <strong>Track Device</strong> tab<br>2️⃣ Click <strong>📍 Locate My Device</strong> button<br>3️⃣ The map will show your phone's last known location<br>4️⃣ You can also:<br>&nbsp;&nbsp;🧭 Click <strong>Get Directions</strong> to get Google Maps directions to your phone<br>&nbsp;&nbsp;👁️ Click <strong>Street View</strong> to see the street your phone is on<br>&nbsp;&nbsp;🔔 Click <strong>Ring Device</strong> to make it ring loudly<br>&nbsp;&nbsp;🔒 Click <strong>Lock Device</strong> to lock the screen remotely<br>5️⃣ Click <strong>Location History</strong> tab to see where your phone has been for the last 7 days');
+  await guideMsg('To track your phone:<br><br>1️⃣ Click the <strong>Track Device</strong> tab<br>2️⃣ Click <strong>📍 Locate My Device</strong> button<br>3️⃣ The map will show your phone last known location<br>4️⃣ You can also:<br>&nbsp;&nbsp;🧭 Click <strong>Get Directions</strong> to get Google Maps directions to your phone<br>&nbsp;&nbsp;👁️ Click <strong>Street View</strong> to see the street your phone is on<br>&nbsp;&nbsp;🔔 Click <strong>Ring Device</strong> to make it ring loudly<br>&nbsp;&nbsp;🔒 Click <strong>Lock Device</strong> to lock the screen remotely<br>5️⃣ Click <strong>Location History</strong> tab to see where your phone has been for the last 7 days');
   guideOptions([
     { label: '⬅️ Back to tools', action: showToolMenu },
   ]);
@@ -1597,8 +1597,7 @@ async function guideAIAnswer(question) {
     });
     var data = await res.json();
     var reply = data.content?.[0]?.text || 'I am not sure about that. Try asking the AI Business Mentor for more detailed help!';
-    await guideMsg(reply.replace(/
-/g, '<br>'));
+    await guideMsg(reply.replace(/\n/g, '<br>'));
   } catch(e) {
     await guideMsg('I am having trouble connecting right now. Please check your internet and try again, or use the AI Business Mentor tool for detailed help!');
   }
