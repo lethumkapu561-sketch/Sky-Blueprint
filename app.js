@@ -1,6 +1,6 @@
 // ── Sky Blueprint App ──
 // YOUR PAYSTACK PUBLIC KEY — replace with your real key from paystack.com/dashboard
-var PAYSTACK_PUBLIC_KEY = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
+var PAYSTACK_PUBLIC_KEY = 'pk_live_b07f0d8b9ee7305c57362ec9bbb89fe1eb0f9433';
 var PLAN_CODES = { pro: 'PLN_xxxxxxxxxx', business: 'PLN_xxxxxxxxxx' };
 var PRICES = { website: 45000, monthly: 5500, yearly: 198000 }; // amounts in cents (R450=45000, R55=5500, R1980=198000) // in kobo (R99 = 9900)
 var currentPlan = 'pro';
@@ -38,7 +38,7 @@ function doLogin() {
 
   currentUser = user;
   localStorage.setItem('sb_current', JSON.stringify(user));
-  document.getElementById('dash-greeting').textContent = 'Welcome back, ' + user.fname + '! 👋';
+  document.getElementById('dash-greeting').textContent = 'Hi ' + user.fname + ' ' + (user.lname||'') + ' 👋 Welcome back!';
   showPage('dashboard');
 }
 
@@ -60,7 +60,7 @@ function doSignup() {
   currentUser = user;
   localStorage.setItem('sb_current', JSON.stringify(user));
 
-  document.getElementById('dash-greeting').textContent = 'Welcome, ' + fname + '! 🎉';
+  document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' 👋 Welcome to Sky Blueprint!';
   showPage('dashboard');
 }
 
@@ -264,7 +264,7 @@ function scanEmails(provider) {
     </div>
     <style>@keyframes progress{from{width:0}to{width:95%}}</style>`;
 
-  fetch(BACKEND_URL + '/scan-emails', {
+  fetch(BACKEND_URL + '/api/scan-emails', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ provider, email, password })
@@ -691,6 +691,12 @@ function renderCVBuilder(el) {
       <div class="form-group">
         <select id="cv-qual-level" onchange="updateQualHint()">
           <option value="">-- Select your highest qualification --</option>
+          <option value="grade9">Grade 9</option>
+          <option value="grade10">Grade 10</option>
+          <option value="grade11">Grade 11</option>
+          <option value="grade9">Grade 9</option>
+          <option value="grade10">Grade 10</option>
+          <option value="grade11">Grade 11</option>
           <option value="matric">Grade 12 / Matric</option>
           <option value="n4">N4 Certificate</option>
           <option value="n5">N5 Certificate</option>
@@ -781,7 +787,13 @@ function updateQualHint() {
   var val = document.getElementById('cv-qual-level').value;
   var hint = document.getElementById('qual-hint');
   var hints = {
-    matric: '📌 Matric qualifies you for entry-level, learnership and junior positions.',
+    grade9: '📌 Grade 9 qualifies you for basic labour, general worker and some learnership positions.',
+    grade10: '📌 Grade 10 qualifies you for general worker, domestic and basic trade assistant positions.',
+    grade11: '📌 Grade 11 qualifies you for junior clerk, retail assistant and basic admin positions.',
+    grade9: '📌 Grade 9 qualifies you for general worker, domestic worker and basic labour positions.',
+    grade10: '📌 Grade 10 qualifies you for general worker, retail packer and basic trade assistant positions.',
+    grade11: '📌 Grade 11 qualifies you for junior clerk, retail assistant and basic admin positions.',
+    matric: '📌 Matric (Grade 12) qualifies you for entry-level, learnership and junior positions.',
     n4: '📌 N4 qualifies you for technical and vocational entry-level positions.',
     n5: '📌 N5 qualifies you for skilled technical positions.',
     n6: '📌 N6/Trade qualifies you for artisan, technician and trade positions.',
@@ -841,15 +853,18 @@ Summary: ${summary}`;
 
 function detectLevel(qual, exp) {
   var levelMap = {
-    matric: {level:'entry', levelLabel:'Entry Level', advice:'Apply for junior, learnership and entry-level positions only.'},
-    n4: {level:'entry', levelLabel:'Technical Entry Level', advice:'Apply for N4 technical and vocational entry positions.'},
-    n5: {level:'trade', levelLabel:'Technical Level', advice:'Apply for skilled technical and N5 level positions.'},
-    n6: {level:'trade', levelLabel:'Trade / Artisan Level', advice:'Apply for artisan, technician and trade positions. High demand in SA!'},
-    diploma: {level:'mid', levelLabel:'Mid Level', advice:'Apply for professional mid-level roles requiring a diploma.'},
-    degree: {level:'mid', levelLabel:'Graduate Level', advice:'Apply for graduate, specialist and professional roles.'},
-    honours: {level:'senior', levelLabel:'Senior Specialist', advice:'Apply for senior analyst, specialist and team lead roles.'},
-    masters: {level:'senior', levelLabel:'Senior Management', advice:'Apply for senior management and research positions.'},
-    phd: {level:'executive', levelLabel:'Executive / Research', advice:'Apply for director, executive and academic positions.'},
+    grade9: {level:'basic', levelLabel:'Basic Level (Grade 9)', advice:'Apply for general worker, domestic worker, garden worker and basic labour positions. Also look for learnerships that accept Grade 9.'},
+    grade10: {level:'basic', levelLabel:'Basic Level (Grade 10)', advice:'Apply for general worker, retail packer, basic trade assistant and domestic positions. Some learnerships accept Grade 10.'},
+    grade11: {level:'entry', levelLabel:'Junior Level (Grade 11)', advice:'Apply for junior clerk, retail sales assistant, receptionist and basic admin positions. Many learnerships accept Grade 11.'},
+    matric: {level:'entry', levelLabel:'Entry Level (Matric)', advice:'Apply for junior, learnership and entry-level positions. Matric opens many more doors — apply for clerk, sales rep, call centre and admin roles.'},
+    n4: {level:'entry', levelLabel:'Technical Entry Level (N4)', advice:'Apply for N4 technical and vocational entry positions including engineering assistant and technical support roles.'},
+    n5: {level:'trade', levelLabel:'Technical Level (N5)', advice:'Apply for skilled technical positions and trade assistant roles. High demand in SA manufacturing and engineering!'},
+    n6: {level:'trade', levelLabel:'Trade / Artisan Level (N6)', advice:'Apply for artisan, technician and trade positions. Electricians, plumbers, welders and mechanics are in very high demand in South Africa!'},
+    diploma: {level:'mid', levelLabel:'Mid Level (Diploma)', advice:'Apply for professional mid-level roles requiring a diploma — including accounting, HR, marketing and IT positions.'},
+    degree: {level:'mid', levelLabel:'Graduate Level (Degree)', advice:'Apply for graduate, specialist and professional roles requiring a degree. LinkedIn and Pnet have many graduate programs.'},
+    honours: {level:'senior', levelLabel:'Senior Specialist (Honours)', advice:'Apply for senior analyst, specialist and team lead roles. Your Honours degree opens senior positions in most industries.'},
+    masters: {level:'senior', levelLabel:'Senior Management (Masters)', advice:'Apply for senior management, research and executive positions. Masters degree holders are highly sought after in SA.'},
+    phd: {level:'executive', levelLabel:'Executive / Research (PhD)', advice:'Apply for director, executive, academic and research positions. PhD holders qualify for the highest level roles in SA.'},
   };
   return {...(levelMap[qual] || levelMap.matric), success:true, searchUrls:{
     linkedin: 'https://www.linkedin.com/jobs/search/?location=South+Africa',
@@ -1043,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', function() {
   res.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">🔍 AI is matching your CV to available jobs...</div>';
 
   // Call backend for AI matching
-  fetch(BACKEND_URL + '/match-jobs', {
+  fetch(BACKEND_URL + '/api/match-jobs', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ skills, qualification: qual, jobTitle, city: l, searchQuery: q })
@@ -1203,13 +1218,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ══════════════════════════════════════
-// SKY BLUEPRINT AI GUIDE ASSISTANT
-// Step-by-step optional helper
+// SKY BLUEPRINT AI GUIDE ASSISTANT v2
+// Full knowledge of every tool and step
 // ══════════════════════════════════════
 
 var guideOpen = false;
 var guideState = { step: 'welcome', tool: null, data: {} };
-var guideTyping = false;
 
 function toggleGuide() {
   guideOpen = !guideOpen;
@@ -1230,7 +1244,6 @@ function toggleGuide() {
 function guideMsg(text, delay) {
   delay = delay || 0;
   return new Promise(function(resolve) {
-    // Show typing
     setTimeout(function() {
       var msgs = document.getElementById('guide-messages');
       var typing = document.createElement('div');
@@ -1239,7 +1252,6 @@ function guideMsg(text, delay) {
       typing.innerHTML = '<div class="gm-bot-icon">🤖</div><div class="gm-bot-bubble"><div class="gm-typing"><span></span><span></span><span></span></div></div>';
       msgs.appendChild(typing);
       msgs.scrollTop = msgs.scrollHeight;
-
       setTimeout(function() {
         var t = document.getElementById('gm-typing-indicator');
         if (t) t.remove();
@@ -1249,7 +1261,7 @@ function guideMsg(text, delay) {
         msgs.appendChild(bubble);
         msgs.scrollTop = msgs.scrollHeight;
         resolve();
-      }, 800 + text.length * 10);
+      }, 600 + Math.min(text.length * 8, 1500));
     }, delay);
   });
 }
@@ -1292,26 +1304,49 @@ function guideUserInput() {
   guideHandleInput(val);
 }
 
-// ── GUIDE FLOWS ──
-
+// ── WELCOME ──
 async function startGuide() {
   guideState = { step: 'welcome', tool: null, data: {} };
-  await guideMsg('👋 Hello! I\'m <strong>Sky Guide</strong> — your personal assistant on Sky Blueprint.<br><br>I can walk you through any tool step by step. Would you like my help?');
+  await guideMsg('👋 Hello! Welcome to <strong>Sky Blueprint</strong>!<br><br>I am <strong>Sky Guide</strong> — your personal assistant. I know every tool on this platform and I will walk you through anything step by step.<br><br>Can I help you today?');
   guideOptions([
-    { label: '✅ Yes, help me please!', action: function() { showToolMenu(); } },
-    { label: '😊 No thanks, I know what to do', action: function() { guideDismiss(); } }
+    { label: '✅ Yes please help me!', action: showToolMenu },
+    { label: '🙋 What is Sky Blueprint?', action: explainPlatform },
+    { label: '💰 Tell me about pricing', action: explainPricing },
+    { label: '😊 No thanks, I know what to do', action: guideDismiss }
   ]);
 }
 
+async function explainPlatform() {
+  await guideMsg('Sky Blueprint is a South African digital platform with <strong>6 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>Email Cleaner</strong> — clean your real Gmail, Outlook or Yahoo inbox<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980 for 3 years!');
+  guideOptions([
+    { label: '🚀 Let me start using the tools!', action: showToolMenu },
+    { label: '💰 Tell me about pricing', action: explainPricing },
+  ]);
+}
+
+async function explainPricing() {
+  await guideMsg('Sky Blueprint has 3 simple plans:<br><br>🎁 <strong>Free Trial</strong> — 7 days full access, no credit card needed<br><br>📅 <strong>Monthly Plan — R55/month</strong><br>Pay every month via Paystack. Cancel anytime. Auto-debit from your card.<br><br>🗓️ <strong>3-Year Plan — R1,980 once-off</strong><br>Pay once, use for 3 full years. Save money long term!<br><br>📍 <strong>Find My Phone — R450 once-off</strong><br>One time activation fee to register and track your device.<br><br>💳 Payments are processed securely by <strong>Paystack</strong> — Visa, Mastercard, EFT, Ozow all accepted.');
+  guideOptions([
+    { label: '✅ Start my free trial!', action: function() { showPage('signup'); toggleGuide(); } },
+    { label: '🔧 Show me the tools', action: showToolMenu },
+  ]);
+}
+
+// ── TOOL MENU ──
 async function showToolMenu() {
-  await guideMsg('Great! Which tool would you like help with?');
+  await guideMsg('Which tool do you need help with?');
   guideOptions([
     { label: '🌐 Website Builder', action: function() { guideTool('website-builder'); } },
     { label: '📧 Email Cleaner', action: function() { guideTool('email-cleaner'); } },
     { label: '📍 Find My Phone', action: function() { guideTool('find-phone'); } },
     { label: '🤖 AI Business Mentor', action: function() { guideTool('ai-mentor'); } },
     { label: '📄 CV Builder & Jobs', action: function() { guideTool('cv-builder'); } },
-    { label: '🗺️ SA Map', action: function() { guideTool('sa-map'); } },
+    { label: '🗺️ SA Map (Free)', action: function() { guideTool('sa-map'); } },
+    { label: '❓ I have another question', action: function() {
+      guideMsg('Go ahead — type your question below and I will answer it!');
+      guideState.step = 'freeask';
+      document.getElementById('guide-input').placeholder = 'Type your question here...';
+    }}
   ]);
 }
 
@@ -1328,133 +1363,176 @@ async function guideTool(tool) {
   if (flows[tool]) flows[tool]();
 }
 
-// ── WEBSITE BUILDER GUIDE ──
+// ── WEBSITE BUILDER ──
 async function guideWebsite() {
-  await guideMsg('Perfect! Let me open the <strong>Website Builder</strong> for you now.');
+  await guideMsg('Let me open the Website Builder for you!');
   requireAuth('website-builder');
-  await guideMsg('Step 1️⃣ — Type your <strong>business name</strong> in the first box.<br><br>For example: "M&H Dynamic Tech" or "Sipho\'s Salon"<br><br>What is your business name?');
+  await guideMsg('The Website Builder creates a professional website for your business in minutes. Here are the steps:<br><br><strong>Step 1</strong> — Type your <strong>Business Name</strong> in the first box<br>Example: "Sipho's Tech Shop" or "M&H Dynamic Tech"<br><br>What is your business name?');
   guideState.step = 'wb-name';
   document.getElementById('guide-input').placeholder = 'Type your business name...';
 }
 
-// ── EMAIL CLEANER GUIDE ──
+// ── EMAIL CLEANER ──
 async function guideEmail() {
-  await guideMsg('I\'ll help you clean your inbox! Let me open the Email Cleaner.');
+  await guideMsg('Let me open the Email Cleaner!');
   requireAuth('email-cleaner');
-  await guideMsg('Step 1️⃣ — Choose your email provider.<br><br>Which email do you use?');
+  await guideMsg('The Email Cleaner connects to your REAL email account and uses AI to sort important emails from spam — then deletes the junk for you.<br><br>Which email provider do you use?');
   guideOptions([
-    { label: '📧 Gmail (Google)', action: async function() {
-      guideState.step = 'email-gmail';
-      await guideMsg('Good choice! Click the <strong>Gmail</strong> button on screen.<br><br>Step 2️⃣ — Enter your Gmail address in the email box.');
-      await guideMsg('⚠️ <strong>Important for Gmail:</strong> You need an App Password — not your normal Gmail password.<br><br>Here\'s how to get it:<br>1. Go to <strong>myaccount.google.com</strong><br>2. Click <strong>Security</strong><br>3. Click <strong>App Passwords</strong><br>4. Create one for "Sky Blueprint"<br>5. Copy that 16-digit password<br><br>Shall I wait while you do that?');
-      guideOptions([
-        { label: '✅ I have my App Password ready', action: async function() {
-          await guideMsg('Step 3️⃣ — Paste your App Password in the password box, then click <strong>Scan My Inbox</strong>.<br><br>Sky Guide will wait while it scans...');
-          guideState.step = 'email-scanning';
-        }},
-        { label: '❓ I don\'t know how to get it', action: async function() {
-          await guideMsg('No problem! Open a new tab → go to <strong>myaccount.google.com/apppasswords</strong> → sign in → under "App name" type Sky Blueprint → click Create → Google shows you a 16-digit code → copy it → come back here and paste it in the password box.');
-        }}
-      ]);
-    }},
-    { label: '📬 Outlook / Hotmail', action: async function() {
-      await guideMsg('Step 2️⃣ — Click <strong>Outlook</strong> on screen → enter your Outlook email address and password → click <strong>Scan My Inbox</strong>.<br><br>Outlook uses your normal password — no special setup needed! ✅');
-    }},
-    { label: '📮 Yahoo Mail', action: async function() {
-      await guideMsg('Step 2️⃣ — Click <strong>Yahoo Mail</strong> on screen → enter your Yahoo email → you will need a Yahoo App Password.<br><br>Go to: <strong>login.yahoo.com → Account Security → Generate App Password</strong>');
-    }},
+    { label: '📧 Gmail (Google)', action: guideEmailGmail },
+    { label: '📬 Outlook / Hotmail', action: guideEmailOutlook },
+    { label: '📮 Yahoo Mail', action: guideEmailYahoo },
   ]);
 }
 
-// ── FIND MY PHONE GUIDE ──
-async function guidePhone() {
-  await guideMsg('I\'ll help you protect your phone! Let me open Find My Phone.');
-  requireAuth('find-phone');
-  await guideMsg('Find My Phone has a once-off fee of <strong>R450</strong> to activate.<br><br>This funds the Sky Blueprint tracking app development.<br><br>Would you like to proceed?');
+async function guideEmailGmail() {
+  await guideMsg('To connect your Gmail to Sky Blueprint, follow these exact steps I will walk you through one by one:<br><br>⚠️ <strong>Important:</strong> You cannot use your normal Gmail password here. Gmail requires a special <strong>App Password</strong> for security. Here is how to get it:');
+  await guideMsg('1️⃣ <strong>Open a new tab on your COMPUTER</strong> — not your phone browser<br><br>Go to: <strong>myaccount.google.com</strong><br>Sign in with your Gmail account if asked');
+  await guideMsg('2️⃣ <strong>Click "Security"</strong> on the left side menu<br><br>You will see a page called "Security & sign-in"');
+  await guideMsg('3️⃣ <strong>Scroll down</strong> until you see <strong>"2-Step Verification"</strong><br><br>Click on it → follow the steps to turn it ON → verify with your phone number when asked<br><br>Once it shows <strong>"On"</strong> with a green tick — you are ready for the next step');
+  await guideMsg('4️⃣ <strong>Go back to the Security page</strong> → scroll down again<br><br>Now you will see <strong>"App Passwords"</strong> listed below 2-Step Verification<br><br>Click on <strong>App Passwords</strong>');
+  await guideMsg('5️⃣ You will see a box that says <strong>"App name"</strong><br><br>Type exactly: <strong>Sky Blueprint</strong><br><br>Then click the <strong>Create</strong> button');
+  await guideMsg('6️⃣ Google will show you a <strong>16-character password</strong> like this:<br><br><code style="background:#1a1a2e;padding:6px 10px;border-radius:4px;color:#38bdf8;font-size:14px;letter-spacing:3px">abcd efgh ijkl mnop</code><br><br>⚠️ <strong>Copy it now</strong> — it only shows once! Select all the characters including spaces → copy');
+  await guideMsg('7️⃣ <strong>Come back to Sky Blueprint Email Cleaner</strong><br><br>Click <strong>Gmail</strong> → Enter your Gmail address → In the password box paste the <strong>16-character code</strong> Google gave you → Click <strong>Scan My Inbox</strong><br><br>Your real emails will load and AI will sort Important from Spam automatically! ✅');
   guideOptions([
-    { label: '✅ Yes, activate for R450', action: async function() {
-      await guideMsg('Step 1️⃣ — Click <strong>Pay R450 & Activate Now</strong> on screen.<br><br>Fill in your name, email and phone number → click <strong>Pay Securely with Paystack</strong>.<br><br>Once paid, you will be taken to the registration page.');
-      guideState.step = 'phone-pay';
+    { label: '✅ It is working — emails loaded!', action: async function() {
+      await guideMsg('Excellent! 🎉 Your inbox is now connected!<br><br>You will see two sections:<br>✅ <strong>Important Emails</strong> — emails you need to keep<br>🚨 <strong>Spam Emails</strong> — junk mail you can delete<br><br>You can:<br>• Delete spam one by one using the <strong>Delete</strong> button<br>• Delete all spam at once using <strong>Delete All Spam</strong> button<br><br>This frees up storage on your device and keeps your inbox clean!');
+      guideOptions([
+        { label: '⬅️ Back to tools', action: showToolMenu },
+        { label: '👋 Thank you, I am done!', action: guideDismiss }
+      ]);
+    }},
+    { label: '❓ I cannot find App Passwords', action: async function() {
+      await guideMsg('App Passwords only appears on a <strong>computer browser</strong> — not on a phone browser.<br><br>Also make sure <strong>2-Step Verification is turned ON first</strong> — App Passwords will not show if 2-Step Verification is OFF.<br><br>Steps again:<br>1️⃣ Computer browser → myaccount.google.com<br>2️⃣ Security → 2-Step Verification → Turn ON<br>3️⃣ Security → scroll down → App Passwords<br>4️⃣ Type Sky Blueprint → Create → copy the 16 characters');
+    }},
+    { label: '❓ It still shows connection error', action: async function() {
+      await guideMsg('Check these things one by one:<br><br>✅ Gmail address is spelled correctly<br>✅ App Password is pasted correctly — all 16 characters with spaces<br>✅ 2-Step Verification is ON in your Google Account<br>✅ You are connected to the internet<br>✅ You opened myaccount.google.com on a COMPUTER not a phone<br><br>If still not working — go to <strong>myaccount.google.com/apppasswords</strong> and create a brand new App Password and try again');
+    }}
+  ]);
+}
+
+async function guideEmailOutlook() {
+  await guideMsg('Good news — Outlook is easier than Gmail!<br><br>1️⃣ Click <strong>Outlook</strong> on the Email Cleaner screen<br>2️⃣ Enter your Outlook email address (example@outlook.com or example@hotmail.com)<br>3️⃣ Enter your <strong>normal Outlook password</strong><br>4️⃣ Click <strong>Scan My Inbox</strong><br><br>Outlook does not need a special App Password — your normal password works!');
+  guideOptions([
+    { label: '✅ Got it!', action: showToolMenu },
+    { label: '❓ It shows error', action: async function() {
+      await guideMsg('If Outlook shows an error:<br><br>✅ Check your email address is spelled correctly<br>✅ Make sure your Outlook password is correct<br>✅ If you use Microsoft 2-factor auth, you may need an App Password from <strong>account.microsoft.com/security</strong>');
+    }}
+  ]);
+}
+
+async function guideEmailYahoo() {
+  await guideMsg('Yahoo also needs an App Password for security.<br><br>1️⃣ Go to <strong>login.yahoo.com</strong><br>2️⃣ Click your profile → <strong>Account Security</strong><br>3️⃣ Turn on <strong>2-Step Verification</strong><br>4️⃣ Click <strong>Generate App Password</strong><br>5️⃣ Select "Other App" → type <strong>Sky Blueprint</strong> → Generate<br>6️⃣ Copy the password → come back → use it in Email Cleaner');
+  guideOptions([
+    { label: '✅ Got it!', action: showToolMenu },
+  ]);
+}
+
+// ── FIND MY PHONE ──
+async function guidePhone() {
+  await guideMsg('Let me open Find My Phone!');
+  requireAuth('find-phone');
+  await guideMsg('Find My Phone lets you track, ring, lock or wipe your phone remotely if it is lost or stolen.<br><br>⚠️ There is a <strong>once-off R450 activation fee</strong> to use this tool. This funds the development of the Sky Blueprint tracking app.<br><br>What you get with R450:<br>✅ Register unlimited devices<br>✅ Live GPS tracking on SA map<br>✅ Get directions to your phone<br>✅ Ring your phone remotely<br>✅ Lock your phone remotely<br>✅ See 7 days of location history<br><br>Would you like to proceed?');
+  guideOptions([
+    { label: '✅ Yes, pay R450 and activate', action: async function() {
+      await guideMsg('To pay and activate:<br><br>1️⃣ Click <strong>Pay R450 & Activate Now</strong> on the screen<br>2️⃣ Enter your Full Name, Email and Phone Number<br>3️⃣ Click <strong>Pay Securely with Paystack</strong><br>4️⃣ Complete payment with your card, EFT or Ozow<br>5️⃣ After payment you go to the <strong>Register Device</strong> screen');
+      guideOptions([
+        { label: '📱 How to register my device?', action: guidePhoneRegister },
+        { label: '🔍 How to track my phone?', action: guidePhoneTrack },
+      ]);
     }},
     { label: '❓ Tell me more first', action: async function() {
-      await guideMsg('Find My Phone lets you:<br><br>📍 See your phone\'s live location on a South African map<br>🔔 Ring your phone remotely even on silent<br>🔒 Lock it remotely if stolen<br>🗑️ Wipe all data if you cannot get it back<br>📅 See 7 days of location history<br><br>All for a once-off R450 payment — no monthly fee for this feature!');
+      await guideMsg('Find My Phone works with the Sky Blueprint tracking app on your device.<br><br>📱 Once you register your device and download the app, it silently records your phone's GPS location every few minutes.<br><br>🚨 If your phone is stolen — log into Sky Blueprint from any device → open Find My Phone → see the last known location on the SA map → ring it, lock it or wipe it remotely.<br><br>This has already helped many people recover their stolen phones in South Africa!');
       guideOptions([
-        { label: '✅ Let\'s do it!', action: function() { guidePhone(); }},
-        { label: '⬅️ Back to tools', action: function() { showToolMenu(); }}
+        { label: '✅ Let's activate it!', action: function() { guideTool('find-phone'); }},
+        { label: '⬅️ Back to tools', action: showToolMenu },
       ]);
     }}
   ]);
 }
 
-// ── AI MENTOR GUIDE ──
-async function guideAI() {
-  await guideMsg('The AI Business Mentor is the easiest tool — just talk to it like a person!');
-  requireAuth('ai-mentor');
-  await guideMsg('Step 1️⃣ — Type your business question in the chat box at the bottom.<br><br>Here are some great questions to start with:');
+async function guidePhoneRegister() {
+  await guideMsg('To register your device:<br><br>1️⃣ Click the <strong>Register Device</strong> tab<br>2️⃣ Enter your <strong>Full Name</strong><br>3️⃣ Enter your <strong>Phone Number</strong><br>4️⃣ Enter your <strong>Device Make & Model</strong> (example: Samsung Galaxy A54)<br>5️⃣ Enter your <strong>IMEI number</strong> — to find it dial <strong>*#06#</strong> on your phone<br>6️⃣ Enter your device colour<br>7️⃣ Click <strong>Register My Device</strong><br><br>Your device is now protected! ✅');
   guideOptions([
-    { label: '💡 How do I register my business in SA?', action: async function() {
-      await guideMsg('Great question! Type that in the AI chat box and press Send. The AI will give you a step-by-step answer about CIPC registration in South Africa.');
-      document.getElementById('guide-input').placeholder = 'Or ask me anything else...';
+    { label: '🔍 How to track my phone now?', action: guidePhoneTrack },
+    { label: '⬅️ Back to tools', action: showToolMenu },
+  ]);
+}
+
+async function guidePhoneTrack() {
+  await guideMsg('To track your phone:<br><br>1️⃣ Click the <strong>Track Device</strong> tab<br>2️⃣ Click <strong>📍 Locate My Device</strong> button<br>3️⃣ The map will show your phone's last known location<br>4️⃣ You can also:<br>&nbsp;&nbsp;🧭 Click <strong>Get Directions</strong> to get Google Maps directions to your phone<br>&nbsp;&nbsp;👁️ Click <strong>Street View</strong> to see the street your phone is on<br>&nbsp;&nbsp;🔔 Click <strong>Ring Device</strong> to make it ring loudly<br>&nbsp;&nbsp;🔒 Click <strong>Lock Device</strong> to lock the screen remotely<br>5️⃣ Click <strong>Location History</strong> tab to see where your phone has been for the last 7 days');
+  guideOptions([
+    { label: '⬅️ Back to tools', action: showToolMenu },
+  ]);
+}
+
+// ── AI BUSINESS MENTOR ──
+async function guideAI() {
+  await guideMsg('Let me open the AI Business Mentor!');
+  requireAuth('ai-mentor');
+  await guideMsg('The AI Business Mentor is your <strong>24/7 South African business coach</strong>. It knows everything about:<br><br>✅ CIPC business registration (R175 fee at cipc.co.za)<br>✅ SARS tax and eFiling<br>✅ SMME funding (SEFA, IDC, NEF, Khula)<br>✅ BEE/BBBEE compliance<br>✅ Load shedding business strategies<br>✅ Marketing on social media<br>✅ Writing a business plan<br>✅ Starting any type of business in SA<br><br>Just type your question in the chat box at the bottom and press Send!<br><br>Here are some questions to get you started:');
+  guideOptions([
+    { label: '💡 How do I register my business?', action: async function() {
+      await guideMsg('Type that question in the AI chat box and press Send. The AI will explain exactly how to register at CIPC — the cost, the steps and how long it takes.<br><br>Tip: You can ask follow up questions too — like "What about tax?" or "Do I need BEE compliance?"');
     }},
-    { label: '💰 How do I get funding for my business?', action: async function() {
-      await guideMsg('Perfect! Type that in the AI chat. It will tell you about SEFA, IDC, NEF and other SA funding sources you qualify for.');
+    { label: '💰 How do I get funding in SA?', action: async function() {
+      await guideMsg('Type that in the chat! The AI will tell you about SEFA, IDC, NEF, the DTI and other funding sources for small businesses in South Africa — including which ones you qualify for based on your business type.');
     }},
     { label: '📊 How do I write a business plan?', action: async function() {
-      await guideMsg('Good one! The AI will walk you through every section of a proper South African business plan. Just type it in the chat!');
+      await guideMsg('Ask the AI to write a business plan for you! Just type: "Help me write a business plan for [your business type]" and it will create a full professional plan for you.');
     }},
     { label: '✏️ I want to ask my own question', action: async function() {
-      await guideMsg('Go ahead! Type anything in the AI chat box and press Send. The mentor knows everything about SA business, SARS, BEE, marketing and more. I\'m here if you need me! 😊');
+      await guideMsg('Go ahead! Type anything in the AI chat box below the chat window. The mentor knows everything about South African business. I am here if you need me! 😊');
+      guideOptions([{ label: '⬅️ Back to tools', action: showToolMenu }]);
     }}
   ]);
 }
 
-// ── CV BUILDER GUIDE ──
+// ── CV BUILDER ──
 async function guideCV() {
-  await guideMsg('I\'ll guide you through building your CV step by step!');
+  await guideMsg('Let me open the CV Builder!');
   requireAuth('cv-builder');
-  await guideMsg('Step 1️⃣ — Enter your <strong>First Name</strong> in the first box.<br><br>What is your first name?');
+  await guideMsg('The CV Builder creates your professional CV and finds jobs that match your exact qualification level. Let me guide you step by step!<br><br><strong>Step 1</strong> — Enter your <strong>First Name</strong> in the first box.<br><br>What is your first name?');
   guideState.step = 'cv-firstname';
   document.getElementById('guide-input').placeholder = 'Type your first name...';
 }
 
-// ── SA MAP GUIDE ──
+// ── SA MAP ──
 async function guideMap() {
-  await guideMsg('The SA Map is free for everyone — no login needed! Let me open it.');
+  await guideMsg('Opening the SA Map — this is completely FREE for everyone, no login needed! 🗺️');
   openTool('sa-map');
-  await guideMsg('Step 1️⃣ — Type any South African city, suburb or address in the search box at the top.<br><br>For example: "Cape Town CBD" or "Sandton, Johannesburg"<br><br>Or just click one of the quick buttons below the map!');
+  await guideMsg('The SA Map lets you explore anywhere in South Africa. Here is how to use it:<br><br>1️⃣ Type any <strong>city, suburb, street or address</strong> in the search box at the top<br>Example: "Cape Town CBD" or "Sandton Johannesburg" or "15 Long Street Cape Town"<br>2️⃣ Click <strong>Search</strong> or press Enter<br>3️⃣ The map zooms in to that exact location<br>4️⃣ Or just click one of the <strong>quick city buttons</strong> below the map — Cape Town, Johannesburg, Durban, Pretoria and more!<br><br>You can also use it to find directions, check an area before visiting, or track your registered phone location!');
   guideOptions([
-    { label: '✅ Got it, I\'ll try it now!', action: async function() {
-      await guideMsg('Great! Have fun exploring 🇿🇦 Come back if you need anything!');
-      guideDismiss();
+    { label: '✅ Got it, let me explore!', action: async function() {
+      await guideMsg('Enjoy! 🇿🇦 The map works on both phone and desktop. Come back to me anytime!');
+      guideOptions([{ label: '⬅️ Back to tools', action: showToolMenu }]);
     }},
-    { label: '📍 Can I find a specific address?', action: async function() {
-      await guideMsg('Yes! Type the full address in the search box — for example:<br><br><em>"15 Long Street, Cape Town, 8001"</em><br><br>Then click Search or press Enter. The map will zoom in to that exact location!');
-    }}
+    { label: '⬅️ Back to tools', action: showToolMenu }
   ]);
 }
 
-// ── HANDLE USER TEXT INPUT ──
+// ── INPUT HANDLER ──
 function guideHandleInput(val) {
   var step = guideState.step;
 
   if (step === 'wb-name') {
-    guideState.data.businessName = val;
+    guideState.data.name = val;
     guideState.step = 'wb-desc';
-    guideMsg('Excellent! <strong>' + val + '</strong> is a great business name! 👍<br><br>Step 2️⃣ — Now describe what your business does in the <strong>second box</strong>.<br><br>For example: "We sell refurbished laptops at affordable prices across South Africa"<br><br>What does your business do?');
+    guideMsg('<strong>' + val + '</strong> — great business name! ✅<br><br><strong>Step 2</strong> — Now describe what your business does in the second box.<br><br>Example: "We sell refurbished laptops and phones across South Africa at affordable prices"<br><br>What does your business do?');
     document.getElementById('guide-input').placeholder = 'Describe your business...';
     return;
   }
 
   if (step === 'wb-desc') {
-    guideState.data.desc = val;
     guideState.step = 'wb-contact';
-    guideMsg('Perfect description! ✅<br><br>Step 3️⃣ — Enter your <strong>phone number</strong> and <strong>email address</strong> in the contact boxes.<br><br>Then choose your <strong>business type</strong> and <strong>colour theme</strong> from the dropdowns.<br><br>When you\'re done with all fields, click the big <strong>"Generate My Website"</strong> button!');
+    guideMsg('Perfect description! ✅<br><br><strong>Step 3</strong> — Fill in your <strong>Phone Number</strong> and <strong>Email Address</strong><br><br><strong>Step 4</strong> — Choose your <strong>Business Type</strong> from the dropdown<br><br><strong>Step 5</strong> — Choose your favourite <strong>Colour Theme</strong><br><br><strong>Step 6</strong> — Click the big <strong>Generate My Website</strong> button!');
     guideOptions([
-      { label: '✅ Done — I clicked Generate!', action: async function() {
-        await guideMsg('Amazing! 🎉 Your website has been generated!<br><br>Follow the steps shown on screen to publish it live on GitHub for free.<br><br>Need help with anything else?');
+      { label: '🚀 I clicked Generate!', action: async function() {
+        await guideMsg('🎉 Your website is generated! You will see the steps to publish it live on GitHub for free.<br><br>Your website will be live at:<br><strong>your-business-name.github.io</strong><br><br>Need help publishing it? Ask me!');
         guideOptions([
-          { label: '⬅️ Back to tools menu', action: function() { showToolMenu(); }},
-          { label: '👋 No thanks, I\'m done!', action: function() { guideDismiss(); }}
+          { label: '❓ How do I publish it?', action: async function() {
+            await guideMsg('To publish your website for free:<br><br>1️⃣ Go to <strong>github.com</strong> → create a free account<br>2️⃣ Click <strong>+</strong> → New repository → name it your business name<br>3️⃣ Set it to <strong>Public</strong> → Create<br>4️⃣ Click <strong>Add file → Upload files</strong> → upload your 3 files<br>5️⃣ Click <strong>Settings → Pages → main branch → Save</strong><br>6️⃣ Wait 3 minutes → your site is LIVE! 🚀');
+          }},
+          { label: '⬅️ Back to tools', action: showToolMenu }
         ]);
       }}
     ]);
@@ -1464,7 +1542,7 @@ function guideHandleInput(val) {
   if (step === 'cv-firstname') {
     guideState.data.fname = val;
     guideState.step = 'cv-lastname';
-    guideMsg('Nice to meet you, <strong>' + val + '</strong>! 👋<br><br>Step 2️⃣ — Now enter your <strong>Last Name / Surname</strong> in the second box.');
+    guideMsg('Nice to meet you <strong>' + val + '</strong>! 👋<br><br><strong>Step 2</strong> — Enter your <strong>Last Name / Surname</strong>');
     document.getElementById('guide-input').placeholder = 'Type your surname...';
     return;
   }
@@ -1472,19 +1550,19 @@ function guideHandleInput(val) {
   if (step === 'cv-lastname') {
     guideState.data.lname = val;
     guideState.step = 'cv-qual';
-    guideMsg('Great! <strong>' + guideState.data.fname + ' ' + val + '</strong> ✅<br><br>Step 3️⃣ — Fill in your <strong>email</strong> and <strong>phone number</strong>.<br><br>Step 4️⃣ — Then select your <strong>highest qualification</strong> from the dropdown — this is very important because it determines which jobs you qualify for!');
+    guideMsg('Great! <strong>' + guideState.data.fname + ' ' + val + '</strong> ✅<br><br><strong>Step 3</strong> — Fill in your <strong>Email</strong> and <strong>Phone Number</strong><br><br><strong>Step 4</strong> — Upload a <strong>Profile Photo</strong> if you want (optional — click the Upload Photo button)<br><br><strong>Step 5</strong> — Select your <strong>Highest Qualification</strong> from the dropdown. This is VERY important — it determines which jobs you qualify for!<br><br>Options are: Matric, N4, N5, N6/Trade, Diploma, Degree, Honours, Masters, PhD');
     guideOptions([
       { label: '✅ I selected my qualification', action: async function() {
-        await guideMsg('Step 5️⃣ — Fill in your <strong>work experience</strong> — your last job title, company and dates.<br><br>If you have no experience, just leave it blank — that\'s okay! ✅');
+        await guideMsg('<strong>Step 6</strong> — Fill in your <strong>Work Experience</strong><br>Enter your last job title, company name, start and end dates.<br><br>If you have no experience that is fine — just select "No experience" in the Years dropdown.<br><br>Then fill in your <strong>Professional Summary</strong> — a short description of yourself and your skills.');
         guideOptions([
           { label: '✅ Done with experience', action: async function() {
-            await guideMsg('Almost there! Step 6️⃣ — Add your <strong>skills</strong> separated by commas.<br><br>For example: Microsoft Office, Customer Service, Driving Licence, Python<br><br>Then click <strong>"Build CV & Find Matching Jobs"</strong>!');
+            await guideMsg('<strong>Step 7</strong> — Add your <strong>Skills</strong> separated by commas.<br><br>Examples: Microsoft Office, Customer Service, Driving Licence, Python, Sales, Welding<br><br>Then click <strong>Build CV & Find Matching Jobs</strong>!');
             guideOptions([
               { label: '🚀 I clicked Build CV!', action: async function() {
-                await guideMsg('🎉 Your CV is built and job matches are showing!<br><br>Only apply to jobs that match your qualification level — this saves you time and increases your chances!<br><br>You can also print your CV as PDF using the print button. Need anything else?');
+                await guideMsg('🎉 Your CV is built!<br><br>The AI has detected your qualification level and is showing you only jobs you qualify for on:<br><br>💼 <strong>LinkedIn</strong><br>🔍 <strong>Indeed SA</strong><br>📋 <strong>Pnet SA</strong><br>🌟 <strong>YouthMobi</strong><br><br>Click any of those buttons to see real job listings that match your CV!<br><br>To save your CV — click <strong>Print / Save as PDF</strong> at the bottom.');
                 guideOptions([
-                  { label: '⬅️ Back to tools menu', action: function() { showToolMenu(); }},
-                  { label: '👋 I\'m all done, thanks!', action: function() { guideDismiss(); }}
+                  { label: '⬅️ Back to tools', action: showToolMenu },
+                  { label: '👋 I am done, thank you!', action: guideDismiss }
                 ]);
               }}
             ]);
@@ -1495,42 +1573,49 @@ function guideHandleInput(val) {
     return;
   }
 
-  // Default — AI answers any free question
+  if (step === 'freeask' || !step) {
+    guideAIAnswer(val);
+    return;
+  }
+
   guideAIAnswer(val);
 }
 
+// ── AI FREE ANSWER ──
 async function guideAIAnswer(question) {
-  await guideMsg('Let me think about that... 🤔');
+  await guideMsg('Let me find the answer for you... 🤔');
   try {
     var res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 300,
-        system: 'You are Sky Guide, a friendly helpful assistant inside the Sky Blueprint web platform. You help South African users navigate the platform tools: Website Builder, Email Cleaner, Find My Phone (R450 once-off), AI Business Mentor, CV Builder with LinkedIn/Indeed/Pnet/YouthMobi job matching, and SA Map. Keep answers short, friendly and practical. Speak simply like explaining to someone new to tech.',
+        max_tokens: 400,
+        system: 'You are Sky Guide, the friendly assistant inside Sky Blueprint — a South African digital platform. You help users navigate 6 tools: Website Builder (builds business websites), Email Cleaner (cleans Gmail/Outlook/Yahoo with App Passwords), Find My Phone (R450 once-off, tracks device on SA map), AI Business Mentor (SA business advice), CV Builder (builds CV and matches jobs on LinkedIn/Indeed/Pnet/YouthMobi by qualification level), and SA Map (free for everyone). Pricing: R55/month, R1980 for 3 years, R450 for Find My Phone. Payments via Paystack. Keep answers short, simple and friendly. Speak like you are explaining to someone new to technology.',
         messages: [{ role: 'user', content: question }]
       })
     });
     var data = await res.json();
-    var reply = data.content?.[0]?.text || 'I\'m not sure about that — try asking the AI Business Mentor for detailed help!';
-    await guideMsg(reply.replace(/\n/g, '<br>'));
+    var reply = data.content?.[0]?.text || 'I am not sure about that. Try asking the AI Business Mentor for more detailed help!';
+    await guideMsg(reply.replace(/
+/g, '<br>'));
   } catch(e) {
-    await guideMsg('I\'m having trouble connecting right now. Try the AI Business Mentor tool for detailed help!');
+    await guideMsg('I am having trouble connecting right now. Please check your internet and try again, or use the AI Business Mentor tool for detailed help!');
   }
   guideOptions([
-    { label: '⬅️ Back to tools menu', action: function() { showToolMenu(); }},
+    { label: '⬅️ Back to tools menu', action: showToolMenu },
     { label: '❓ Ask another question', action: function() {
       guideClear();
+      guideState.step = 'freeask';
       document.getElementById('guide-input').placeholder = 'Type your question...';
     }}
   ]);
 }
 
 async function guideDismiss() {
-  await guideMsg('No problem! I\'m always here if you need me. Just click the <strong>"Need help?"</strong> button anytime. Good luck! 🚀');
+  await guideMsg('No problem! I am always here whenever you need help. Just click the <strong>"Need help?"</strong> button at the bottom right of the screen anytime. Good luck! 🚀🇿🇦');
   guideOptions([
-    { label: '👋 Thanks, bye!', action: function() { toggleGuide(); }}
+    { label: '👋 Thanks, bye!', action: function() { toggleGuide(); } }
   ]);
 }
 
