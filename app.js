@@ -1,6 +1,6 @@
 // ── Sky Blueprint App ──
 // YOUR PAYSTACK PUBLIC KEY — replace with your real key from paystack.com/dashboard
-var PAYSTACK_PUBLIC_KEY ='pk_live_b07f0d8b9ee7305c57362ec9bbb89fe1eb0f9433
+var PAYSTACK_PUBLIC_KEY = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
 var PLAN_CODES = { pro: 'PLN_xxxxxxxxxx', business: 'PLN_xxxxxxxxxx' };
 var PRICES = { website: 45000, monthly: 5500, yearly: 198000 }; // amounts in cents (R450=45000, R55=5500, R1980=198000) // in kobo (R99 = 9900)
 var currentPlan = 'pro';
@@ -264,7 +264,7 @@ function scanEmails(provider) {
     </div>
     <style>@keyframes progress{from{width:0}to{width:95%}}</style>`;
 
-  fetch(BACKEND_URL + '/api/scan-emails'
+  fetch(BACKEND_URL + '/scan-emails', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ provider, email, password })
