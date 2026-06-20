@@ -442,67 +442,424 @@ function submitWebsiteOrder() {
 function renderEmailCleaner(el) {
   el.innerHTML = `
   <div class="tool-screen">
-    <h2>📧 Email Cleaner</h2>
-    <p>Connect your email account — AI scans your real inbox, separates important emails from spam and lets you delete junk in one click.</p>
+    <h2>📧 AI Email Secretary</h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:6px">Your AI secretary that manages your inbox while you work.</p>
+    <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">"Turn 500 emails into 5 important tasks."</p>
 
     <div class="tab-bar">
-      <div class="tab active" onclick="emailTab('connect',this)">Connect Email</div>
+      <div class="tab active" onclick="emailTab('connect',this)">Connect</div>
       <div class="tab" onclick="emailTab('inbox',this)">My Inbox</div>
+      <div class="tab" onclick="emailTab('summary',this)">Daily Summary</div>
+      <div class="tab" onclick="emailTab('blocked',this)">Blocked</div>
     </div>
 
+    <!-- CONNECT TAB -->
     <div id="et-connect">
-      <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Choose your email provider to connect:</p>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Connect your email — AI will scan, sort and summarise your inbox automatically.</p>
 
-      <div style="display:flex;flex-direction:column;gap:12px">
-
-        <div class="email-provider-card" onclick="connectEmail('gmail')">
-          <div style="display:flex;align-items:center;gap:14px">
-            <div style="width:44px;height:44px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px">📧</div>
-            <div>
-              <strong style="color:#fff;display:block">Gmail</strong>
-              <small style="color:var(--muted)">Connect your Google account</small>
-            </div>
-            <div style="margin-left:auto;color:var(--sky);font-size:20px">→</div>
-          </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
+        <div class="email-provider-card" onclick="selectProvider('gmail',this)">
+          <div style="font-size:28px;margin-bottom:6px">📧</div>
+          <div style="font-size:13px;font-weight:700;color:#fff">Gmail</div>
+          <div style="font-size:11px;color:var(--muted)">Google</div>
         </div>
-
-        <div class="email-provider-card" onclick="connectEmail('outlook')">
-          <div style="display:flex;align-items:center;gap:14px">
-            <div style="width:44px;height:44px;border-radius:10px;background:#0078d4;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px">📬</div>
-            <div>
-              <strong style="color:#fff;display:block">Outlook / Hotmail</strong>
-              <small style="color:var(--muted)">Connect your Microsoft account</small>
-            </div>
-            <div style="margin-left:auto;color:var(--sky);font-size:20px">→</div>
-          </div>
+        <div class="email-provider-card" onclick="selectProvider('outlook',this)">
+          <div style="font-size:28px;margin-bottom:6px">📬</div>
+          <div style="font-size:13px;font-weight:700;color:#fff">Outlook</div>
+          <div style="font-size:11px;color:var(--muted)">Microsoft</div>
         </div>
-
-        <div class="email-provider-card" onclick="connectEmail('yahoo')">
-          <div style="display:flex;align-items:center;gap:14px">
-            <div style="width:44px;height:44px;border-radius:10px;background:#6001d2;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px">📮</div>
-            <div>
-              <strong style="color:#fff;display:block">Yahoo Mail</strong>
-              <small style="color:var(--muted)">Connect your Yahoo account</small>
-            </div>
-            <div style="margin-left:auto;color:var(--sky);font-size:20px">→</div>
-          </div>
+        <div class="email-provider-card" onclick="selectProvider('yahoo',this)">
+          <div style="font-size:28px;margin-bottom:6px">📮</div>
+          <div style="font-size:13px;font-weight:700;color:#fff">Yahoo</div>
+          <div style="font-size:11px;color:var(--muted)">Yahoo Mail</div>
         </div>
-
       </div>
 
-      <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:12px;padding:14px 16px;margin-top:20px">
-        <p style="font-size:12px;color:var(--muted);margin:0">🔐 <strong style="color:#fff">Your privacy is protected.</strong> Sky Blueprint reads your inbox to sort emails but never stores your emails or password. You can disconnect anytime.</p>
+      <div id="email-form" style="display:none">
+        <div class="form-group">
+          <label id="email-label">Email Address</label>
+          <input type="email" id="ec-email" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label id="pass-label">Password / App Password</label>
+          <input type="password" id="ec-pass" placeholder="Your password">
+          <div id="pass-hint" style="font-size:11px;color:#38bdf8;margin-top:6px;display:none"></div>
+        </div>
+        <button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="scanEmails()">
+          🔍 Scan My Inbox with AI
+        </button>
+      </div>
+
+      <div id="ec-error" style="display:none;margin-top:16px"></div>
+    </div>
+
+    <!-- INBOX TAB -->
+    <div id="et-inbox" style="display:none"></div>
+
+    <!-- SUMMARY TAB -->
+    <div id="et-summary" style="display:none">
+      <div style="text-align:center;padding:40px 20px;color:var(--muted)">
+        <div style="font-size:48px;margin-bottom:12px">📊</div>
+        <p>Connect your email first to see your Daily Summary</p>
       </div>
     </div>
 
-    <div id="et-inbox" style="display:none">
-      <div id="email-inbox-content">
-        <p style="color:var(--muted);text-align:center;padding:40px 0">Connect your email first to see your inbox</p>
-      </div>
+    <!-- BLOCKED TAB -->
+    <div id="et-blocked" style="display:none">
+      <div id="blocked-list"></div>
+      <button onclick="clearAllBlocked()" style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:10px;padding:12px;font-family:var(--font);cursor:pointer;font-size:13px;font-weight:600;margin-top:10px">🗑️ Unblock All Senders</button>
     </div>
-
   </div>`;
+
+  // Load blocked senders on render
+  setTimeout(loadBlockedList, 100);
 }
+
+function emailTab(tab, el) {
+  var tabs = ['connect','inbox','summary','blocked'];
+  tabs.forEach(function(t) {
+    var el2 = document.getElementById('et-' + t);
+    if (el2) el2.style.display = 'none';
+  });
+  var target = document.getElementById('et-' + tab);
+  if (target) target.style.display = 'block';
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+
+function selectProvider(provider, card) {
+  document.querySelectorAll('.email-provider-card').forEach(function(c){ c.style.borderColor='rgba(255,255,255,0.08)'; });
+  card.style.borderColor = '#38bdf8';
+  window._emailProvider = provider;
+  document.getElementById('email-form').style.display = 'block';
+
+  var hints = {
+    gmail: '⚠️ Gmail requires an App Password — not your normal password.<br>Go to myaccount.google.com → Security → App Passwords → create one named "Sky Blueprint"',
+    outlook: '✅ Outlook accepts your normal password',
+    yahoo: '⚠️ Yahoo requires an App Password from login.yahoo.com → Account Security'
+  };
+  var hint = document.getElementById('pass-hint');
+  hint.innerHTML = hints[provider] || '';
+  hint.style.display = 'block';
+}
+
+function scanEmails() {
+  var provider = window._emailProvider;
+  var email = document.getElementById('ec-email').value.trim();
+  var pass = document.getElementById('ec-pass').value;
+
+  if (!provider) { alert('Please select your email provider first'); return; }
+  if (!email || !pass) { alert('Please enter your email and password'); return; }
+
+  var errDiv = document.getElementById('ec-error');
+  errDiv.style.display = 'none';
+
+  // Show scanning animation
+  document.getElementById('et-connect').innerHTML +=
+    '<div id="ec-scanning" style="text-align:center;padding:30px;margin-top:16px">' +
+    '<div style="font-size:40px;margin-bottom:12px">🤖</div>' +
+    '<div style="font-size:15px;font-weight:700;color:#38bdf8;margin-bottom:8px">AI Secretary is scanning your inbox...</div>' +
+    '<div style="font-size:13px;color:var(--muted)">Sorting emails by priority — this takes about 30 seconds</div>' +
+    '<div style="margin-top:16px;height:4px;background:rgba(56,189,248,0.1);border-radius:2px;overflow:hidden">' +
+    '<div style="height:100%;background:linear-gradient(90deg,#38bdf8,#6366f1);border-radius:2px;animation:progress 30s linear forwards"></div>' +
+    '</div></div>';
+
+  window._emailSession = { provider: provider, email: email, password: pass };
+
+  fetch(BACKEND_URL + '/api/scan-emails', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ provider: provider, email: email, password: pass })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    var scan = document.getElementById('ec-scanning');
+    if (scan) scan.remove();
+    if (data.success) {
+      showAIInbox(data, email);
+    } else {
+      showEmailError(data.message || data.error || 'Could not connect. Check your password and try again.');
+    }
+  })
+  .catch(function(err) {
+    var scan = document.getElementById('ec-scanning');
+    if (scan) scan.remove();
+    showEmailError('Connection failed. Please check your internet connection and try again.');
+  });
+}
+
+// ── CATEGORISE EMAILS USING AI RULES ──
+function categoriseEmail(email) {
+  var from = (email.from || '').toLowerCase();
+  var subject = (email.subject || '').toLowerCase();
+  var text = (from + ' ' + subject);
+
+  // 🔴 URGENT
+  var urgentKw = ['interview','job offer','offer letter','urgent','invoice','payment','banking','bank alert','otp','security alert','password reset','suspicious','login attempt','account suspended','verify your','action required','final notice','court','legal','sars','tax','government','department of','municipality','police','medical','hospital','doctor'];
+  for (var i = 0; i < urgentKw.length; i++) {
+    if (text.indexOf(urgentKw[i]) > -1) return { cat:'urgent', label:'🔴 Urgent', color:'#ef4444', bg:'rgba(239,68,68,0.08)', border:'rgba(239,68,68,0.25)' };
+  }
+
+  // 🟡 IMPORTANT
+  var importantKw = ['school','university','college','tvet','learnership','appointment','delivery','order confirmed','tracking','shipment','your order','booking','confirmation','receipt','statement','insurance','discovery','vodacom','mtn','telkom','cellc','rain','nedbank','absa','fnb','capitec','standard bank'];
+  for (var i = 0; i < importantKw.length; i++) {
+    if (text.indexOf(importantKw[i]) > -1) return { cat:'important', label:'🟡 Important', color:'#f59e0b', bg:'rgba(245,158,11,0.08)', border:'rgba(245,158,11,0.25)' };
+  }
+
+  // ⚪ LOW PRIORITY
+  var lowKw = ['spotify','netflix','showmax','dstv','youtube','instagram','facebook','twitter','tiktok','gaming','entertainment','music','subscribe','unsubscribe','newsletter'];
+  for (var i = 0; i < lowKw.length; i++) {
+    if (text.indexOf(lowKw[i]) > -1) return { cat:'low', label:'⚪ Low Priority', color:'#64748b', bg:'rgba(100,116,139,0.06)', border:'rgba(100,116,139,0.2)' };
+  }
+
+  // 🟢 CAN WAIT (promotions/spam from our list)
+  return { cat:'canwait', label:'🟢 Can Wait', color:'#10b981', bg:'rgba(16,185,129,0.06)', border:'rgba(16,185,129,0.2)' };
+}
+
+function showAIInbox(data, userEmail) {
+  var allEmails = (data.important || []).concat(data.spam || []);
+  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+
+  // Filter out blocked senders
+  allEmails = allEmails.filter(function(e) {
+    return !blocked.some(function(b) { return (e.from||'').toLowerCase().indexOf(b.toLowerCase()) > -1; });
+  });
+
+  // Categorise all emails
+  var cats = { urgent:[], important:[], canwait:[], low:[] };
+  allEmails.forEach(function(e) {
+    // Also treat server-detected spam as "can wait"
+    var cat = data.spam && data.spam.find(function(s){ return s.uid === e.uid; }) ?
+      { cat:'canwait', label:'🟢 Can Wait', color:'#10b981', bg:'rgba(16,185,129,0.06)', border:'rgba(16,185,129,0.2)' } :
+      categoriseEmail(e);
+    e._cat = cat;
+    if (cats[cat.cat]) cats[cat.cat].push(e);
+    else cats.canwait.push(e);
+  });
+
+  // Build daily summary
+  buildDailySummary(cats, userEmail);
+
+  // Build inbox HTML
+  var html = '';
+
+  // Stats bar
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px">' +
+    statBox('🔴', cats.urgent.length, 'Urgent', '#ef4444') +
+    statBox('🟡', cats.important.length, 'Important', '#f59e0b') +
+    statBox('🟢', cats.canwait.length, 'Can Wait', '#10b981') +
+    statBox('⚪', cats.low.length, 'Low', '#64748b') +
+    '</div>';
+
+  // Smart action buttons
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">' +
+    '<button onclick="deleteCategory(\'canwait\')" style="flex:1;min-width:120px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">🗑️ Delete Can Wait</button>' +
+    '<button onclick="deleteCategory(\'low\')" style="flex:1;min-width:120px;background:rgba(100,116,139,0.1);border:1px solid rgba(100,116,139,0.2);color:#94a3b8;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">🗑️ Delete Low Priority</button>' +
+    '</div>';
+
+  // Render each category
+  ['urgent','important','canwait','low'].forEach(function(catKey) {
+    var emails = cats[catKey];
+    if (!emails.length) return;
+    var catInfo = emails[0]._cat;
+
+    html += '<div style="margin-bottom:20px">' +
+      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:' + catInfo.color + ';margin-bottom:8px;padding:6px 12px;background:' + catInfo.bg + ';border-radius:6px;border-left:3px solid ' + catInfo.color + '">' +
+      catInfo.label + ' — ' + emails.length + ' emails</div>';
+
+    emails.forEach(function(e) {
+      html += '<div class="email-item" id="em-' + e.uid + '" style="background:' + catInfo.bg + ';border:1px solid ' + catInfo.border + ';border-radius:10px;padding:12px;margin-bottom:8px">' +
+        '<div style="display:flex;align-items:flex-start;gap:10px">' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (e.from||'Unknown') + '</div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (e.subject||'No subject') + '</div>' +
+        '<div style="font-size:11px;color:#475569;margin-top:2px">' + (e.date||'') + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0">' +
+        (catKey !== 'urgent' && catKey !== 'important' ?
+          '<button onclick="deleteOneEmail(' + e.uid + ',\'em-' + e.uid + '\')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;font-family:var(--font)">Delete</button>' : '') +
+        '<button onclick="blockSender(this.dataset.sender)" data-sender="' + (e.from||'').replace(/"/g,'') + '" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#f59e0b;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;font-family:var(--font)">Block</button>' +
+        '</div></div></div>';
+    });
+
+    html += '</div>';
+  });
+
+  window._allEmails = allEmails;
+  window._emailCats = cats;
+  document.getElementById('et-inbox').innerHTML = html;
+
+  // Switch to inbox tab
+  document.querySelectorAll('.tab').forEach(function(t,i){ t.classList.remove('active'); if(i===1) t.classList.add('active'); });
+  document.getElementById('et-connect').style.display = 'none';
+  document.getElementById('et-inbox').style.display = 'block';
+  document.getElementById('et-summary').style.display = 'none';
+  document.getElementById('et-blocked').style.display = 'none';
+}
+
+function statBox(icon, count, label, color) {
+  return '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px;text-align:center">' +
+    '<div style="font-size:18px">' + icon + '</div>' +
+    '<div style="font-size:20px;font-weight:800;color:#fff">' + count + '</div>' +
+    '<div style="font-size:10px;color:' + color + ';font-weight:600">' + label + '</div>' +
+    '</div>';
+}
+
+function buildDailySummary(cats, email) {
+  var now = new Date().toLocaleDateString('en-ZA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  var total = cats.urgent.length + cats.important.length + cats.canwait.length + cats.low.length;
+
+  var html = '<div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:20px;margin-bottom:16px">' +
+    '<div style="font-size:11px;color:#38bdf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">AI Secretary Daily Summary</div>' +
+    '<div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:16px">' + now + '</div>' +
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:16px">Scanned <strong style="color:#fff">' + total + ' emails</strong> in your inbox. Here is what matters today:</div>';
+
+  if (cats.urgent.length > 0) {
+    html += summaryLine('🔴', cats.urgent.length, 'urgent email' + (cats.urgent.length>1?'s':'') + ' need your attention NOW', '#ef4444');
+  }
+  if (cats.important.length > 0) {
+    html += summaryLine('🟡', cats.important.length, 'important email' + (cats.important.length>1?'s':'') + ' to read today', '#f59e0b');
+  }
+  if (cats.canwait.length > 0) {
+    html += summaryLine('🟢', cats.canwait.length, 'promotional email' + (cats.canwait.length>1?'s':'') + ' — can be deleted', '#10b981');
+  }
+  if (cats.low.length > 0) {
+    html += summaryLine('⚪', cats.low.length, 'low priority (entertainment/social)', '#64748b');
+  }
+
+  html += '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(56,189,248,0.15);font-size:12px;color:#475569">✅ AI Secretary has sorted your inbox. Focus only on 🔴 Urgent and 🟡 Important emails today.</div>' +
+    '</div>';
+
+  // Security tip if urgent emails found
+  var scamWarnings = cats.urgent.filter(function(e){
+    var t = (e.from+e.subject).toLowerCase();
+    return t.indexOf('password reset')>-1 || t.indexOf('suspicious')>-1 || t.indexOf('verify')>-1 || t.indexOf('account suspended')>-1;
+  });
+  if (scamWarnings.length > 0) {
+    html += '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:14px;margin-bottom:16px">' +
+      '<div style="font-size:13px;font-weight:700;color:#ef4444;margin-bottom:6px">⚠️ Security Warning</div>' +
+      '<div style="font-size:12px;color:var(--muted)">AI detected ' + scamWarnings.length + ' email(s) that may be suspicious (fake password resets, account warnings or scam attempts). Do not click any links in these emails unless you are 100% sure they are real.</div>' +
+      '</div>';
+  }
+
+  html += '<button onclick="emailTab(\'inbox\',document.querySelectorAll(\'.tab\')[1])" class="btn-primary" style="width:100%;box-sizing:border-box">📧 View Full Inbox</button>';
+
+  document.getElementById('et-summary').innerHTML = html;
+}
+
+function summaryLine(icon, count, text, color) {
+  return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">' +
+    '<div style="width:32px;height:32px;border-radius:50%;background:' + color + '22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">' + icon + '</div>' +
+    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#fff">' + count + '</strong> ' + text + '</div>' +
+    '</div>';
+}
+
+function deleteCategory(catKey) {
+  var cats = window._emailCats;
+  if (!cats || !cats[catKey] || cats[catKey].length === 0) {
+    alert('No emails in this category');
+    return;
+  }
+  var uids = cats[catKey].map(function(e){ return e.uid; });
+  var count = uids.length;
+
+  // Remove from DOM
+  cats[catKey].forEach(function(e) {
+    var el = document.getElementById('em-' + e.uid);
+    if (el) el.remove();
+  });
+  cats[catKey] = [];
+
+  // Delete from server
+  if (window._emailSession) {
+    fetch(BACKEND_URL + '/api/delete-spam', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(Object.assign({}, window._emailSession, {uids:uids}))
+    }).catch(function(){});
+  }
+
+  alert(count + ' emails deleted successfully!');
+}
+
+function deleteOneEmail(uid, elementId) {
+  var el = document.getElementById(elementId);
+  if (el) el.remove();
+  if (window._emailSession) {
+    fetch(BACKEND_URL + '/api/delete-spam', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(Object.assign({}, window._emailSession, {uids:[uid]}))
+    }).catch(function(){});
+  }
+}
+
+function blockSender(sender) {
+  if (!sender) return;
+  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+  var clean = sender.replace(/<[^>]+>/g,'').trim();
+  if (!blocked.includes(clean)) {
+    blocked.push(clean);
+    localStorage.setItem('sb_blocked', JSON.stringify(blocked));
+    alert('Blocked: ' + clean + '\nFuture emails from this sender will be ignored.');
+    loadBlockedList();
+  } else {
+    alert(clean + ' is already blocked.');
+  }
+}
+
+function loadBlockedList() {
+  var el = document.getElementById('blocked-list');
+  if (!el) return;
+  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+  if (blocked.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">✅</div><p>No blocked senders yet.<br>Click "Block" next to any email to block that sender.</p></div>';
+    return;
+  }
+  el.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">Blocked Senders (' + blocked.length + ')</div>' +
+    blocked.map(function(b, i) {
+      return '<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:8px;padding:10px 14px;margin-bottom:8px">' +
+        '<span style="font-size:13px;color:#e2e8f0">🚫 ' + b + '</span>' +
+        '<button onclick="unblockSender(' + i + ')" style="background:none;border:1px solid rgba(255,255,255,0.1);color:#64748b;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-family:var(--font)">Unblock</button>' +
+        '</div>';
+    }).join('');
+}
+
+function unblockSender(index) {
+  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+  blocked.splice(index, 1);
+  localStorage.setItem('sb_blocked', JSON.stringify(blocked));
+  loadBlockedList();
+}
+
+function clearAllBlocked() {
+  if (confirm('Unblock all senders?')) {
+    localStorage.removeItem('sb_blocked');
+    loadBlockedList();
+  }
+}
+
+function showEmailError(msg) {
+  var errDiv = document.getElementById('ec-error');
+  if (!errDiv) return;
+  errDiv.style.display = 'block';
+  errDiv.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center">' +
+    '<div style="font-size:28px;margin-bottom:8px">❌</div>' +
+    '<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">Could not connect</div>' +
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:12px">' + msg + '</div>' +
+    '<button onclick="document.getElementById(\'ec-error\').style.display=\'none\'" class="btn-primary" style="box-sizing:border-box">← Try Again</button>' +
+    '</div>';
+}
+
+function deleteAllRealSpam() {
+  deleteCategory('canwait');
+  deleteCategory('low');
+}
+
+function showRealEmails(data) {
+  showAIInbox(data, window._emailSession ? window._emailSession.email : '');
+}
+
 
 function emailTab(t, el) {
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
