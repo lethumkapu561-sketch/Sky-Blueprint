@@ -302,18 +302,31 @@ app.post('/api/match-jobs', (req, res) => {
 
 async function sendEmail(to, subject, htmlBody) {
   try {
-    // Use fetch to call a simple email API
-    // For now log it - add SMTP credentials in Railway env vars to activate
-    console.log('EMAIL TO:', to, 'SUBJECT:', subject);
-    
-    // If you have nodemailer configured:
-    // const nodemailer = require('nodemailer');
-    // const transporter = nodemailer.createTransport({
-    //   service: 'gmail',
-    //   auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_PASS }
-    // });
-    // await transporter.sendMail({ from: process.env.GMAIL_USER, to, subject, html: htmlBody });
-    
+    const nodemailer = require('nodemailer');
+
+    // Gmail SMTP - reads credentials from Railway environment variables
+    const GMAIL_USER = process.env.GMAIL_USER;
+    const GMAIL_PASS = process.env.GMAIL_PASS;
+
+    if (!GMAIL_USER || !GMAIL_PASS) {
+      console.log('EMAIL NOT SENT - Missing GMAIL_USER or GMAIL_PASS in Railway environment variables');
+      console.log('Would send to:', to, '| Subject:', subject);
+      return false;
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: GMAIL_USER, pass: GMAIL_PASS }
+    });
+
+    await transporter.sendMail({
+      from: 'Sky Blueprint <' + GMAIL_USER + '>',
+      to: to,
+      subject: subject,
+      html: htmlBody
+    });
+
+    console.log('EMAIL SENT to:', to, '| Subject:', subject);
     return true;
   } catch(err) {
     console.error('Email send error:', err.message);
@@ -431,6 +444,33 @@ app.post('/api/website-order', async (req, res) => {
     </div>`;
 
   await sendEmail('lethumkapu561@gmail.com', 'NEW WEBSITE ORDER - ' + order.business + ' (' + order.totalCharge + ')', html);
+  res.json({ success: true });
+});
+
+
+
+// ── LOGIN NOTIFICATION - tells owner when someone logs in ──
+app.post('/api/login-notify', async (req, res) => {
+  const { fname, lname, email, action } = req.body;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#060914;color:#e2e8f0;padding:32px;border-radius:16px">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-size:28px;font-weight:800;color:#38bdf8">Sky Blueprint</div>
+        <div style="font-size:14px;color:#64748b">${action === 'signup' ? 'New Account Created!' : 'User Login'}</div>
+      </div>
+      <div style="background:#0f1629;border-radius:12px;padding:20px">
+        <h2 style="color:#10b981;margin:0 0 16px">${action === 'signup' ? '🎉 New Customer Registered' : '👤 Customer Logged In'}</h2>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="color:#64748b;padding:6px 0;font-size:13px;width:120px">Name:</td><td style="color:#fff;font-weight:600;font-size:14px">${fname || ''} ${lname || ''}</td></tr>
+          <tr><td style="color:#64748b;padding:6px 0;font-size:13px">Email:</td><td style="color:#38bdf8;font-size:13px">${email}</td></tr>
+          <tr><td style="color:#64748b;padding:6px 0;font-size:13px">Action:</td><td style="color:#fff;font-size:13px">${action === 'signup' ? 'Created new account (7-day trial started)' : 'Logged into existing account'}</td></tr>
+          <tr><td style="color:#64748b;padding:6px 0;font-size:13px">Time:</td><td style="color:#fff;font-size:13px">${new Date().toLocaleString('en-ZA', {timeZone:'Africa/Johannesburg'})}</td></tr>
+        </table>
+      </div>
+    </div>`;
+
+  await sendEmail('lethumkapu561@gmail.com', (action === 'signup' ? 'NEW SIGNUP' : 'LOGIN') + ' - ' + email, html);
   res.json({ success: true });
 });
 

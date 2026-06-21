@@ -103,6 +103,12 @@ function doLogin() {
   localStorage.setItem('sb_current', JSON.stringify(user));
   document.getElementById('dash-greeting').textContent = 'Hi ' + user.fname + ' ' + (user.lname||'') + ' Welcome back!';
 
+  // Notify owner of login
+  fetch(BACKEND_URL + '/api/login-notify', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ fname:user.fname, lname:user.lname, email:user.email, action:'login' })
+  }).catch(function(){});
+
   // Show account status
   var banner = document.getElementById('trial-banner');
   if (banner) {
@@ -151,11 +157,17 @@ function doSignup() {
     banner.style.borderColor = 'rgba(16,185,129,0.3)';
   }
 
-  // Send welcome email
+  // Send welcome email to customer
   fetch(BACKEND_URL + '/api/welcome-email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: email, fname: fname, lname: lname })
+  }).catch(function(){});
+
+  // Notify owner of new signup
+  fetch(BACKEND_URL + '/api/login-notify', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ fname:fname, lname:lname, email:email, action:'signup' })
   }).catch(function(){});
 
   if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
@@ -569,7 +581,10 @@ function renderEmailCleaner(el) {
         </div>
         <div class="form-group">
           <label id="pass-label">Password / App Password</label>
-          <input type="password" id="ec-pass" placeholder="Your password">
+          <div style="position:relative">
+          <input type="password" id="ec-pass" placeholder="Your password" style="width:100%;box-sizing:border-box;padding-right:44px">
+          <button type="button" onclick="togglePass('ec-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:4px">👁️</button>
+        </div>
           <div id="pass-hint" style="font-size:11px;color:#38bdf8;margin-top:6px;display:none"></div>
         </div>
         <button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="scanEmails()">
