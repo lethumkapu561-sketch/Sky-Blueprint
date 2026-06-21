@@ -26,12 +26,52 @@ function closeMobileNav() {
   document.getElementById('mobileMenu').classList.remove('open');
 }
 
+var _pageHistory = ['home'];
+
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-' + name);
   if (page) {
     page.classList.add('active');
     window.scrollTo(0, 0);
+    // Track history for back button
+    if (_pageHistory[_pageHistory.length - 1] !== name) {
+      _pageHistory.push(name);
+      if (_pageHistory.length > 10) _pageHistory.shift();
+    }
+  }
+}
+
+function goBack() {
+  // Remove current page
+  _pageHistory.pop();
+  // Get previous page
+  var prev = _pageHistory[_pageHistory.length - 1] || 'dashboard';
+  // If logged in and going back to home, go to dashboard instead
+  if (prev === 'home' && currentUser) prev = 'dashboard';
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  var page = document.getElementById('page-' + prev);
+  if (page) { page.classList.add('active'); window.scrollTo(0,0); }
+}
+
+function navTo(section) {
+  // Go to home page first, then scroll to section
+  showPage('home');
+  setTimeout(function() {
+    var el = document.getElementById(section);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }, 100);
+}
+
+function togglePass(inputId, btn) {
+  var input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
   }
 }
 
@@ -41,6 +81,19 @@ function doLogin() {
   const pass = document.getElementById('login-pass').value;
   if (!email || !pass) { alert('Please enter your email and password.'); return; }
 
+  // OWNER ACCOUNT - free access, no password check needed for owner
+  if (email.toLowerCase() === OWNER_EMAIL.toLowerCase()) {
+    var ownerUser = { fname:'Wongalethu', lname:'Mkapu', email:OWNER_EMAIL, phone:'0656013544', plan:'owner' };
+    currentUser = ownerUser;
+    localStorage.setItem('sb_current', JSON.stringify(ownerUser));
+    document.getElementById('dash-greeting').textContent = 'Welcome back, Owner 👑 Wongalethu!';
+    var banner = document.getElementById('trial-banner');
+    if (banner) { banner.innerHTML = '👑 <strong>Owner Account</strong> — Full free access to all tools. You control Sky Blueprint.'; banner.style.background='rgba(245,158,11,0.08)'; banner.style.borderColor='rgba(245,158,11,0.3)'; }
+    showPage('dashboard');
+    if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
+    return;
+  }
+
   // Check stored users
   const users = JSON.parse(localStorage.getItem('sb_users') || '[]');
   const user = users.find(u => u.email === email && u.pass === btoa(pass));
@@ -48,8 +101,25 @@ function doLogin() {
 
   currentUser = user;
   localStorage.setItem('sb_current', JSON.stringify(user));
-  document.getElementById('dash-greeting').textContent = 'Hi ' + user.fname + ' ' + (user.lname||'') + ' 👋 Welcome back!';
-  showPage('dashboard');
+  document.getElementById('dash-greeting').textContent = 'Hi ' + user.fname + ' ' + (user.lname||'') + ' Welcome back!';
+
+  // Show account status
+  var banner = document.getElementById('trial-banner');
+  if (banner) {
+    if (user.plan === 'pro' || user.plan === 'paid' || user.plan === 'business') {
+      banner.innerHTML = '✅ <strong>Account Active</strong> — ' + user.email + '. All tools unlocked.';
+      banner.style.background = 'rgba(16,185,129,0.08)';
+      banner.style.borderColor = 'rgba(16,185,129,0.3)';
+    } else {
+      var joined = user.joined || Date.now();
+      var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined)/(1000*60*60*24)));
+      banner.innerHTML = '⏳ <strong>Trial Account</strong> — ' + daysLeft + ' day(s) left. <button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)">Subscribe R55/month</button>';
+    }
+  }
+
+  // If they were trying to open a tool, open it now
+  if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
+  else showPage('dashboard');
 }
 
 function doSignup() {
@@ -71,7 +141,25 @@ function doSignup() {
   localStorage.setItem('sb_current', JSON.stringify(user));
 
   document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' 👋 Welcome to Sky Blueprint!';
-  showPage('dashboard');
+
+  // Show account created confirmation in trial banner
+  var banner = document.getElementById('trial-banner');
+  if (banner) {
+    banner.innerHTML = '🎉 <strong>Account Created for ' + email + '!</strong> Your 7-day free trial is now active. ' +
+      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">Subscribe R55/month</button>';
+    banner.style.background = 'rgba(16,185,129,0.08)';
+    banner.style.borderColor = 'rgba(16,185,129,0.3)';
+  }
+
+  // Send welcome email
+  fetch(BACKEND_URL + '/api/welcome-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, fname: fname, lname: lname })
+  }).catch(function(){});
+
+  if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
+  else showPage('dashboard');
 }
 
 function doLogout() {
@@ -84,10 +172,9 @@ function requireAuth(tool) {
   const saved = localStorage.getItem('sb_current');
   if (saved) {
     currentUser = JSON.parse(saved);
-    document.getElementById('dash-greeting').textContent = 'Welcome back, ' + currentUser.fname + '! 👋';
-    showPage('dashboard');
-    setTimeout(() => openTool(tool), 100);
+    openTool(tool);
   } else {
+    window._pendingTool = tool;
     showPage('signup');
   }
 }
