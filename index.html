@@ -288,7 +288,7 @@
       <div class="about-inner">
         <div class="sec-label">ABOUT SKY BLUEPRINT</div>
         <h2 class="sec-title">Built by a South African,<br>for South Africans.</h2>
-        <p>Sky Blueprint was founded by Wongalethu Mkapu to give every South African — whether you are a student, entrepreneur, job seeker or professional — access to powerful digital tools that big companies take for granted. We believe technology should be affordable, simple and built for the African context.</p>
+        <p>Sky Blueprint was created to give every South African — whether you are a student, entrepreneur, job seeker or professional — access to powerful digital tools that big companies take for granted. We believe technology should be affordable, simple and built for the African context.</p>
         <div class="about-stats">
           <div class="as"><strong>6</strong><span>Powerful Tools</span></div>
           <div class="as"><strong>24/7</strong><span>Always Available</span></div>
@@ -376,6 +376,7 @@
         </div>
         <div class="dash-user">
           <span id="dash-greeting">Welcome!</span>
+          <button class="btn-ghost-sm" onclick="showAccount()" style="margin-right:8px">👤 My Account</button>
           <button class="btn-ghost-sm" onclick="doLogout()">Log Out</button>
         </div>
       </div>
@@ -393,6 +394,26 @@
           <div class="tool-card" onclick="openTool('cv-builder')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#14b8a6,#0ea5e9)">📄</div></div><h3>CV Builder & Jobs</h3><p>Build CV and find matching jobs.</p><div class="tc-arrow">Open →</div></div>
           <div class="tool-card" onclick="openTool('sa-map')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)">🗺️</div></div><h3>SA Map</h3><p>Explore South Africa on live map.</p><div class="tc-arrow">Open →</div></div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY ACCOUNT PAGE -->
+  <div class="page" id="page-account">
+    <div class="dash-wrap">
+      <div class="dash-header">
+        <div class="logo">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#acpg)"/><defs><linearGradient id="acpg" x1="5" y1="2" x2="27" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs></svg>
+          Sky <span>Blueprint</span>
+        </div>
+        <div class="dash-user">
+          <button class="btn-ghost-sm" onclick="showPage('dashboard')" style="margin-right:8px">← Back to Tools</button>
+          <button class="btn-ghost-sm" onclick="doLogout()">Log Out</button>
+        </div>
+      </div>
+      <div class="dash-body">
+        <h2 class="dash-title">My Account</h2>
+        <div id="account-content"></div>
       </div>
     </div>
   </div>

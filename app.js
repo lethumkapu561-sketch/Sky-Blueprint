@@ -174,6 +174,116 @@ function doSignup() {
   else showPage('dashboard');
 }
 
+function showAccount() {
+  if (!currentUser) { showPage('login'); return; }
+
+  var u = currentUser;
+  var planNames = {
+    owner: 'Owner Account',
+    trial: 'Free Trial',
+    monthly: 'Monthly Plan (R55/month)',
+    yearly: '3-Year Plan',
+    pro: 'Pro Plan',
+    paid: 'Active Plan',
+    business: 'Business Plan'
+  };
+  var planName = planNames[u.plan] || 'Free Trial';
+
+  // Calculate trial days or subscription info
+  var statusHTML = '';
+  if (u.plan === 'owner') {
+    statusHTML = '<div style="display:inline-block;background:rgba(245,158,11,0.15);color:#f59e0b;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">👑 OWNER</div>';
+  } else if (u.plan === 'monthly' || u.plan === 'yearly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
+    statusHTML = '<div style="display:inline-block;background:rgba(16,185,129,0.15);color:#10b981;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">✅ ACTIVE</div>';
+  } else {
+    var joined = u.joined || Date.now();
+    var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined) / (1000*60*60*24)));
+    statusHTML = '<div style="display:inline-block;background:rgba(56,189,248,0.15);color:#38bdf8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">⏳ TRIAL — ' + daysLeft + ' DAYS LEFT</div>';
+  }
+
+  var joinedDate = u.joined ? new Date(u.joined).toLocaleDateString('en-ZA', {year:'numeric',month:'long',day:'numeric'}) : 'Recently';
+
+  var html =
+    '<div style="max-width:600px">' +
+
+    // Profile card
+    '<div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.08));border:1px solid rgba(56,189,248,0.2);border-radius:16px;padding:24px;margin-bottom:20px">' +
+    '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">' +
+    '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#6366f1);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff">' + (u.fname ? u.fname.charAt(0).toUpperCase() : 'U') + '</div>' +
+    '<div><div style="font-size:20px;font-weight:800;color:#fff">' + (u.fname||'') + ' ' + (u.lname||'') + '</div>' +
+    '<div style="margin-top:6px">' + statusHTML + '</div></div>' +
+    '</div>' +
+
+    '<div style="display:flex;flex-direction:column;gap:12px">' +
+    accountRow('📧', 'Email', u.email) +
+    (u.phone ? accountRow('📱', 'Phone', u.phone) : '') +
+    accountRow('💳', 'Current Plan', planName) +
+    accountRow('📅', 'Member Since', joinedDate) +
+    '</div>' +
+    '</div>' +
+
+    // Plan management
+    '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:20px">' +
+    '<h3 style="font-size:16px;font-weight:700;color:#fff;margin:0 0 16px">Manage Your Plan</h3>';
+
+  if (u.plan === 'trial' || !u.plan) {
+    html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Upgrade now to keep all your tools after your trial ends.</p>' +
+      '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:10px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">Pay Once — R1,980 for 3 Years</button>';
+  } else if (u.plan === 'monthly' || u.plan === 'pro' || u.plan === 'paid') {
+    html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Your monthly plan is active. R55 is debited on your subscription date each month.</p>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
+  } else if (u.plan === 'yearly') {
+    html += '<p style="font-size:13px;color:var(--muted)">You have the 3-Year Plan. Enjoy all tools with no monthly payments until your plan expires.</p>';
+  } else if (u.plan === 'owner') {
+    html += '<p style="font-size:13px;color:#f59e0b">👑 You are the owner. You have full free access to everything, forever.</p>';
+  }
+
+  html += '</div>' +
+
+    // Account actions
+    '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px">' +
+    '<h3 style="font-size:16px;font-weight:700;color:#fff;margin:0 0 16px">Account</h3>' +
+    '<button style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px;margin-bottom:10px" onclick="showPage(\'dashboard\')">← Back to My Tools</button>' +
+    '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px" onclick="doLogout()">Log Out</button>' +
+    '</div>' +
+
+    '</div>';
+
+  document.getElementById('account-content').innerHTML = html;
+  showPage('account');
+}
+
+function accountRow(icon, label, value) {
+  return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)">' +
+    '<span style="font-size:18px">' + icon + '</span>' +
+    '<span style="font-size:13px;color:var(--muted);min-width:110px">' + label + '</span>' +
+    '<span style="font-size:14px;color:#fff;font-weight:600">' + value + '</span>' +
+    '</div>';
+}
+
+function cancelPlan() {
+  if (!confirm('Are you sure you want to cancel your subscription? You will lose access to the tools when your current period ends.')) return;
+
+  // Update user to cancelled
+  currentUser.plan = 'cancelled';
+  localStorage.setItem('sb_current', JSON.stringify(currentUser));
+
+  // Update in users list
+  var users = JSON.parse(localStorage.getItem('sb_users') || '[]');
+  var idx = users.findIndex(function(u){ return u.email === currentUser.email; });
+  if (idx > -1) { users[idx].plan = 'cancelled'; localStorage.setItem('sb_users', JSON.stringify(users)); }
+
+  // Notify owner of cancellation
+  fetch(BACKEND_URL + '/api/login-notify', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ fname:currentUser.fname, lname:currentUser.lname, email:currentUser.email, action:'cancel' })
+  }).catch(function(){});
+
+  alert('Your subscription has been cancelled. You can re-subscribe anytime from your account page.');
+  showAccount();
+}
+
 function doLogout() {
   currentUser = null;
   localStorage.removeItem('sb_current');
