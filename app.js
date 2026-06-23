@@ -2,6 +2,9 @@
 // YOUR PAYSTACK PUBLIC KEY — replace with your real key from paystack.com/dashboard
 var PAYSTACK_PUBLIC_KEY = 'pk_live_b07f0d8b9ee7305c57362ec9bbb89fe1eb0f9433';
 var OWNER_EMAIL = 'lethumkapu561@gmail.com';
+// Paystack payment links/plans
+var PAYSTACK_MONTHLY_LINK = 'https://paystack.shop/pay/2g6pr6rq0e';  // R55/month recurring
+var PAYSTACK_YEARLY_PLAN = 'PLN_481j8rtfqd47uze';                    // R1,980/year x 3 years
 var PLAN_CODES = { pro: 'PLN_xxxxxxxxxx', business: 'PLN_xxxxxxxxxx' };
 var PRICES = {
   monthly: 5500,       // R55/month — all tools
@@ -1896,12 +1899,12 @@ function startPaystack(plan) {
   var titles = {
     website: 'Order Your Website — R450',
     monthly: 'Subscribe Monthly — R55/month',
-    yearly: '3-Year Plan — R1,980 once-off'
+    yearly: '3-Year Plan — R1,980/year'
   };
   var subs = {
     website: 'R450 once-off · We build your professional website in 24-48 hours',
     monthly: 'R55/month · All 6 tools · Auto-debit via Paystack · Cancel anytime',
-    yearly: 'R1,980 once-off · 36 months full access · Best value'
+    yearly: 'R1,980 per year for 3 years · Auto-renews yearly · All tools'
   };
   document.getElementById('modal-title').textContent = titles[plan] || 'Subscribe to Sky Blueprint';
   document.getElementById('modal-sub').textContent = subs[plan] || '';
@@ -1920,37 +1923,85 @@ function processPayment() {
   const phone = document.getElementById('pay-phone').value.trim();
   if (!name || !email) { alert('Please enter your name and email to continue.'); return; }
 
-  // Load Paystack inline
+  // MONTHLY - send to Paystack subscription payment page (auto-charges R55 every month)
+  if (currentPlan === 'monthly') {
+    closeModal();
+    // Mark intent locally - real activation confirmed by Paystack
+    markPlanActive('monthly', name, email, phone);
+    window.open(PAYSTACK_MONTHLY_LINK + '?email=' + encodeURIComponent(email), '_blank');
+    return;
+  }
+
+  // YEARLY - use Paystack subscription plan (R1,980/year for 3 years) via popup
+  if (currentPlan === 'yearly') {
+    if (typeof PaystackPop === 'undefined') {
+      closeModal();
+      markPlanActive('yearly', name, email, phone);
+      window.open('https://paystack.com/pay/' + PAYSTACK_YEARLY_PLAN, '_blank');
+      return;
+    }
+    const handlerY = PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: email,
+      plan: PAYSTACK_YEARLY_PLAN,
+      currency: 'ZAR',
+      ref: 'SB-Y-' + Date.now(),
+      metadata: { name: name, phone: phone, plan: 'yearly' },
+      callback: function(response) {
+        closeModal();
+        markPlanActive('yearly', name, email, phone);
+        alert('🎉 Payment successful! You are now on the Sky Blueprint 3-Year Plan! Reference: ' + response.reference);
+      },
+      onClose: function() {}
+    });
+    handlerY.openIframe();
+    return;
+  }
+
+  // WEBSITE and other once-off payments via popup
   if (typeof PaystackPop === 'undefined') {
-    // Paystack JS not loaded — redirect to payment page
+    closeModal();
     alert('Redirecting to secure Paystack checkout...');
-    window.open(`https://paystack.com/pay/sky-blueprint-${currentPlan}`, '_blank');
+    window.open(PAYSTACK_MONTHLY_LINK, '_blank');
     return;
   }
 
   const handler = PaystackPop.setup({
     key: PAYSTACK_PUBLIC_KEY,
     email: email,
-    amount: PRICES[currentPlan],
+    amount: PRICES[currentPlan] || 45000,
     currency: 'ZAR',
     ref: 'SB-' + Date.now(),
-    metadata: { name, phone, plan: currentPlan },
+    metadata: { name: name, phone: phone, plan: currentPlan },
     callback: function(response) {
       closeModal();
-      // Update user plan
-      if (currentUser) {
-        currentUser.plan = currentPlan;
-        const users = JSON.parse(localStorage.getItem('sb_users') || '[]');
-        const idx = users.findIndex(u => u.email === currentUser.email);
-        if (idx > -1) { users[idx] = currentUser; localStorage.setItem('sb_users', JSON.stringify(users)); }
-        localStorage.setItem('sb_current', JSON.stringify(currentUser));
-        document.getElementById('trial-banner').innerHTML = `✅ <strong>You are now on Sky Blueprint ${currentPlan.toUpperCase()}!</strong> Enjoy full unlimited access.`;
-      }
-      alert('🎉 Payment successful! Welcome to Sky Blueprint ' + currentPlan.toUpperCase() + '! Reference: ' + response.reference);
+      markPlanActive(currentPlan, name, email, phone);
+      alert('🎉 Payment successful! Reference: ' + response.reference);
     },
-    onClose: function() { console.log('Payment window closed'); }
+    onClose: function() {}
   });
   handler.openIframe();
+}
+
+function markPlanActive(plan, name, email, phone) {
+  if (currentUser) {
+    currentUser.plan = (plan === 'website') ? currentUser.plan : plan;
+    var users = JSON.parse(localStorage.getItem('sb_users') || '[]');
+    var idx = users.findIndex(function(u){ return u.email === currentUser.email; });
+    if (idx > -1) { users[idx] = currentUser; localStorage.setItem('sb_users', JSON.stringify(users)); }
+    localStorage.setItem('sb_current', JSON.stringify(currentUser));
+    var banner = document.getElementById('trial-banner');
+    if (banner && plan !== 'website') {
+      banner.innerHTML = '✅ <strong>You are now on Sky Blueprint ' + plan.toUpperCase() + '!</strong> Enjoy full access to all tools.';
+      banner.style.background = 'rgba(16,185,129,0.08)';
+      banner.style.borderColor = 'rgba(16,185,129,0.3)';
+    }
+  }
+  // Notify owner of new paid subscription
+  fetch(BACKEND_URL + '/api/login-notify', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ fname: name, lname: '', email: email, action: 'subscribe-' + plan })
+  }).catch(function(){});
 }
 
 // ── Init ──
@@ -2061,68 +2112,6 @@ function searchM(){const q=document.getElementById('ms').value;if(!q)return;docu
 function mapCity(c){document.getElementById('ms').value=c;searchM();}
 
 // ── Paystack Payment ──
-function startPaystack(plan) {
-  currentPlan = plan;
-  var titles = {
-    website: 'Order Your Website — R450',
-    monthly: 'Subscribe Monthly — R55/month',
-    yearly: '3-Year Plan — R1,980 once-off'
-  };
-  var subs = {
-    website: 'R450 once-off · We build your professional website in 24-48 hours',
-    monthly: 'R55/month · All 6 tools · Auto-debit via Paystack · Cancel anytime',
-    yearly: 'R1,980 once-off · 36 months full access · Best value'
-  };
-  document.getElementById('modal-title').textContent = titles[plan] || 'Subscribe to Sky Blueprint';
-  document.getElementById('modal-sub').textContent = subs[plan] || '';
-  if (currentUser) {
-    document.getElementById('pay-name').value = (currentUser.fname + ' ' + currentUser.lname).trim();
-    document.getElementById('pay-email').value = currentUser.email || '';
-    document.getElementById('pay-phone').value = currentUser.phone || '';
-  }
-  document.getElementById('pay-modal').classList.remove('hidden');
-}
-function closeModal() { document.getElementById('pay-modal').classList.add('hidden'); }
-
-function processPayment() {
-  const name = document.getElementById('pay-name').value.trim();
-  const email = document.getElementById('pay-email').value.trim();
-  const phone = document.getElementById('pay-phone').value.trim();
-  if (!name || !email) { alert('Please enter your name and email to continue.'); return; }
-
-  // Load Paystack inline
-  if (typeof PaystackPop === 'undefined') {
-    // Paystack JS not loaded — redirect to payment page
-    alert('Redirecting to secure Paystack checkout...');
-    window.open(`https://paystack.com/pay/sky-blueprint-${currentPlan}`, '_blank');
-    return;
-  }
-
-  const handler = PaystackPop.setup({
-    key: PAYSTACK_PUBLIC_KEY,
-    email: email,
-    amount: PRICES[currentPlan],
-    currency: 'ZAR',
-    ref: 'SB-' + Date.now(),
-    metadata: { name, phone, plan: currentPlan },
-    callback: function(response) {
-      closeModal();
-      // Update user plan
-      if (currentUser) {
-        currentUser.plan = currentPlan;
-        const users = JSON.parse(localStorage.getItem('sb_users') || '[]');
-        const idx = users.findIndex(u => u.email === currentUser.email);
-        if (idx > -1) { users[idx] = currentUser; localStorage.setItem('sb_users', JSON.stringify(users)); }
-        localStorage.setItem('sb_current', JSON.stringify(currentUser));
-        document.getElementById('trial-banner').innerHTML = `✅ <strong>You are now on Sky Blueprint ${currentPlan.toUpperCase()}!</strong> Enjoy full unlimited access.`;
-      }
-      alert('🎉 Payment successful! Welcome to Sky Blueprint ' + currentPlan.toUpperCase() + '! Reference: ' + response.reference);
-    },
-    onClose: function() { console.log('Payment window closed'); }
-  });
-  handler.openIframe();
-}
-
 // ── Init ──
 document.addEventListener('DOMContentLoaded', function() {
   // Check if user is already logged in
