@@ -302,6 +302,35 @@ function requireAuth(tool) {
 }
 
 // ── Tools ──
+function isTrialExpired(user) {
+  if (!user) return false;
+  // Owner and paid plans never expire
+  if (user.plan === 'owner' || user.plan === 'monthly' || user.plan === 'yearly' || user.plan === 'pro' || user.plan === 'paid' || user.plan === 'business') return false;
+  if (user.plan === 'cancelled') return true;
+  // Trial: check 7 days
+  var joined = user.joined || Date.now();
+  var daysPassed = Math.floor((Date.now() - joined) / (1000*60*60*24));
+  return daysPassed >= 7;
+}
+
+function showTrialExpired() {
+  var body = document.getElementById('tool-page-body');
+  if (body) {
+    document.getElementById('tool-page-title').textContent = '⏳ Trial Ended';
+    body.innerHTML =
+      '<div class="tool-screen" style="text-align:center;padding:40px 20px">' +
+      '<div style="font-size:56px;margin-bottom:16px">⏳</div>' +
+      '<h2 style="color:#fff;margin-bottom:10px">Your 7-Day Free Trial Has Ended</h2>' +
+      '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto">Thank you for trying Sky Blueprint! To keep using all the tools, please subscribe. SA Map stays free forever.</p>' +
+      '<div style="max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:10px">' +
+      '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">Pay Once — R1,980 for 3 Years</button>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px;margin-top:6px" onclick="openTool(\'sa-map\')">🗺️ Use SA Map (Free)</button>' +
+      '</div></div>';
+    showPage('tool');
+  }
+}
+
 function openTool(name) {
   const titles = {
     'website-builder': '🌐 Website Builder',
@@ -322,6 +351,11 @@ function openTool(name) {
     'cv-builder': renderCVBuilder,
     'sa-map': renderSAMap,
   };
+  // SA Map is always free - skip trial check
+  if (name !== 'sa-map' && isTrialExpired(currentUser)) {
+    showTrialExpired();
+    return;
+  }
   if (renderers[name]) renderers[name](body);
   showPage('tool');
 }
@@ -1485,44 +1519,122 @@ function updateQualHint() {
   }
 }
 
-async function buildAndMatchCV() {
-  var fn = document.getElementById('cv-fn').value;
-  var qual = document.getElementById('cv-qual-level').value;
-  var exp = document.getElementById('cv-exp').value;
-  var jt = document.getElementById('cv-jt').value;
-  var loc = document.getElementById('cv-ci').value || 'South Africa';
-  var skills = document.getElementById('cv-sk').value;
-  var summary = document.getElementById('cv-sum').value;
+function buildAndMatchCV() {
+  var fn   = (document.getElementById('cv-fn')   || {value:''}).value.trim();
+  var ln   = (document.getElementById('cv-ln')   || {value:''}).value.trim();
+  var em   = (document.getElementById('cv-em')   || {value:''}).value.trim();
+  var ph   = (document.getElementById('cv-ph')   || {value:''}).value.trim();
+  var ci   = (document.getElementById('cv-ci')   || {value:''}).value.trim();
+  var qual = (document.getElementById('cv-qual-level') || {value:''}).value;
+  var exp  = (document.getElementById('cv-exp')  || {value:'0'}).value;
+  var jt   = (document.getElementById('cv-jt')   || {value:''}).value.trim();
+  var co   = (document.getElementById('cv-co')   || {value:''}).value.trim();
+  var sd   = (document.getElementById('cv-sd')   || {value:''}).value.trim();
+  var ed   = (document.getElementById('cv-ed')   || {value:''}).value.trim();
+  var inst = (document.getElementById('cv-inst') || {value:''}).value.trim();
+  var yr   = (document.getElementById('cv-year') || {value:''}).value.trim();
+  var sk   = (document.getElementById('cv-sk')   || {value:''}).value.trim();
+  var sum  = (document.getElementById('cv-sum')  || {value:''}).value.trim();
+  var photo = window._cvPhoto || '';
 
   if (!fn || !qual) {
-    alert('Please enter your name and select your highest qualification');
+    alert('Please enter your name and select your highest qualification.');
     return;
   }
 
-  document.getElementById('cv-msg').innerHTML = '<div style="text-align:center;padding:16px;color:var(--muted)">🤖 AI is matching your CV to jobs...</div>';
+  var qualLabels = {
+    grade9:'Grade 9', grade10:'Grade 10', grade11:'Grade 11',
+    matric:'Grade 12 / Matric', n4:'N4 Certificate', n5:'N5 Certificate',
+    n6:'N6 Certificate / Trade', diploma:'Diploma', degree:'Degree',
+    honours:'Honours Degree', masters:'Masters Degree', phd:'PhD / Doctorate'
+  };
+  var qualLabel = qualLabels[qual] || qual;
+  var skillArr = sk ? sk.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
 
-  // Build CV text for analysis
-  var cvText = `Name: ${fn} ${document.getElementById('cv-ln').value}
-Qualification: ${qual}
-Experience: ${exp} years
-Job Title: ${jt}
-Skills: ${skills}
-Summary: ${summary}`;
+  // BUILD THE BRANDED CV HTML
+  var cvHTML =
+'<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
+'<meta name="viewport" content="width=device-width,initial-scale=1">' +
+'<title>' + fn + ' ' + ln + ' - CV</title><style>' +
+'@import url(\'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap\');' +
+'*{margin:0;padding:0;box-sizing:border-box;}' +
+'body{font-family:Inter,Arial,sans-serif;color:#e2e8f0;background:#060914;font-size:10.5pt;line-height:1.6;}' +
+'.page{max-width:820px;margin:0 auto;background:#060914;display:flex;min-height:100vh;}' +
+'.sidebar{width:230px;background:linear-gradient(180deg,#0d1f3c,#1a1040);padding:32px 22px;}' +
+'.main{flex:1;padding:32px 30px;}' +
+'.photo{width:100px;height:100px;border-radius:50%;border:3px solid #38bdf8;object-fit:cover;display:block;margin:0 auto 16px;}' +
+'.avatar{width:100px;height:100px;border-radius:50%;border:3px solid #38bdf8;background:#1e3a5f;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 16px;}' +
+'.name{font-size:17pt;font-weight:700;color:#fff;text-align:center;line-height:1.2;}' +
+'.role{font-size:10pt;color:#38bdf8;text-align:center;margin-bottom:20px;}' +
+'.sb-title{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#38bdf8;margin:18px 0 10px;padding-bottom:4px;border-bottom:1px solid rgba(56,189,248,0.3);}' +
+'.sb-item{font-size:9.5pt;color:#b0c4d8;margin-bottom:7px;word-break:break-word;}' +
+'.skill{font-size:9.5pt;color:#cbd5e1;margin-bottom:8px;padding-left:14px;position:relative;}' +
+'.skill:before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;border-radius:50%;background:#38bdf8;}' +
+'.sec-title{font-size:11pt;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#38bdf8;margin:0 0 12px;padding-bottom:5px;border-bottom:2px solid rgba(56,189,248,0.4);}' +
+'.section{margin-bottom:24px;}' +
+'.profile-text{font-size:10.5pt;color:#94a3b8;line-height:1.7;}' +
+'.edu-qual{font-size:12pt;font-weight:700;color:#fff;}' +
+'.edu-meta{font-size:9.5pt;color:#64748b;margin-top:3px;}' +
+'.exp-title{font-size:12pt;font-weight:700;color:#fff;}' +
+'.exp-co{font-size:10pt;color:#38bdf8;font-weight:600;margin:2px 0 4px;}' +
+'.exp-date{font-size:9pt;color:#64748b;}' +
+'.footer{margin-top:auto;padding-top:20px;border-top:1px solid rgba(56,189,248,0.2);text-align:center;font-size:8.5pt;color:#38bdf8;font-weight:600;}' +
+'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.no-print{display:none!important;}}' +
+'@media(max-width:600px){.page{flex-direction:column;}.sidebar{width:100%;}}' +
+'</style></head><body><div class="page">' +
 
-  try {
-    // Use backend for CV matching
-    var res = await fetch(BACKEND_URL + '/api/match-jobs', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ cvText, jobTitle: jt || skills.split(',')[0], location: loc })
-    });
-    var data = await res.json();
-    showMatchingJobs(data, fn, loc, jt);
-  } catch(e) {
-    // Fallback if backend not connected yet
-    var levelData = detectLevel(qual, exp);
-    showMatchingJobs(levelData, fn, loc, jt);
-  }
+// SIDEBAR
+'<div class="sidebar">' +
+(photo ? '<img src="'+photo+'" class="photo">' : '<div class="avatar">👤</div>') +
+'<div class="name">' + fn + ' ' + ln + '</div>' +
+'<div class="role">' + (jt || qualLabel) + '</div>' +
+'<div class="sb-title">Contact</div>' +
+(ph ? '<div class="sb-item">📞 ' + ph + '</div>' : '') +
+(em ? '<div class="sb-item">✉️ ' + em + '</div>' : '') +
+(ci ? '<div class="sb-item">📍 ' + ci + '</div>' : '') +
+(skillArr.length ? '<div class="sb-title">Skills</div>' + skillArr.map(function(s){ return '<div class="skill">'+s+'</div>'; }).join('') : '') +
+'<div class="sb-title">References</div><div class="sb-item" style="font-style:italic">Available on request</div>' +
+'</div>' +
+
+// MAIN
+'<div class="main" style="display:flex;flex-direction:column">' +
+(sum ? '<div class="section"><div class="sec-title">Personal Profile</div><div class="profile-text">' + sum + '</div></div>' : '') +
+'<div class="section"><div class="sec-title">Education</div>' +
+'<div class="edu-qual">' + qualLabel + '</div>' +
+'<div class="edu-meta">' + [inst, yr ? 'Graduated '+yr : ''].filter(Boolean).join(' • ') + '</div></div>' +
+((jt||co) ? '<div class="section"><div class="sec-title">Work Experience</div>' +
+  '<div class="exp-title">' + (jt||'') + '</div>' +
+  (co ? '<div class="exp-co">' + co + '</div>' : '') +
+  ((sd||ed) ? '<div class="exp-date">' + [sd,ed].filter(Boolean).join(' - ') + '</div>' : '') +
+  (exp && exp !== '0' ? '<div class="exp-date">' + exp + ' years experience</div>' : '') +
+  '</div>' : '') +
+'<div class="footer">Sky Blueprint — Your Digital Life, Unified</div>' +
+'</div>' +
+
+'</div>' +
+'<div class="no-print" style="text-align:center;padding:20px;background:#060914">' +
+'<button onclick="window.print()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">📥 Save as PDF</button>' +
+'</div></body></html>';
+
+  // CRITICAL: set the global so download/print/preview work
+  window._cvHTML = cvHTML;
+  window._cvName = (fn + '_' + ln + '_CV').replace(/\s+/g,'_');
+
+  // Show success + download buttons
+  document.getElementById('cv-msg').innerHTML =
+    '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:18px">' +
+    '<strong style="color:var(--green);display:block;margin-bottom:12px;font-size:16px">✅ CV Built for ' + fn + ' ' + ln + '!</strong>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
+    '<button onclick="downloadCV()" style="flex:1;min-width:120px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📥 Download File</button>' +
+    '<button onclick="printCV()" style="flex:1;min-width:120px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#a5b4fc;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">🖨️ Print / PDF</button>' +
+    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
+    '</div>' +
+    '<p style="font-size:11px;color:#64748b;margin:0">📱 Download saves to your phone/PC — share on WhatsApp or email when applying for jobs</p>' +
+    '</div>';
+
+  // Now match jobs
+  var levelData = detectLevel(qual, exp);
+  showMatchingJobs(levelData, fn, ci, jt);
 }
 
 function detectLevel(qual, exp) {
