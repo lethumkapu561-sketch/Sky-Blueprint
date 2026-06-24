@@ -45,6 +45,58 @@ function showPage(name) {
   }
 }
 
+function updateNav() {
+  var loggedOut = document.getElementById('nav-logged-out');
+  var loggedIn = document.getElementById('nav-logged-in');
+  var badge = document.getElementById('nav-trial-badge');
+  var username = document.getElementById('nav-username');
+
+  if (!loggedOut || !loggedIn) return;
+
+  var saved = localStorage.getItem('sb_current');
+  if (saved) {
+    var u = JSON.parse(saved);
+    currentUser = u;
+    loggedOut.style.display = 'none';
+    loggedIn.style.display = 'flex';
+
+    if (username) username.innerHTML = '👤 ' + (u.fname || 'My Account');
+
+    // Trial badge
+    if (badge) {
+      if (u.plan === 'owner') {
+        badge.textContent = '👑 Owner';
+        badge.style.background = 'rgba(245,158,11,0.15)';
+        badge.style.color = '#f59e0b';
+      } else if (u.plan === 'monthly' || u.plan === 'yearly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
+        badge.textContent = '✅ Active Plan';
+        badge.style.background = 'rgba(16,185,129,0.15)';
+        badge.style.color = '#10b981';
+      } else if (u.plan === 'cancelled') {
+        badge.textContent = '⏳ Plan Ended';
+        badge.style.background = 'rgba(239,68,68,0.15)';
+        badge.style.color = '#f87171';
+      } else {
+        // Trial - show days left with $0
+        var joined = u.joined || Date.now();
+        var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined) / (1000*60*60*24)));
+        if (daysLeft > 0) {
+          badge.textContent = '🎁 Free Trial · ' + daysLeft + ' day' + (daysLeft===1?'':'s') + ' left · $0';
+          badge.style.background = 'rgba(56,189,248,0.15)';
+          badge.style.color = '#38bdf8';
+        } else {
+          badge.textContent = '⏳ Trial Ended · Subscribe';
+          badge.style.background = 'rgba(239,68,68,0.15)';
+          badge.style.color = '#f87171';
+        }
+      }
+    }
+  } else {
+    loggedOut.style.display = 'flex';
+    loggedIn.style.display = 'none';
+  }
+}
+
 function goBack() {
   // Remove current page
   _pageHistory.pop();
@@ -92,6 +144,7 @@ function doLogin() {
     document.getElementById('dash-greeting').textContent = 'Welcome back, Owner 👑 Wongalethu!';
     var banner = document.getElementById('trial-banner');
     if (banner) { banner.innerHTML = '👑 <strong>Owner Account</strong> — Full free access to all tools. You control Sky Blueprint.'; banner.style.background='rgba(245,158,11,0.08)'; banner.style.borderColor='rgba(245,158,11,0.3)'; }
+    updateNav();
     showPage('dashboard');
     if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
     return;
@@ -127,6 +180,7 @@ function doLogin() {
   }
 
   // If they were trying to open a tool, open it now
+  updateNav();
   if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
   else showPage('dashboard');
 }
@@ -173,6 +227,7 @@ function doSignup() {
     body: JSON.stringify({ fname:fname, lname:lname, email:email, action:'signup' })
   }).catch(function(){});
 
+  updateNav();
   if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
   else showPage('dashboard');
 }
@@ -290,6 +345,7 @@ function cancelPlan() {
 function doLogout() {
   currentUser = null;
   localStorage.removeItem('sb_current');
+  updateNav();
   showPage('home');
 }
 
@@ -2014,6 +2070,8 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('dash-greeting').textContent = 'Welcome back, ' + currentUser.fname + '! 👋';
     } catch(e) {}
   }
+  // Update nav to show name + trial days if logged in
+  updateNav();
   // Load Paystack script
   const ps = document.createElement('script');
   ps.src = 'https://js.paystack.co/v1/inline.js';
@@ -2122,6 +2180,8 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('dash-greeting').textContent = 'Welcome back, ' + currentUser.fname + '! 👋';
     } catch(e) {}
   }
+  // Update nav to show name + trial days if logged in
+  updateNav();
   // Load Paystack script
   const ps = document.createElement('script');
   ps.src = 'https://js.paystack.co/v1/inline.js';
