@@ -33,9 +33,14 @@
       <a href="#pricing" onclick="event.preventDefault();navTo('pricing')">Pricing</a>
       <a href="#about" onclick="event.preventDefault();navTo('about')">About</a>
     </div>
-    <div class="nav-actions">
+    <div class="nav-actions" id="nav-logged-out">
       <button class="btn-ghost-sm" onclick="showPage('login')">Log In</button>
       <button class="btn-primary-sm" onclick="showPage('signup')">Start Free Trial</button>
+    </div>
+    <div class="nav-actions" id="nav-logged-in" style="display:none;align-items:center;gap:12px">
+      <span id="nav-trial-badge" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(56,189,248,0.15);color:#38bdf8;white-space:nowrap"></span>
+      <button class="btn-ghost-sm" onclick="showPage('dashboard')" id="nav-username" style="display:flex;align-items:center;gap:6px"></button>
+      <button class="btn-ghost-sm" onclick="doLogout()">Log Out</button>
     </div>
     <button class="hamburger" onclick="toggleMobileNav()">
       <span></span><span></span><span></span>
