@@ -95,6 +95,45 @@ function updateNav() {
     loggedOut.style.display = 'flex';
     loggedIn.style.display = 'none';
   }
+
+  // Also update the dashboard trial banner with live countdown
+  updateDashBanner();
+}
+
+function updateDashBanner() {
+  var banner = document.getElementById('trial-banner');
+  if (!banner || !currentUser) return;
+  var u = currentUser;
+
+  if (u.plan === 'owner') {
+    banner.innerHTML = '👑 <strong>Owner Account</strong> — Full free access to all tools, forever.';
+    banner.style.background = 'rgba(245,158,11,0.08)';
+    banner.style.borderColor = 'rgba(245,158,11,0.3)';
+  } else if (u.plan === 'monthly' || u.plan === 'yearly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
+    banner.innerHTML = '✅ <strong>Active Plan</strong> — You have full access to all Sky Blueprint tools.';
+    banner.style.background = 'rgba(16,185,129,0.08)';
+    banner.style.borderColor = 'rgba(16,185,129,0.3)';
+  } else if (u.plan === 'cancelled') {
+    banner.innerHTML = '⏳ <strong>Plan Ended</strong> — Re-subscribe to use the tools again. ' +
+      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
+    banner.style.background = 'rgba(239,68,68,0.08)';
+    banner.style.borderColor = 'rgba(239,68,68,0.3)';
+  } else {
+    // Trial - live day count
+    var joined = u.joined || Date.now();
+    var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined) / (1000*60*60*24)));
+    if (daysLeft > 0) {
+      banner.innerHTML = '🎉 You have <strong>' + daysLeft + ' day' + (daysLeft===1?'':'s') + '</strong> left on your free trial ($0). ' +
+        '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
+      banner.style.background = 'rgba(56,189,248,0.08)';
+      banner.style.borderColor = 'rgba(56,189,248,0.3)';
+    } else {
+      banner.innerHTML = '⏳ <strong>Your 7-day free trial has ended.</strong> Subscribe to keep using the tools. ' +
+        '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
+      banner.style.background = 'rgba(239,68,68,0.08)';
+      banner.style.borderColor = 'rgba(239,68,68,0.3)';
+    }
+  }
 }
 
 function goBack() {
