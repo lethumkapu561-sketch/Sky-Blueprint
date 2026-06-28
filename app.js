@@ -437,6 +437,7 @@ function openTool(name) {
     'ai-mentor': '🤖 AI Business Mentor',
     'cv-builder': '📄 CV Builder & Jobs',
     'sa-map': '🗺️ SA Map',
+    'reminders': '🔔 My Reminders & Tasks',
   };
   document.getElementById('tool-page-title').textContent = titles[name] || 'Tool';
   const body = document.getElementById('tool-page-body');
@@ -448,6 +449,7 @@ function openTool(name) {
     'ai-mentor': renderAIMentor,
     'cv-builder': renderCVBuilder,
     'sa-map': renderSAMap,
+    'reminders': renderReminders,
   };
   // SA Map is always free - skip trial check
   if (name !== 'sa-map' && isTrialExpired(currentUser)) {
@@ -1970,6 +1972,346 @@ function uploadAndAnalyzeCV(input) {
 
 
 // ── SA Map ──
+function renderReminders(el) {
+  el.innerHTML = `
+  <div class="tool-screen">
+    <h2>🔔 My Reminders & Tasks</h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:4px">Never miss a meeting, task, habit or family gathering again.</p>
+    <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Your personal assistant that reminds you while you focus on what matters.</p>
+
+    <div id="notif-permission" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="font-size:13px;color:#fff;font-weight:600;margin-bottom:8px">🔔 Enable notifications to get reminders</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Allow Sky Blueprint to chime and notify you when a task is due — even when this tab is in the background.</p>
+      <button class="btn-primary" style="font-size:13px;padding:10px 18px" onclick="enableNotifications()">Turn On Reminders</button>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active" onclick="reminderTab('add',this)">➕ Add New</div>
+      <div class="tab" onclick="reminderTab('today',this)">📅 Today</div>
+      <div class="tab" onclick="reminderTab('all',this)">📋 All</div>
+    </div>
+
+    <!-- ADD TAB -->
+    <div id="rt-add">
+      <div class="form-group"><label>What do you need to remember? *</label>
+        <input type="text" id="rem-title" placeholder="e.g. Board meeting with investors">
+      </div>
+      <div class="form-group"><label>Category</label>
+        <select id="rem-cat">
+          <option value="meeting">💼 Meeting / Work</option>
+          <option value="task">✅ Task / To-Do</option>
+          <option value="habit">🔄 Daily Habit</option>
+          <option value="family">👨‍👩‍👧 Family / Personal</option>
+          <option value="plan">📌 Plan / Goal</option>
+          <option value="payment">💰 Payment / Bill</option>
+          <option value="health">❤️ Health / Appointment</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Date *</label><input type="date" id="rem-date"></div>
+        <div class="form-group"><label>Time *</label><input type="time" id="rem-time"></div>
+      </div>
+      <div class="form-group"><label>Repeat?</label>
+        <select id="rem-repeat">
+          <option value="none">Once only</option>
+          <option value="daily">Every day (habit)</option>
+          <option value="weekly">Every week</option>
+          <option value="monthly">Every month</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Notes (optional)</label>
+        <textarea id="rem-notes" rows="2" placeholder="e.g. Bring the financial report, location: Sandton office"></textarea>
+      </div>
+      <button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:14px" onclick="addReminder()">
+        🔔 Set This Reminder
+      </button>
+    </div>
+
+    <!-- TODAY TAB -->
+    <div id="rt-today" style="display:none"></div>
+
+    <!-- ALL TAB -->
+    <div id="rt-all" style="display:none"></div>
+  </div>`;
+
+  // Set default date to today
+  setTimeout(function() {
+    var d = document.getElementById('rem-date');
+    if (d) d.value = new Date().toISOString().split('T')[0];
+    // Show notification permission prompt if not granted
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      var np = document.getElementById('notif-permission');
+      if (np) np.style.display = 'block';
+    }
+    // Start the reminder checker
+    startReminderChecker();
+  }, 100);
+}
+
+function reminderTab(tab, el) {
+  ['add','today','all'].forEach(function(t){
+    var e = document.getElementById('rt-' + t);
+    if (e) e.style.display = 'none';
+  });
+  var target = document.getElementById('rt-' + tab);
+  if (target) target.style.display = 'block';
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+
+  if (tab === 'today') renderTodayReminders();
+  if (tab === 'all') renderAllReminders();
+}
+
+function getReminders() {
+  try { return JSON.parse(localStorage.getItem('sb_reminders') || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveReminders(list) {
+  localStorage.setItem('sb_reminders', JSON.stringify(list));
+}
+
+function addReminder() {
+  var title  = (document.getElementById('rem-title')  || {value:''}).value.trim();
+  var cat    = (document.getElementById('rem-cat')    || {value:'task'}).value;
+  var date   = (document.getElementById('rem-date')   || {value:''}).value;
+  var time   = (document.getElementById('rem-time')   || {value:''}).value;
+  var repeat = (document.getElementById('rem-repeat') || {value:'none'}).value;
+  var notes  = (document.getElementById('rem-notes')  || {value:''}).value.trim();
+
+  if (!title) { alert('Please write what you need to remember.'); return; }
+  if (!date || !time) { alert('Please set both a date and time for your reminder.'); return; }
+
+  var reminders = getReminders();
+  reminders.push({
+    id: Date.now(),
+    title: title, cat: cat, date: date, time: time,
+    repeat: repeat, notes: notes, done: false, notified: false
+  });
+  saveReminders(reminders);
+
+  // Ask for notification permission if not set
+  if ('Notification' in window && Notification.permission === 'default') {
+    enableNotifications();
+  }
+
+  alert('🔔 Reminder set!\n\n"' + title + '"\non ' + formatReminderDate(date, time) + (repeat !== 'none' ? '\nRepeats: ' + repeat : ''));
+
+  // Clear form
+  document.getElementById('rem-title').value = '';
+  document.getElementById('rem-notes').value = '';
+  document.getElementById('rem-time').value = '';
+
+  // Switch to today tab
+  var tabs = document.querySelectorAll('.tab');
+  if (tabs[1]) reminderTab('today', tabs[1]);
+}
+
+var CAT_INFO = {
+  meeting: { icon:'💼', label:'Meeting', color:'#38bdf8' },
+  task:    { icon:'✅', label:'Task', color:'#10b981' },
+  habit:   { icon:'🔄', label:'Habit', color:'#a855f7' },
+  family:  { icon:'👨‍👩‍👧', label:'Family', color:'#ec4899' },
+  plan:    { icon:'📌', label:'Plan', color:'#f59e0b' },
+  payment: { icon:'💰', label:'Payment', color:'#22c55e' },
+  health:  { icon:'❤️', label:'Health', color:'#ef4444' }
+};
+
+function formatReminderDate(date, time) {
+  try {
+    var d = new Date(date + 'T' + time);
+    return d.toLocaleDateString('en-ZA', { weekday:'short', day:'numeric', month:'short' }) + ' at ' +
+           d.toLocaleTimeString('en-ZA', { hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return date + ' ' + time; }
+}
+
+function renderTodayReminders() {
+  var el = document.getElementById('rt-today');
+  if (!el) return;
+  var today = new Date().toISOString().split('T')[0];
+  var reminders = getReminders().filter(function(r){
+    return r.date === today || r.repeat === 'daily';
+  }).sort(function(a,b){ return a.time.localeCompare(b.time); });
+
+  if (reminders.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px">📅</div><p>No reminders for today.<br>Tap "Add New" to set one.</p></div>';
+    return;
+  }
+
+  el.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:14px">You have <strong style="color:#fff">' + reminders.length + '</strong> reminder' + (reminders.length>1?'s':'') + ' for today</div>' +
+    reminders.map(renderReminderCard).join('');
+}
+
+function renderAllReminders() {
+  var el = document.getElementById('rt-all');
+  if (!el) return;
+  var reminders = getReminders().sort(function(a,b){
+    return (a.date + a.time).localeCompare(b.date + b.time);
+  });
+
+  if (reminders.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px">📋</div><p>No reminders yet.<br>Tap "Add New" to create your first one.</p></div>';
+    return;
+  }
+
+  el.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:14px">All your reminders (' + reminders.length + ')</div>' +
+    reminders.map(renderReminderCard).join('');
+}
+
+function renderReminderCard(r) {
+  var ci = CAT_INFO[r.cat] || CAT_INFO.task;
+  var repeatBadge = r.repeat !== 'none' ? '<span style="font-size:10px;background:rgba(168,85,247,0.15);color:#a855f7;padding:2px 8px;border-radius:10px;margin-left:6px">🔄 ' + r.repeat + '</span>' : '';
+  return '<div id="rem-card-' + r.id + '" style="background:' + (r.done ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.04)') + ';border:1px solid ' + ci.color + '33;border-left:3px solid ' + ci.color + ';border-radius:10px;padding:14px;margin-bottom:10px;' + (r.done ? 'opacity:0.5' : '') + '">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
+    '<div style="flex:1;min-width:0">' +
+    '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">' +
+    '<span style="font-size:16px">' + ci.icon + '</span>' +
+    '<span style="font-size:14px;font-weight:700;color:#fff;' + (r.done ? 'text-decoration:line-through' : '') + '">' + r.title + '</span>' +
+    repeatBadge +
+    '</div>' +
+    '<div style="font-size:12px;color:' + ci.color + ';font-weight:600;margin-bottom:2px">🕐 ' + formatReminderDate(r.date, r.time) + '</div>' +
+    (r.notes ? '<div style="font-size:12px;color:var(--muted);margin-top:4px">' + r.notes + '</div>' : '') +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">' +
+    (!r.done ? '<button onclick="completeReminder(' + r.id + ')" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;font-family:var(--font);font-weight:600">✓ Done</button>' : '') +
+    '<button onclick="deleteReminder(' + r.id + ')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;font-family:var(--font)">Delete</button>' +
+    '</div></div></div>';
+}
+
+function completeReminder(id) {
+  var reminders = getReminders();
+  var r = reminders.find(function(x){ return x.id === id; });
+  if (r) {
+    if (r.repeat !== 'none') {
+      // For repeating, advance to next occurrence instead of marking done
+      var d = new Date(r.date + 'T' + r.time);
+      if (r.repeat === 'daily') d.setDate(d.getDate() + 1);
+      else if (r.repeat === 'weekly') d.setDate(d.getDate() + 7);
+      else if (r.repeat === 'monthly') d.setMonth(d.getMonth() + 1);
+      r.date = d.toISOString().split('T')[0];
+      r.notified = false;
+      alert('✓ Done! This repeating reminder is set for its next time: ' + formatReminderDate(r.date, r.time));
+    } else {
+      r.done = true;
+    }
+    saveReminders(reminders);
+    renderTodayReminders();
+    renderAllReminders();
+  }
+}
+
+function deleteReminder(id) {
+  if (!confirm('Delete this reminder?')) return;
+  var reminders = getReminders().filter(function(x){ return x.id !== id; });
+  saveReminders(reminders);
+  renderTodayReminders();
+  renderAllReminders();
+}
+
+function enableNotifications() {
+  if (!('Notification' in window)) {
+    alert('Your browser does not support notifications. Reminders will still show when you open Sky Blueprint.');
+    return;
+  }
+  Notification.requestPermission().then(function(perm) {
+    if (perm === 'granted') {
+      var np = document.getElementById('notif-permission');
+      if (np) np.style.display = 'none';
+      new Notification('🔔 Sky Blueprint Reminders On!', { body: 'Great! We will now remind you of your tasks and meetings.' });
+    } else {
+      alert('Notifications were not enabled. You can turn them on later in your browser settings. Reminders will still chime when Sky Blueprint is open.');
+    }
+  });
+}
+
+var _reminderCheckerStarted = false;
+function startReminderChecker() {
+  if (_reminderCheckerStarted) return;
+  _reminderCheckerStarted = true;
+  setInterval(checkReminders, 30000); // check every 30 seconds
+  checkReminders();
+}
+
+function checkReminders() {
+  var now = new Date();
+  var reminders = getReminders();
+  var changed = false;
+
+  reminders.forEach(function(r) {
+    if (r.done || r.notified) return;
+    var due = new Date(r.date + 'T' + r.time);
+    // Fire if due time has arrived (within the last 2 minutes window)
+    var diff = now - due;
+    if (diff >= 0 && diff < 120000) {
+      fireReminder(r);
+      r.notified = true;
+      changed = true;
+    }
+  });
+
+  if (changed) saveReminders(reminders);
+}
+
+function fireReminder(r) {
+  var ci = CAT_INFO[r.cat] || CAT_INFO.task;
+  var body = ci.label + ' • ' + formatReminderDate(r.date, r.time) + (r.notes ? '\n' + r.notes : '');
+
+  // Browser notification
+  if ('Notification' in window && Notification.permission === 'granted') {
+    var n = new Notification('🔔 ' + r.title, { body: body, requireInteraction: true });
+  }
+
+  // Chime sound
+  playChime();
+
+  // On-screen alert as backup
+  showReminderPopup(r);
+}
+
+function playChime() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var notes = [523.25, 659.25, 783.99]; // C, E, G chord
+    notes.forEach(function(freq, i) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      var start = ctx.currentTime + i * 0.15;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.3, start + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.8);
+      osc.start(start);
+      osc.stop(start + 0.8);
+    });
+  } catch(e) {}
+}
+
+function showReminderPopup(r) {
+  var ci = CAT_INFO[r.cat] || CAT_INFO.task;
+  var existing = document.getElementById('reminder-popup');
+  if (existing) existing.remove();
+
+  var popup = document.createElement('div');
+  popup.id = 'reminder-popup';
+  popup.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;background:#0f1629;border:2px solid ' + ci.color + ';border-radius:16px;padding:20px 24px;box-shadow:0 10px 40px rgba(0,0,0,0.5);max-width:90vw;width:380px;animation:slideDown 0.3s ease';
+  popup.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+    '<span style="font-size:28px">' + ci.icon + '</span>' +
+    '<div><div style="font-size:11px;color:' + ci.color + ';font-weight:700;text-transform:uppercase;letter-spacing:1px">🔔 Reminder — ' + ci.label + '</div>' +
+    '<div style="font-size:17px;font-weight:800;color:#fff">' + r.title + '</div></div>' +
+    '</div>' +
+    (r.notes ? '<div style="font-size:13px;color:var(--muted);margin:8px 0">' + r.notes + '</div>' : '') +
+    '<div style="font-size:12px;color:' + ci.color + ';margin-bottom:14px">🕐 ' + formatReminderDate(r.date, r.time) + '</div>' +
+    '<button onclick="document.getElementById(\'reminder-popup\').remove()" style="width:100%;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Got it ✓</button>';
+
+  document.body.appendChild(popup);
+  // Auto-remove after 30 seconds
+  setTimeout(function(){ var p = document.getElementById('reminder-popup'); if (p) p.remove(); }, 30000);
+}
+
 function renderSAMap(el) {
   el.innerHTML = `
   <div class="tool-screen">
@@ -2111,6 +2453,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   // Update nav to show name + trial days if logged in
   updateNav();
+  // Start reminder checker globally so reminders chime anywhere
+  if (typeof startReminderChecker === 'function') startReminderChecker();
   // Load Paystack script
   const ps = document.createElement('script');
   ps.src = 'https://js.paystack.co/v1/inline.js';
@@ -2221,6 +2565,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   // Update nav to show name + trial days if logged in
   updateNav();
+  // Start reminder checker globally so reminders chime anywhere
+  if (typeof startReminderChecker === 'function') startReminderChecker();
   // Load Paystack script
   const ps = document.createElement('script');
   ps.src = 'https://js.paystack.co/v1/inline.js';
