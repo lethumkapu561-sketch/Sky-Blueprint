@@ -271,3 +271,48 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:48px 24px
   border-color:rgba(56,189,248,0.4);
   background:rgba(56,189,248,0.04);
 }
+
+/* ── PROFESSIONAL POLISH v2 ── */
+.tool-card{background:linear-gradient(160deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));backdrop-filter:blur(10px);box-shadow:0 4px 24px rgba(0,0,0,0.2)}
+.tool-card:hover{border-color:rgba(56,189,248,0.4);box-shadow:0 12px 40px rgba(56,189,248,0.12),0 0 0 1px rgba(56,189,248,0.1);transform:translateY(-5px)}
+.tool-card::after{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(56,189,248,0.06),transparent 50%);opacity:0;transition:opacity 0.3s;pointer-events:none}
+.tool-card:hover::after{opacity:1}
+.tc-icon{box-shadow:0 6px 20px rgba(0,0,0,0.3);transition:transform 0.25s}
+.tool-card:hover .tc-icon{transform:scale(1.08) rotate(-3deg)}
+.tc-arrow{font-size:13px;font-weight:600;color:var(--sky);transition:gap 0.2s,letter-spacing 0.2s}
+.tool-card:hover .tc-arrow{letter-spacing:0.5px}
+.tc-badge{background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(56,189,248,0.15));color:#34d399;box-shadow:0 2px 8px rgba(16,185,129,0.2);text-transform:uppercase}
+
+/* Buttons - premium feel */
+.btn-primary{box-shadow:0 4px 20px rgba(56,189,248,0.25);letter-spacing:0.2px}
+.btn-primary:hover{box-shadow:0 8px 30px rgba(56,189,248,0.4);transform:translateY(-2px)}
+.btn-primary:active{transform:translateY(0)}
+
+/* Nav - sharper */
+#nav{box-shadow:0 1px 0 rgba(255,255,255,0.04)}
+.btn-primary-sm{box-shadow:0 2px 12px rgba(56,189,248,0.3)}
+.btn-primary-sm:hover{box-shadow:0 4px 18px rgba(56,189,248,0.45);transform:translateY(-1px)}
+
+/* Section titles - more premium */
+.sec-label{background:linear-gradient(90deg,var(--sky),var(--indigo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700}
+
+/* Pricing cards - premium shadows */
+.price-card{transition:transform 0.25s,box-shadow 0.25s,border-color 0.25s}
+.price-card:hover{transform:translateY(-6px);box-shadow:0 16px 48px rgba(0,0,0,0.3)}
+.price-card.featured{box-shadow:0 12px 48px rgba(56,189,248,0.15),0 0 0 1px rgba(56,189,248,0.2)}
+
+/* Form inputs - refined focus */
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--sky)!important;box-shadow:0 0 0 3px rgba(56,189,248,0.12)}
+
+/* Tab bar - smoother */
+.tab{transition:all 0.2s}
+.tab.active{box-shadow:0 2px 12px rgba(56,189,248,0.2)}
+
+/* Hero cards float shadow */
+.hc{box-shadow:0 12px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04)}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.2);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:rgba(56,189,248,0.35)}

@@ -35,7 +35,7 @@
     </div>
     <div class="nav-actions" id="nav-logged-out">
       <button class="btn-ghost-sm" onclick="showPage('login')">Log In</button>
-      <button class="btn-primary-sm" onclick="showPage('signup')">Start Free Trial</button>
+      <button class="btn-primary-sm" onclick="showPage('signup')">Get Started</button>
     </div>
     <div class="nav-actions" id="nav-logged-in" style="display:none;align-items:center;gap:12px">
       <span id="nav-trial-badge" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(56,189,248,0.15);color:#38bdf8;white-space:nowrap"></span>
@@ -51,7 +51,7 @@
     <a href="#pricing" onclick="closeMobileNav();document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
     <a href="#about" onclick="closeMobileNav();document.getElementById('about').scrollIntoView({behavior:'smooth'})">About</a>
     <button class="btn-ghost-sm" onclick="showPage('login');closeMobileNav()">Log In</button>
-    <button class="btn-primary-sm" onclick="showPage('signup');closeMobileNav()">Start Free Trial</button>
+    <button class="btn-primary-sm" onclick="showPage('signup');closeMobileNav()">Get Started</button>
   </div>
 </nav>
 
@@ -73,7 +73,7 @@
         <h1>Build. Protect.<br><span class="grad-text">Grow.</span></h1>
         <p class="hero-p">Sky Blueprint gives South African entrepreneurs, job seekers and professionals six powerful tools — all in one platform — for one simple monthly fee.</p>
         <div class="hero-ctas">
-          <button class="btn-primary" onclick="showPage('signup')">Start Free 7-Day Trial</button>
+          <button class="btn-primary" onclick="showPage('signup')">Get Started — R55/month</button>
           <button class="btn-outline" onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'})">See All Tools</button>
         </div>
         <div class="trust-row">
@@ -187,19 +187,19 @@
 
         <!-- FREE TRIAL -->
         <div class="price-card">
-          <div class="pc-badge">START HERE</div>
-          <div class="pc-name">Free Trial</div>
+          <div class="pc-badge">FREE FOREVER</div>
+          <div class="pc-name">Pay As You Go</div>
           <div class="pc-price">R0</div>
-          <div class="pc-period">7 days full access</div>
+          <div class="pc-period">Start using tools today</div>
           <div class="pc-features">
-            <div class="pc-feat">✅ All 6 tools unlocked</div>
-            <div class="pc-feat">✅ No credit card needed</div>
-            <div class="pc-feat">✅ Email Cleaner</div>
-            <div class="pc-feat">✅ CV Builder & Jobs</div>
-            <div class="pc-feat">✅ AI Business Mentor</div>
+            <div class="pc-feat">✅ Live South African map</div>
+            <div class="pc-feat">✅ Search any province or city</div>
+            <div class="pc-feat">✅ No login required</div>
+            <div class="pc-feat">✅ 100% free, forever</div>
+            <div class="pc-feat">✅ Available to everyone</div>
             <div class="pc-feat">✅ SA Map (always free)</div>
           </div>
-          <button class="btn-primary" onclick="showPage('signup')" style="width:100%;box-sizing:border-box">Start Free Trial</button>
+          <button class="btn-primary" onclick="showPage('signup')" style="width:100%;box-sizing:border-box">Get Started</button>
         </div>
 
         <!-- MONTHLY -->
@@ -388,7 +388,7 @@
           Sky <span>Blueprint</span>
         </div>
         <h2 class="auth-title">Start free today</h2>
-        <p class="auth-sub">7-day free trial · No credit card needed</p>
+        <p class="auth-sub">All tools for R55/month · Cancel anytime</p>
         <div class="form-row">
           <div class="form-group"><label>First Name</label><input type="text" id="su-fname" placeholder="Sipho"></div>
           <div class="form-group"><label>Last Name</label><input type="text" id="su-lname" placeholder="Dlamini"></div>
@@ -422,8 +422,8 @@
       </div>
       <div class="dash-body">
         <div class="trial-banner" id="trial-banner">
-          🎉 You have <strong>7 days</strong> left on your free trial.
-          <button onclick="startPaystack('monthly')">Upgrade to Pro — R55/month</button>
+          🔒 <strong>Subscribe to unlock all tools</strong> — just R55/month, cancel anytime.
+          <button onclick="startPaystack('monthly')">Subscribe R55/month</button>
         </div>
         <h2 class="dash-title">Your Tools</h2>
         <div class="tools-grid">

@@ -77,18 +77,10 @@ function updateNav() {
         badge.style.background = 'rgba(239,68,68,0.15)';
         badge.style.color = '#f87171';
       } else {
-        // Trial - show days left with $0
-        var joined = u.joined || Date.now();
-        var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined) / (1000*60*60*24)));
-        if (daysLeft > 0) {
-          badge.textContent = '🎁 Free Trial · ' + daysLeft + ' day' + (daysLeft===1?'':'s') + ' left · $0';
-          badge.style.background = 'rgba(56,189,248,0.15)';
-          badge.style.color = '#38bdf8';
-        } else {
-          badge.textContent = '⏳ Trial Ended · Subscribe';
-          badge.style.background = 'rgba(239,68,68,0.15)';
-          badge.style.color = '#f87171';
-        }
+        // No free trial - prompt to subscribe
+        badge.textContent = '🔒 Subscribe · R55/month';
+        badge.style.background = 'rgba(245,158,11,0.15)';
+        badge.style.color = '#f59e0b';
       }
     }
   } else {
@@ -119,20 +111,11 @@ function updateDashBanner() {
     banner.style.background = 'rgba(239,68,68,0.08)';
     banner.style.borderColor = 'rgba(239,68,68,0.3)';
   } else {
-    // Trial - live day count
-    var joined = u.joined || Date.now();
-    var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined) / (1000*60*60*24)));
-    if (daysLeft > 0) {
-      banner.innerHTML = '🎉 You have <strong>' + daysLeft + ' day' + (daysLeft===1?'':'s') + '</strong> left on your free trial ($0). ' +
-        '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
-      banner.style.background = 'rgba(56,189,248,0.08)';
-      banner.style.borderColor = 'rgba(56,189,248,0.3)';
-    } else {
-      banner.innerHTML = '⏳ <strong>Your 7-day free trial has ended.</strong> Subscribe to keep using the tools. ' +
-        '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
-      banner.style.background = 'rgba(239,68,68,0.08)';
-      banner.style.borderColor = 'rgba(239,68,68,0.3)';
-    }
+    // No free trial - subscribe to unlock
+    banner.innerHTML = '🔒 <strong>Subscribe to unlock all tools</strong> — just R55/month, cancel anytime. ' +
+      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
+    banner.style.background = 'rgba(245,158,11,0.08)';
+    banner.style.borderColor = 'rgba(245,158,11,0.3)';
   }
 }
 
@@ -401,25 +384,22 @@ function requireAuth(tool) {
 
 // ── Tools ──
 function isTrialExpired(user) {
-  if (!user) return false;
-  // Owner and paid plans never expire
+  if (!user) return true;
+  // Owner and paid plans have full access
   if (user.plan === 'owner' || user.plan === 'monthly' || user.plan === 'yearly' || user.plan === 'pro' || user.plan === 'paid' || user.plan === 'business') return false;
-  if (user.plan === 'cancelled') return true;
-  // Trial: check 7 days
-  var joined = user.joined || Date.now();
-  var daysPassed = Math.floor((Date.now() - joined) / (1000*60*60*24));
-  return daysPassed >= 7;
+  // NO FREE TRIAL - everyone else must subscribe (R55/month)
+  return true;
 }
 
 function showTrialExpired() {
   var body = document.getElementById('tool-page-body');
   if (body) {
-    document.getElementById('tool-page-title').textContent = '⏳ Trial Ended';
+    document.getElementById('tool-page-title').textContent = '🔒 Subscribe to Unlock';
     body.innerHTML =
       '<div class="tool-screen" style="text-align:center;padding:40px 20px">' +
-      '<div style="font-size:56px;margin-bottom:16px">⏳</div>' +
-      '<h2 style="color:#fff;margin-bottom:10px">Your 7-Day Free Trial Has Ended</h2>' +
-      '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto">Thank you for trying Sky Blueprint! To keep using all the tools, please subscribe. SA Map stays free forever.</p>' +
+      '<div style="font-size:56px;margin-bottom:16px">🔒</div>' +
+      '<h2 style="color:#fff;margin-bottom:10px">Subscribe to Unlock This Tool</h2>' +
+      '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all 7 premium Sky Blueprint tools for just <strong style="color:#38bdf8">R55/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
       '<div style="max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:10px">' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">Pay Once — R1,980 for 3 Years</button>' +
@@ -640,22 +620,38 @@ function renderWebsiteBuilder(el) {
         <div class="form-group"><label>Your existing domain name</label><input type="text" id="wb-domain-name" placeholder="e.g. mybusiness.co.za"></div>
       </div>
 
+      <!-- FAVICON ADD-ON -->
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.15);border-radius:10px;padding:14px">
+          <input type="checkbox" id="wb-favicon" onchange="updateWbPrice()" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer">
+          <span style="flex:1"><strong style="color:#fff;font-size:13px">Add a custom favicon</strong><br><span style="font-size:11px;color:var(--muted)">Your business logo icon in the browser tab — looks professional (+R50 once-off)</span></span>
+        </label>
+      </div>
+
       <!-- PRICE SUMMARY -->
-      <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:20px;margin:16px 0">
-        <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">Order Summary</div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
+      <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.06));border:1px solid rgba(56,189,248,0.25);border-radius:16px;padding:22px;margin:16px 0">
+        <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">Order Summary</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:9px;font-size:13px">
           <span style="color:var(--muted)">Website Design & Build (72 hours)</span>
           <span style="color:#fff;font-weight:600">R450</span>
         </div>
-        <div id="wb-domain-row" style="display:none;justify-content:space-between;margin-bottom:8px;font-size:13px">
+        <div id="wb-domain-row" style="display:none;justify-content:space-between;margin-bottom:9px;font-size:13px">
           <span style="color:var(--muted)" id="wb-domain-label">Domain</span>
           <span style="color:#38bdf8;font-weight:600" id="wb-domain-price">R0</span>
         </div>
-        <div style="border-top:1px solid rgba(56,189,248,0.2);padding-top:12px;margin-top:4px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:14px;font-weight:700;color:#fff">Total Once-Off</span>
-          <span style="font-size:20px;font-weight:800;color:#10b981" id="wb-total-price">R450</span>
+        <div id="wb-favicon-row" style="display:none;justify-content:space-between;margin-bottom:9px;font-size:13px">
+          <span style="color:var(--muted)">Custom favicon icon</span>
+          <span style="color:#38bdf8;font-weight:600">R50</span>
         </div>
-        <div style="margin-top:10px;font-size:12px;color:#64748b">Payment collected by Sky Blueprint upon delivery of your website.</div>
+        <div style="border-top:1px solid rgba(56,189,248,0.25);padding-top:12px;margin-top:6px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:14px;font-weight:700;color:#fff">Total Once-Off</span>
+          <span style="font-size:22px;font-weight:800;color:#10b981" id="wb-total-price">R450</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.1)">
+          <span style="font-size:13px;color:#a855f7;font-weight:600">+ Monthly Hosting</span>
+          <span style="font-size:15px;font-weight:700;color:#a855f7">R55/month</span>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:#64748b;line-height:1.6">💡 The once-off fee covers building your site. The R55/month keeps your website online, hosted, and maintained. Cancel anytime.</div>
       </div>
 
       <!-- EXTRAS -->
@@ -722,12 +718,18 @@ function updateWbPrice() {
   var price = document.getElementById('wb-domain-price');
   var total = document.getElementById('wb-total-price');
   var ownWrap = document.getElementById('wb-own-domain-wrap');
+  var favicon = document.getElementById('wb-favicon');
+  var favRow = document.getElementById('wb-favicon-row');
 
   if (ownWrap) ownWrap.style.display = val === 'own' ? 'block' : 'none';
   if (row) row.style.display = extra > 0 ? 'flex' : 'none';
   if (label && labels[val]) label.textContent = labels[val];
   if (price) price.textContent = 'R' + extra;
-  if (total) total.textContent = 'R' + (450 + extra);
+
+  var faviconFee = (favicon && favicon.checked) ? 50 : 0;
+  if (favRow) favRow.style.display = faviconFee > 0 ? 'flex' : 'none';
+
+  if (total) total.textContent = 'R' + (450 + extra + faviconFee);
 }
 
 function submitWebsiteOrder() {
@@ -763,12 +765,18 @@ function submitWebsiteOrder() {
     'royal-gold':'Royal Blue & Gold','white-purple':'White & Purple','custom':'Custom (see notes)'
   };
 
+  var faviconChecked = (document.getElementById('wb-favicon') || {checked:false}).checked;
+  var faviconFee = faviconChecked ? 50 : 0;
+  var grandTotal = (totals[domain] || 450) + faviconFee;
+
   var order = {
     name:name, phone:phone, email:email,
     business:biz, city:city, category:cat,
     description:desc, colorTheme:colorNames[color]||color,
     domain:domainLabels[domain], logo:logo, pages:pages,
-    totalCharge:'R'+(totals[domain]||450),
+    favicon: faviconChecked ? 'Yes — custom favicon (+R50)' : 'No favicon',
+    monthlyHosting: 'R55/month hosting',
+    totalCharge:'R'+grandTotal+' once-off + R55/month hosting',
     extraRequests:extra,
     orderTime:new Date().toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})
   };
