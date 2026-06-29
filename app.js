@@ -399,7 +399,7 @@ function showTrialExpired() {
       '<div class="tool-screen" style="text-align:center;padding:40px 20px">' +
       '<div style="font-size:56px;margin-bottom:16px">🔒</div>' +
       '<h2 style="color:#fff;margin-bottom:10px">Subscribe to Unlock This Tool</h2>' +
-      '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all 7 premium Sky Blueprint tools for just <strong style="color:#38bdf8">R55/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
+      '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all premium Sky Blueprint tools for just <strong style="color:#38bdf8">R55/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
       '<div style="max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:10px">' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">Pay Once — R1,980 for 3 Years</button>' +
@@ -2628,7 +2628,7 @@ function startPaystack(plan) {
   };
   var subs = {
     website: 'R450 once-off · We build your professional website in 24-48 hours',
-    monthly: 'R55/month · All 6 tools · Auto-debit via Paystack · Cancel anytime',
+    monthly: 'R55/month · All 8 tools · Auto-debit via Paystack · Cancel anytime',
     yearly: 'R1,980 per year for 3 years · Auto-renews yearly · All tools'
   };
   document.getElementById('modal-title').textContent = titles[plan] || 'Subscribe to Sky Blueprint';
@@ -2961,7 +2961,7 @@ async function startGuide() {
 }
 
 async function explainPlatform() {
-  await guideMsg('Sky Blueprint is a South African digital platform with <strong>6 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>Email Cleaner</strong> — clean your real Gmail, Outlook or Yahoo inbox<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980 for 3 years!');
+  await guideMsg('Sky Blueprint is a South African digital platform with <strong>8 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
   guideOptions([
     { label: '🚀 Let me start using the tools!', action: showToolMenu },
     { label: '💰 Tell me about pricing', action: explainPricing },
@@ -3235,7 +3235,7 @@ async function guideAIAnswer(question) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 400,
-        system: 'You are Sky Guide, the friendly assistant inside Sky Blueprint — a South African digital platform. You help users navigate 6 tools: Website Builder (builds business websites), Email Cleaner (cleans Gmail/Outlook/Yahoo with App Passwords), Find My Phone (R450 once-off, tracks device on SA map), AI Business Mentor (SA business advice), CV Builder (builds CV and matches jobs on LinkedIn/Indeed/Pnet/YouthMobi by qualification level), and SA Map (free for everyone). Pricing: R55/month, R1980 for 3 years, R450 for Find My Phone. Payments via Paystack. Keep answers short, simple and friendly. Speak like you are explaining to someone new to technology.',
+        system: 'You are Sky Guide, the friendly assistant inside Sky Blueprint — a South African digital platform. You help users navigate 8 tools: Website Builder (builds business websites from R450 + R55/month hosting), AI Email Secretary (sorts Gmail/Outlook/Yahoo inboxes by priority), CV Builder (builds CV and matches jobs), Learnerships & Internships (checks qualification and emails matching SA opportunities), Find My Phone (R450 once-off, tracks device on SA map), AI Business Mentor (SA business advice), Reminders & Tasks (reminds you of meetings, tasks, habits with notifications), and SA Map (free for everyone). Pricing: R55/month for all tools, R1980/year, R450 for Find My Phone, websites from R450. No free trial — subscribe to use tools. Payments via Paystack. Keep answers short, simple and friendly. Speak like you are explaining to someone new to technology.',
         messages: [{ role: 'user', content: question }]
       })
     });
