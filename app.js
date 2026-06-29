@@ -438,6 +438,7 @@ function openTool(name) {
     'cv-builder': '📄 CV Builder & Jobs',
     'sa-map': '🗺️ SA Map',
     'reminders': '🔔 My Reminders & Tasks',
+    'learnerships': '🎓 Learnerships & Internships',
   };
   document.getElementById('tool-page-title').textContent = titles[name] || 'Tool';
   const body = document.getElementById('tool-page-body');
@@ -450,6 +451,7 @@ function openTool(name) {
     'cv-builder': renderCVBuilder,
     'sa-map': renderSAMap,
     'reminders': renderReminders,
+    'learnerships': renderLearnerships,
   };
   // SA Map is always free - skip trial check
   if (name !== 'sa-map' && isTrialExpired(currentUser)) {
@@ -1972,6 +1974,284 @@ function uploadAndAnalyzeCV(input) {
 
 
 // ── SA Map ──
+function renderLearnerships(el) {
+  el.innerHTML = `
+  <div class="tool-screen">
+    <h2>🎓 Learnerships & Internships</h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:4px">Find learnerships and internships you qualify for — sent straight to your email.</p>
+    <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">We check if you qualify, then send you the best matching opportunities and apply links.</p>
+
+    <div id="ls-form">
+      <div class="cv-sec-title">Your Details</div>
+      <div class="form-row">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="ls-name" placeholder="e.g. Thabo Nkosi"></div>
+        <div class="form-group"><label>Email Address *</label><input type="email" id="ls-email" placeholder="your@email.com"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Your Age *</label><input type="number" id="ls-age" placeholder="e.g. 22" min="15" max="60"></div>
+        <div class="form-group"><label>Province *</label>
+          <select id="ls-province">
+            <option value="">Select province</option>
+            <option>Gauteng</option><option>Western Cape</option><option>KwaZulu-Natal</option>
+            <option>Eastern Cape</option><option>Free State</option><option>Limpopo</option>
+            <option>Mpumalanga</option><option>North West</option><option>Northern Cape</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cv-sec-title">Your Qualification</div>
+      <div class="form-group"><label>Highest Qualification *</label>
+        <select id="ls-qual">
+          <option value="">Select your highest qualification</option>
+          <option value="below-matric">Below Matric (Grade 9-11)</option>
+          <option value="matric">Matric / Grade 12</option>
+          <option value="n-cert">N4-N6 Certificate</option>
+          <option value="diploma">Diploma</option>
+          <option value="degree">Degree</option>
+          <option value="honours">Honours or higher</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Field of Interest *</label>
+        <select id="ls-field">
+          <option value="">Select your field</option>
+          <option>Information Technology / IT</option>
+          <option>Finance / Accounting</option>
+          <option>Business / Admin</option>
+          <option>Engineering / Artisan</option>
+          <option>Retail / Sales</option>
+          <option>Healthcare / Nursing</option>
+          <option>Construction / Trades</option>
+          <option>Marketing / Media</option>
+          <option>Hospitality / Tourism</option>
+          <option>Human Resources</option>
+          <option>Security</option>
+          <option>Agriculture</option>
+          <option>General / Any field</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Are you currently employed? *</label>
+        <select id="ls-employed">
+          <option value="no">No — I am unemployed</option>
+          <option value="yes">Yes — I am employed</option>
+        </select>
+      </div>
+      <div class="form-group"><label>What are you looking for? *</label>
+        <select id="ls-type">
+          <option value="both">Both Learnerships & Internships</option>
+          <option value="learnership">Learnerships only</option>
+          <option value="internship">Internships only</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:14px" onclick="checkLearnerships()">
+        🔍 Check What I Qualify For
+      </button>
+    </div>
+
+    <div id="ls-result" style="display:none"></div>
+  </div>`;
+
+  setTimeout(function() {
+    var em = document.getElementById('ls-email');
+    if (em && currentUser && currentUser.email) em.value = currentUser.email;
+    var nm = document.getElementById('ls-name');
+    if (nm && currentUser && currentUser.fname) nm.value = currentUser.fname + ' ' + (currentUser.lname||'');
+  }, 100);
+}
+
+function checkLearnerships() {
+  var name = (document.getElementById('ls-name') || {value:''}).value.trim();
+  var email = (document.getElementById('ls-email') || {value:''}).value.trim();
+  var age = parseInt((document.getElementById('ls-age') || {value:'0'}).value);
+  var province = (document.getElementById('ls-province') || {value:''}).value;
+  var qual = (document.getElementById('ls-qual') || {value:''}).value;
+  var field = (document.getElementById('ls-field') || {value:''}).value;
+  var employed = (document.getElementById('ls-employed') || {value:'no'}).value;
+  var type = (document.getElementById('ls-type') || {value:'both'}).value;
+
+  if (!name || !email || !age || !province || !qual || !field) {
+    alert('Please fill in all required fields.');
+    return;
+  }
+
+  // QUALIFICATION CHECKING LOGIC
+  var reasons = [];
+  var qualifies = true;
+
+  // Age check - most SA learnerships/internships are 18-35
+  if (age < 18) {
+    qualifies = false;
+    reasons.push('Most learnerships and internships require you to be at least 18 years old. You are ' + age + '.');
+  } else if (age > 35) {
+    qualifies = false;
+    reasons.push('Most SA youth learnerships and internships are for ages 18-35 (Presidential Youth programmes). You are ' + age + '. Some general positions may still be open to you.');
+  }
+
+  // Employment check - learnerships are mostly for unemployed
+  if (employed === 'yes' && type === 'learnership') {
+    reasons.push('Note: Most learnerships are designed for UNEMPLOYED youth. As an employed person, your options are more limited but some exist.');
+  }
+
+  // Internship qualification check
+  if (type === 'internship' && (qual === 'below-matric' || qual === 'matric')) {
+    reasons.push('Note: Most INTERNSHIPS require a Diploma or Degree. With your qualification, LEARNERSHIPS are a better fit for you (they accept Matric and below).');
+  }
+
+  // Below matric for internships
+  if (qual === 'below-matric' && type === 'internship') {
+    qualifies = false;
+    reasons.push('Internships require at least a Diploma or Degree. But GOOD NEWS — you qualify for many learnerships that accept Grade 9-11!');
+  }
+
+  showLearnershipResult(qualifies, reasons, {name:name, email:email, age:age, province:province, qual:qual, field:field, employed:employed, type:type});
+}
+
+function showLearnershipResult(qualifies, reasons, data) {
+  document.getElementById('ls-form').style.display = 'none';
+  var resultEl = document.getElementById('ls-result');
+  resultEl.style.display = 'block';
+
+  // Get matching opportunities/links based on their profile
+  var opportunities = getMatchingOpportunities(data);
+
+  var html = '';
+
+  if (!qualifies && opportunities.length === 0) {
+    // Does not qualify at all
+    html = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:14px;padding:24px;text-align:center">' +
+      '<div style="font-size:48px;margin-bottom:12px">😔</div>' +
+      '<h3 style="color:#f87171;font-size:18px;margin-bottom:10px">You Do Not Meet the Requirements Yet</h3>' +
+      reasons.map(function(r){ return '<p style="color:var(--muted);font-size:13px;margin-bottom:8px">' + r + '</p>'; }).join('') +
+      '<p style="color:#38bdf8;font-size:13px;margin-top:16px">Tip: Keep checking back. New opportunities open every week, and your qualifications may match future ones.</p>' +
+      '</div>';
+  } else {
+    // Qualifies - show opportunities + notes
+    html = '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:20px;margin-bottom:16px">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">' +
+      '<span style="font-size:32px">🎉</span>' +
+      '<div><h3 style="color:#10b981;font-size:18px;margin:0">Good News, ' + data.name.split(' ')[0] + '!</h3>' +
+      '<p style="color:var(--muted);font-size:13px;margin:2px 0 0">You qualify for ' + opportunities.length + ' opportunity source' + (opportunities.length>1?'s':'') + ' in ' + data.field + '</p></div>' +
+      '</div>';
+
+    if (reasons.length > 0) {
+      html += '<div style="background:rgba(245,158,11,0.08);border-radius:8px;padding:12px;margin-top:10px">' +
+        reasons.map(function(r){ return '<p style="color:#fbbf24;font-size:12px;margin-bottom:4px">⚠️ ' + r + '</p>'; }).join('') +
+        '</div>';
+    }
+    html += '</div>';
+
+    // List opportunities
+    html += '<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:12px">📋 Where to Apply (verified SA sites):</div>';
+    html += opportunities.map(function(opp) {
+      return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:10px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+        '<span style="font-size:20px">' + opp.icon + '</span>' +
+        '<strong style="color:#fff;font-size:14px">' + opp.name + '</strong>' +
+        (opp.dataFree ? '<span style="font-size:10px;background:rgba(16,185,129,0.15);color:#10b981;padding:2px 8px;border-radius:10px">DATA-FREE</span>' : '') +
+        '</div>' +
+        '<p style="font-size:12px;color:var(--muted);margin-bottom:10px">' + opp.desc + '</p>' +
+        '<a href="' + opp.url + '" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;text-decoration:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600">Apply on ' + opp.name + ' →</a>' +
+        '</div>';
+    }).join('');
+
+    // Email the opportunities
+    html += '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-top:14px;font-size:14px" onclick="emailLearnerships()">' +
+      '📧 Email These Opportunities to Me' +
+      '</button>';
+
+    // Store for emailing
+    window._lsData = data;
+    window._lsOpps = opportunities;
+  }
+
+  html += '<button style="width:100%;box-sizing:border-box;margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:10px;padding:12px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:13px" onclick="resetLearnerships()">← Check Again</button>';
+
+  resultEl.innerHTML = html;
+}
+
+function getMatchingOpportunities(data) {
+  var opps = [];
+  var fieldLower = data.field.toLowerCase();
+
+  // SAYouth - for everyone 18-35, data-free (verified SA government platform)
+  if (data.age >= 18 && data.age <= 35) {
+    opps.push({
+      name: 'SAYouth.mobi', icon: '🇿🇦', dataFree: true,
+      desc: 'Government platform (Presidential Youth programme). Free, no data needed. Thousands of paid learnerships and internships. Works on all networks.',
+      url: 'https://www.sayouth.mobi/'
+    });
+  }
+
+  // StudentRoom - learnerships and internships listings
+  opps.push({
+    name: 'StudentRoom', icon: '🎓', dataFree: false,
+    desc: 'Lists current SA learnerships and internships from companies and TVET colleges with closing dates and requirements.',
+    url: 'https://www.studentroom.co.za/category/internships/'
+  });
+
+  // Pnet - if matric or higher
+  if (data.qual !== 'below-matric') {
+    opps.push({
+      name: 'Pnet', icon: '💼', dataFree: false,
+      desc: 'Major SA job site with hundreds of learnership and internship listings. Filter by your field and province.',
+      url: 'https://www.pnet.co.za/jobs/' + (data.type === 'internship' ? 'internship' : 'learnership')
+    });
+  }
+
+  // Graduates24 - for diploma/degree
+  if (data.qual === 'diploma' || data.qual === 'degree' || data.qual === 'honours') {
+    opps.push({
+      name: 'Graduates24', icon: '🎯', dataFree: false,
+      desc: 'Internships, graduate programmes and bursaries for SA graduates. Banking, finance, IT and engineering programmes.',
+      url: 'https://www.graduates24.com/internshipprogrammes'
+    });
+  }
+
+  // Internships-SA
+  opps.push({
+    name: 'Internships-SA', icon: '📚', dataFree: false,
+    desc: 'Dedicated SA internship and learnership board updated regularly across all fields.',
+    url: 'https://www.internships-sa.co.za/'
+  });
+
+  // Indeed - general
+  opps.push({
+    name: 'Indeed SA', icon: '🔍', dataFree: false,
+    desc: 'Search "' + data.field + ' ' + (data.type === 'internship' ? 'internship' : 'learnership') + '" in ' + data.province + '. New listings daily.',
+    url: 'https://za.indeed.com/jobs?q=' + encodeURIComponent(data.field + ' ' + (data.type==='internship'?'internship':'learnership')) + '&l=' + encodeURIComponent(data.province)
+  });
+
+  return opps;
+}
+
+function emailLearnerships() {
+  var data = window._lsData;
+  var opps = window._lsOpps;
+  if (!data || !opps) { alert('Please check your qualifications first.'); return; }
+
+  var oppList = opps.map(function(o){ return { name:o.name, url:o.url, desc:o.desc }; });
+
+  fetch(BACKEND_URL + '/api/learnership-email', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name: data.name, email: data.email,
+      field: data.field, province: data.province,
+      qual: data.qual, type: data.type,
+      opportunities: oppList
+    })
+  }).then(function(r){ return r.json(); }).then(function(){
+    alert('📧 Done! The opportunities and apply links have been sent to ' + data.email + '. Check your inbox (and spam folder).');
+  }).catch(function(){
+    alert('Could not send email right now, but you can click the apply links above directly.');
+  });
+}
+
+function resetLearnerships() {
+  document.getElementById('ls-result').style.display = 'none';
+  document.getElementById('ls-form').style.display = 'block';
+}
+
 function renderReminders(el) {
   el.innerHTML = `
   <div class="tool-screen">
