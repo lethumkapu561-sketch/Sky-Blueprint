@@ -310,11 +310,12 @@ function showAccount() {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Upgrade now to keep all your tools after your trial ends.</p>' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:10px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">Pay Once — R1,980 for 3 Years</button>';
-  } else if (u.plan === 'monthly' || u.plan === 'pro' || u.plan === 'paid') {
+  } else if (u.plan === 'monthly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Your monthly plan is active. R55 is debited on your subscription date each month.</p>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
   } else if (u.plan === 'yearly') {
-    html += '<p style="font-size:13px;color:var(--muted)">You have the 3-Year Plan. Enjoy all tools with no monthly payments until your plan expires.</p>';
+    html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">You have the 3-Year Plan (R1,980/year). Enjoy all tools.</p>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
   } else if (u.plan === 'owner') {
     html += '<p style="font-size:13px;color:#f59e0b">👑 You are the owner. You have full free access to everything, forever.</p>';
   }
@@ -343,24 +344,52 @@ function accountRow(icon, label, value) {
 }
 
 function cancelPlan() {
-  if (!confirm('Are you sure you want to cancel your subscription? You will lose access to the tools when your current period ends.')) return;
+  // Show a clear cancellation guide
+  var body = document.getElementById('account-content');
+  if (!body) return;
 
-  // Update user to cancelled
+  body.innerHTML =
+    '<div style="max-width:560px;margin:0 auto">' +
+    '<div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:16px;padding:28px">' +
+    '<div style="font-size:44px;text-align:center;margin-bottom:14px">😔</div>' +
+    '<h3 style="color:#fff;font-size:19px;text-align:center;margin-bottom:8px">Cancel Your Subscription</h3>' +
+    '<p style="color:var(--muted);font-size:13px;text-align:center;line-height:1.7;margin-bottom:20px">We are sorry to see you go. To stop your R55/month charges, follow these quick steps — your subscription is managed securely by Paystack.</p>' +
+
+    '<div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:12px;padding:18px;margin-bottom:18px">' +
+    '<div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px">How to cancel (takes 1 minute):</div>' +
+    '<div style="display:flex;flex-direction:column;gap:12px">' +
+    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#38bdf8">1.</strong> Open your email inbox (' + (currentUser ? currentUser.email : 'your email') + ')</div>' +
+    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#38bdf8">2.</strong> Search for the email: <em style="color:#fff">"Your subscription is now active"</em> from Paystack</div>' +
+    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#38bdf8">3.</strong> Click the <strong style="color:#fff">"Manage Subscription"</strong> button inside it</div>' +
+    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#38bdf8">4.</strong> Click <strong style="color:#f87171">"Cancel Subscription"</strong> and confirm</div>' +
+    '</div></div>' +
+
+    '<p style="font-size:12px;color:#64748b;line-height:1.6;margin-bottom:18px">💡 You can also click "Manage Subscription" in any payment reminder email Paystack sends you before each charge. After cancelling, you keep access until your current paid month ends.</p>' +
+
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:10px" onclick="confirmCancelOnFile()">I Have Cancelled on Paystack</button>' +
+    '<button style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px" onclick="showAccount()">← Keep My Subscription</button>' +
+
+    '<div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);text-align:center">' +
+    '<p style="font-size:12px;color:#64748b">Need help? Contact us: <strong style="color:#38bdf8">065 601 3544</strong></p>' +
+    '</div>' +
+    '</div></div>';
+}
+
+function confirmCancelOnFile() {
+  // Mark as cancelled in our records and notify owner
   currentUser.plan = 'cancelled';
   localStorage.setItem('sb_current', JSON.stringify(currentUser));
-
-  // Update in users list
   var users = JSON.parse(localStorage.getItem('sb_users') || '[]');
   var idx = users.findIndex(function(u){ return u.email === currentUser.email; });
   if (idx > -1) { users[idx].plan = 'cancelled'; localStorage.setItem('sb_users', JSON.stringify(users)); }
 
-  // Notify owner of cancellation
   fetch(BACKEND_URL + '/api/login-notify', {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ fname:currentUser.fname, lname:currentUser.lname, email:currentUser.email, action:'cancel' })
   }).catch(function(){});
 
-  alert('Your subscription has been cancelled. You can re-subscribe anytime from your account page.');
+  updateNav();
+  alert('Your subscription has been marked as cancelled. We have noted it on our side. Thank you for being part of Sky Blueprint — you are welcome back anytime!');
   showAccount();
 }
 
