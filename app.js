@@ -1251,33 +1251,26 @@ function connectEmail(provider) {
 
 // ── Find My Phone ──
 function renderFindPhone(el) {
-  // Check if user paid R450
-  var paid = localStorage.getItem('sb_phone_paid_' + (currentUser ? currentUser.email : ''));
-  if (!paid) {
-    el.innerHTML = `
-    <div class="tool-screen">
-      <h2>📍 Find My Phone</h2>
-      <p>Register and track your device live on a South African map. Ring it, lock it or wipe it remotely if stolen.</p>
-      <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:28px;text-align:center;margin-bottom:24px">
-        <div style="font-size:48px;margin-bottom:12px">📍</div>
-        <h3 style="color:#fff;font-size:20px;margin-bottom:8px">One-Time Setup Fee</h3>
-        <div style="font-size:42px;font-weight:800;color:#f59e0b;margin-bottom:8px">R450</div>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Once-off payment · Lifetime device registration · Funds the Sky Blueprint tracking app</p>
-        <ul style="list-style:none;text-align:left;max-width:300px;margin:0 auto 24px;display:flex;flex-direction:column;gap:8px">
-          <li style="font-size:13px;color:var(--muted)">✅ Register unlimited devices</li>
-          <li style="font-size:13px;color:var(--muted)">✅ Live GPS tracking on SA map</li>
-          <li style="font-size:13px;color:var(--muted)">✅ Turn-by-turn directions to your phone</li>
-          <li style="font-size:13px;color:var(--muted)">✅ Remote ring, lock & wipe</li>
-          <li style="font-size:13px;color:var(--muted)">✅ Street-level location view</li>
-          <li style="font-size:13px;color:var(--muted)">✅ Funds development of the tracking app</li>
-        </ul>
-        <button class="btn-primary" style="width:100%;max-width:300px" onclick="payForPhone()">🔐 Pay R450 & Activate Now</button>
-        <p style="font-size:11px;color:#475569;margin-top:12px">Secure payment via Paystack</p>
+  el.innerHTML = `
+  <div class="tool-screen" style="text-align:center;padding:40px 20px">
+    <div style="font-size:64px;margin-bottom:20px">🚧</div>
+    <h2 style="color:#fff;margin-bottom:12px">Find My Phone — Coming Soon</h2>
+    <div style="display:inline-block;background:rgba(245,158,11,0.15);color:#f59e0b;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:24px">CURRENTLY UNAVAILABLE</div>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;max-width:440px;margin:0 auto 24px">
+      We are putting the finishing touches on Find My Phone to make it powerful and reliable. This tool needs a dedicated mobile app to track, ring and lock your device — and we are building it properly so it works perfectly when it launches.
+    </p>
+    <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:20px;max-width:440px;margin:0 auto 24px;text-align:left">
+      <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px">What it will do when it launches:</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:13px;color:var(--muted)">📍 Track your phone live on a South African map</div>
+        <div style="font-size:13px;color:var(--muted)">🔔 Make it ring loudly — even on silent</div>
+        <div style="font-size:13px;color:var(--muted)">🔒 Lock it remotely if lost or stolen</div>
+        <div style="font-size:13px;color:var(--muted)">🕐 See 7 days of location history</div>
       </div>
-    </div>`;
-    return;
-  }
-  renderFindPhoneFull(el);
+    </div>
+    <p style="color:#64748b;font-size:13px;margin-bottom:24px">In the meantime, explore our other 7 tools — they are ready to use right now!</p>
+    <button class="btn-primary" style="font-size:14px;padding:13px 28px" onclick="showPage('dashboard')">← Explore Other Tools</button>
+  </div>`;
 }
 
 function payForPhone() {
