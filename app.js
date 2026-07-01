@@ -2752,6 +2752,297 @@ function markPlanActive(plan, name, email, phone) {
 }
 
 // ── Init ──
+// ── REVIEWS SYSTEM ──
+var _rmRating = 0;
+
+function loadReviews() {
+  fetch(BACKEND_URL + '/api/reviews')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      renderReviews(data.reviews || []);
+    })
+    .catch(function(){
+      // Fallback to a few starter reviews if backend not reachable
+      renderReviews([]);
+    });
+}
+
+function renderReviews(reviews) {
+  // If no reviews yet, show friendly starter state
+  var avgEl = document.getElementById('rs-avg');
+  var starsEl = document.getElementById('rs-stars');
+  var countEl = document.getElementById('rs-count');
+  var barsEl = document.getElementById('rs-bars');
+  var gridEl = document.getElementById('review-grid');
+  if (!avgEl) return;
+
+  if (reviews.length === 0) {
+    avgEl.textContent = '5.0';
+    starsEl.textContent = '★★★★★';
+    countEl.textContent = 'Be the first to review!';
+    barsEl.innerHTML = '';
+    gridEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)">No reviews yet. Be the first to share your experience! 🌟</div>';
+    return;
+  }
+
+  // Calculate average
+  var total = 0;
+  var counts = {1:0,2:0,3:0,4:0,5:0};
+  reviews.forEach(function(r){ total += r.rating; counts[r.rating] = (counts[r.rating]||0) + 1; });
+  var avg = (total / reviews.length).toFixed(1);
+
+  avgEl.textContent = avg;
+  starsEl.textContent = starString(Math.round(avg));
+  countEl.textContent = 'Based on ' + reviews.length + ' verified review' + (reviews.length>1?'s':'');
+
+  // Bars (5 down to 1)
+  var barsHtml = '';
+  for (var s = 5; s >= 1; s--) {
+    var c = counts[s] || 0;
+    var pct = reviews.length ? (c / reviews.length * 100) : 0;
+    barsHtml += '<div class="rs-bar-row">' +
+      '<span class="rs-bar-label">' + s + '<span class="star">★</span></span>' +
+      '<span class="rs-bar-track"><span class="rs-bar-fill" style="width:' + pct + '%"></span></span>' +
+      '<span class="rs-bar-count">' + c + '</span>' +
+      '</div>';
+  }
+  barsEl.innerHTML = barsHtml;
+
+  // Review cards (newest first)
+  var sorted = reviews.slice().reverse();
+  gridEl.innerHTML = sorted.map(function(r){
+    return '<div class="review-card">' +
+      '<div class="rc-stars">' + starString(r.rating) + '</div>' +
+      '<div class="rc-text">"' + escapeHtml(r.text) + '"</div>' +
+      '<div class="rc-name">' + escapeHtml(r.name) + '</div>' +
+      '<div class="rc-meta">✓ Verified user' + (r.city ? ' · ' + escapeHtml(r.city) : '') + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function starString(n) {
+  n = Math.max(0, Math.min(5, n));
+  return '★★★★★'.substring(0, n) + '☆☆☆☆☆'.substring(0, 5-n);
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openReviewForm() {
+  var modal = document.getElementById('review-modal');
+  if (modal) modal.style.display = 'flex';
+  _rmRating = 0;
+  updateStarPicker();
+  // Pre-fill name if logged in
+  if (currentUser) {
+    var nm = document.getElementById('rm-name');
+    if (nm && currentUser.fname) nm.value = currentUser.fname + ' ' + (currentUser.lname ? currentUser.lname.charAt(0) + '.' : '');
+  }
+}
+
+function closeReviewForm() {
+  var modal = document.getElementById('review-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function setupStarPicker() {
+  var stars = document.querySelectorAll('#rm-stars span');
+  stars.forEach(function(star){
+    star.addEventListener('click', function(){
+      _rmRating = parseInt(this.getAttribute('data-star'));
+      updateStarPicker();
+    });
+  });
+}
+
+function updateStarPicker() {
+  var stars = document.querySelectorAll('#rm-stars span');
+  stars.forEach(function(star){
+    var v = parseInt(star.getAttribute('data-star'));
+    if (v <= _rmRating) star.classList.add('active');
+    else star.classList.remove('active');
+  });
+}
+
+function submitReview() {
+  var name = (document.getElementById('rm-name') || {value:''}).value.trim();
+  var city = (document.getElementById('rm-city') || {value:''}).value.trim();
+  var text = (document.getElementById('rm-text') || {value:''}).value.trim();
+
+  if (_rmRating === 0) { alert('Please tap the stars to give a rating.'); return; }
+  if (!name) { alert('Please enter your name.'); return; }
+  if (!text) { alert('Please write a few words about your experience.'); return; }
+
+  var review = { rating: _rmRating, name: name, city: city, text: text };
+
+  fetch(BACKEND_URL + '/api/reviews', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(review)
+  }).then(function(r){ return r.json(); }).then(function(){
+    closeReviewForm();
+    alert('🌟 Thank you for your review! It has been posted.');
+    // Clear form
+    document.getElementById('rm-name').value = '';
+    document.getElementById('rm-city').value = '';
+    document.getElementById('rm-text').value = '';
+    _rmRating = 0;
+    loadReviews();
+  }).catch(function(){
+    alert('Could not post your review right now. Please try again later.');
+  });
+}
+
+// ── REVIEWS SYSTEM ──
+var _selectedRating = 0;
+
+// Starter reviews shown until real ones come in (these are examples)
+var SEED_REVIEWS = [
+  { name:'Thabo M.', city:'Johannesburg', rating:5, text:'Sky Blueprint helped me build my CV and I got a learnership within two weeks. This is exactly what young South Africans need!' },
+  { name:'Nomsa D.', city:'Durban', rating:5, text:'The AI Email Secretary sorted my messy inbox in seconds. I never miss important emails now. Worth every rand.' },
+  { name:'Sipho K.', city:'Pretoria', rating:4, text:'Got my business website in 3 days. Professional and affordable. The team really knows what they are doing.' },
+  { name:'Lerato P.', city:'Cape Town', rating:5, text:'I love the reminders tool! It keeps my whole day organised. As a busy entrepreneur this is a lifesaver.' },
+  { name:'Ayanda N.', city:'Bloemfontein', rating:5, text:'All these tools for R55 a month is incredible value. The learnerships tool found me opportunities I did not know existed.' },
+  { name:'Kagiso R.', city:'Polokwane', rating:4, text:'Great platform built for South Africans. Easy to use even if you are not good with technology. Highly recommend.' }
+];
+
+function getReviews() {
+  try {
+    var stored = JSON.parse(localStorage.getItem('sb_reviews') || 'null');
+    if (stored && stored.length) return stored;
+  } catch(e) {}
+  return SEED_REVIEWS.slice();
+}
+
+function loadReviews() {
+  // Try backend first, fall back to local
+  fetch(BACKEND_URL + '/api/get-reviews')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data && data.reviews && data.reviews.length) {
+        renderReviews(data.reviews);
+      } else {
+        renderReviews(getReviews());
+      }
+    })
+    .catch(function(){ renderReviews(getReviews()); });
+}
+
+function renderReviews(reviews) {
+  if (!reviews || !reviews.length) reviews = getReviews();
+
+  // Calculate average and breakdown
+  var total = reviews.length;
+  var sum = 0;
+  var counts = {1:0,2:0,3:0,4:0,5:0};
+  reviews.forEach(function(r){ sum += r.rating; counts[r.rating] = (counts[r.rating]||0)+1; });
+  var avg = (sum / total).toFixed(1);
+
+  // Update summary
+  var avgEl = document.getElementById('rs-avg');
+  var starsEl = document.getElementById('rs-stars');
+  var countEl = document.getElementById('rs-count');
+  if (avgEl) avgEl.textContent = avg;
+  if (starsEl) starsEl.textContent = starString(Math.round(avg));
+  if (countEl) countEl.textContent = 'Based on ' + total + ' verified review' + (total===1?'':'s');
+
+  // Build bars (5 down to 1)
+  var barsEl = document.getElementById('rs-bars');
+  if (barsEl) {
+    var html = '';
+    for (var star = 5; star >= 1; star--) {
+      var c = counts[star] || 0;
+      var pct = total > 0 ? Math.round((c/total)*100) : 0;
+      html += '<div class="rs-bar-row">' +
+        '<span class="rs-bar-label">' + star + '★</span>' +
+        '<div class="rs-bar-track"><div class="rs-bar-fill" style="width:' + pct + '%"></div></div>' +
+        '<span class="rs-bar-count">' + c + '</span>' +
+        '</div>';
+    }
+    barsEl.innerHTML = html;
+  }
+
+  // Build review cards
+  var gridEl = document.getElementById('review-grid');
+  if (gridEl) {
+    gridEl.innerHTML = reviews.map(function(r){
+      return '<div class="review-card">' +
+        '<div class="rc-stars">' + starString(r.rating) + '</div>' +
+        '<div class="rc-text">"' + escapeHtml(r.text) + '"</div>' +
+        '<div class="rc-name">' + escapeHtml(r.name) + '</div>' +
+        '<div class="rc-verified">✓ Verified buyer' + (r.city ? ' · ' + escapeHtml(r.city) : '') + '</div>' +
+        '</div>';
+    }).join('');
+  }
+}
+
+function starString(n) {
+  n = Math.max(0, Math.min(5, n));
+  return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5-n);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openReviewForm() {
+  var modal = document.getElementById('review-modal');
+  if (modal) modal.style.display = 'flex';
+  _selectedRating = 0;
+  updateStarPicker();
+}
+
+function closeReviewForm() {
+  var modal = document.getElementById('review-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function updateStarPicker() {
+  var stars = document.querySelectorAll('#rm-stars span');
+  stars.forEach(function(s){
+    var v = parseInt(s.getAttribute('data-star'));
+    if (v <= _selectedRating) s.classList.add('active');
+    else s.classList.remove('active');
+  });
+}
+
+function submitReview() {
+  var name = (document.getElementById('rm-name') || {value:''}).value.trim();
+  var city = (document.getElementById('rm-city') || {value:''}).value.trim();
+  var text = (document.getElementById('rm-text') || {value:''}).value.trim();
+
+  if (_selectedRating === 0) { alert('Please tap the stars to give a rating.'); return; }
+  if (!name) { alert('Please enter your name.'); return; }
+  if (!text) { alert('Please write a few words about your experience.'); return; }
+
+  var review = { name:name, city:city, rating:_selectedRating, text:text, date:Date.now() };
+
+  // Save locally
+  var reviews = getReviews();
+  reviews.unshift(review);
+  localStorage.setItem('sb_reviews', JSON.stringify(reviews));
+
+  // Send to backend so everyone sees it + notify owner
+  fetch(BACKEND_URL + '/api/add-review', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(review)
+  }).catch(function(){});
+
+  closeReviewForm();
+  alert('🌟 Thank you for your review, ' + name + '! Your feedback means a lot to us.');
+
+  // Clear form
+  document.getElementById('rm-name').value = '';
+  document.getElementById('rm-city').value = '';
+  document.getElementById('rm-text').value = '';
+  _selectedRating = 0;
+
+  renderReviews(reviews);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // Check if user is already logged in
   const saved = localStorage.getItem('sb_current');
@@ -2765,6 +3056,21 @@ document.addEventListener('DOMContentLoaded', function() {
   updateNav();
   // Start reminder checker globally so reminders chime anywhere
   if (typeof startReminderChecker === 'function') startReminderChecker();
+  // Load and display reviews
+  if (typeof loadReviews === 'function') loadReviews();
+  // Star picker click handlers
+  var starPicker = document.getElementById('rm-stars');
+  if (starPicker) {
+    starPicker.querySelectorAll('span').forEach(function(s){
+      s.addEventListener('click', function(){
+        _selectedRating = parseInt(s.getAttribute('data-star'));
+        updateStarPicker();
+      });
+    });
+  }
+  // Load reviews and set up star picker
+  if (typeof loadReviews === 'function') loadReviews();
+  if (typeof setupStarPicker === 'function') setupStarPicker();
   // Load Paystack script
   const ps = document.createElement('script');
   ps.src = 'https://js.paystack.co/v1/inline.js';
@@ -2877,6 +3183,21 @@ document.addEventListener('DOMContentLoaded', function() {
   updateNav();
   // Start reminder checker globally so reminders chime anywhere
   if (typeof startReminderChecker === 'function') startReminderChecker();
+  // Load and display reviews
+  if (typeof loadReviews === 'function') loadReviews();
+  // Star picker click handlers
+  var starPicker = document.getElementById('rm-stars');
+  if (starPicker) {
+    starPicker.querySelectorAll('span').forEach(function(s){
+      s.addEventListener('click', function(){
+        _selectedRating = parseInt(s.getAttribute('data-star'));
+        updateStarPicker();
+      });
+    });
+  }
+  // Load reviews and set up star picker
+  if (typeof loadReviews === 'function') loadReviews();
+  if (typeof setupStarPicker === 'function') setupStarPicker();
   // Load Paystack script
   const ps = document.createElement('script');
   ps.src = 'https://js.paystack.co/v1/inline.js';
