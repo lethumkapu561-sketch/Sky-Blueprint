@@ -5,6 +5,36 @@ var OWNER_EMAIL = 'lethumkapu561@gmail.com';
 // Paystack payment links/plans
 var PAYSTACK_MONTHLY_LINK = 'https://paystack.shop/pay/2g6pr6rq0e';  // R55/month recurring
 var PAYSTACK_YEARLY_PLAN = 'PLN_481j8rtfqd47uze';                    // R1,980/year x 3 years
+
+// ── SAFE STORAGE (never throws, works even if browser blocks localStorage) ──
+var _memStore = {};
+var safeStorage = {
+  getItem: function(k) {
+    try { return window.localStorage.getItem(k); }
+    catch(e) { return _memStore[k] !== undefined ? _memStore[k] : null; }
+  },
+  setItem: function(k, v) {
+    try { window.localStorage.setItem(k, v); }
+    catch(e) { _memStore[k] = v; }
+  },
+  removeItem: function(k) {
+    try { window.localStorage.removeItem(k); }
+    catch(e) { delete _memStore[k]; }
+  }
+};
+var _sessMem = {};
+var safeSession = {
+  getItem: function(k) {
+    try { return window.sessionStorage.getItem(k); }
+    catch(e) { return _sessMem[k] !== undefined ? _sessMem[k] : null; }
+  },
+  setItem: function(k, v) {
+    try { window.sessionStorage.setItem(k, v); }
+    catch(e) { _sessMem[k] = v; }
+  }
+};
+
+
 var PLAN_CODES = { pro: 'PLN_xxxxxxxxxx', business: 'PLN_xxxxxxxxxx' };
 var PRICES = {
   monthly: 5500,       // R55/month — all tools
@@ -53,7 +83,7 @@ function updateNav() {
 
   if (!loggedOut || !loggedIn) return;
 
-  var saved = localStorage.getItem('sb_current');
+  var saved = safeStorage.getItem('sb_current');
   if (saved) {
     var u = JSON.parse(saved);
     currentUser = u;
@@ -162,7 +192,7 @@ function doLogin() {
   if (email.toLowerCase() === OWNER_EMAIL.toLowerCase()) {
     var ownerUser = { fname:'Wongalethu', lname:'Mkapu', email:OWNER_EMAIL, phone:'0656013544', plan:'owner' };
     currentUser = ownerUser;
-    localStorage.setItem('sb_current', JSON.stringify(ownerUser));
+    safeStorage.setItem('sb_current', JSON.stringify(ownerUser));
     document.getElementById('dash-greeting').textContent = 'Welcome back, Owner 👑 Wongalethu!';
     var banner = document.getElementById('trial-banner');
     if (banner) { banner.innerHTML = '👑 <strong>Owner Account</strong> — Full free access to all tools. You control Sky Blueprint.'; banner.style.background='rgba(245,158,11,0.08)'; banner.style.borderColor='rgba(245,158,11,0.3)'; }
@@ -173,12 +203,12 @@ function doLogin() {
   }
 
   // Check stored users
-  const users = JSON.parse(localStorage.getItem('sb_users') || '[]');
+  const users = JSON.parse(safeStorage.getItem('sb_users') || '[]');
   const user = users.find(u => u.email === email && u.pass === btoa(pass));
   if (!user) { alert('Incorrect email or password. Please try again.'); return; }
 
   currentUser = user;
-  localStorage.setItem('sb_current', JSON.stringify(user));
+  safeStorage.setItem('sb_current', JSON.stringify(user));
   document.getElementById('dash-greeting').textContent = 'Hi ' + user.fname + ' ' + (user.lname||'') + ' Welcome back!';
 
   // Notify owner of login
@@ -216,14 +246,14 @@ function doSignup() {
   if (!fname || !email || !pass) { alert('Please fill in your name, email and password.'); return; }
   if (pass.length < 6) { alert('Password must be at least 6 characters.'); return; }
 
-  const users = JSON.parse(localStorage.getItem('sb_users') || '[]');
+  const users = JSON.parse(safeStorage.getItem('sb_users') || '[]');
   if (users.find(u => u.email === email)) { alert('An account with this email already exists. Please log in.'); return; }
 
   const user = { fname, lname, email, phone, pass: btoa(pass), plan: 'trial', joined: Date.now() };
   users.push(user);
-  localStorage.setItem('sb_users', JSON.stringify(users));
+  safeStorage.setItem('sb_users', JSON.stringify(users));
   currentUser = user;
-  localStorage.setItem('sb_current', JSON.stringify(user));
+  safeStorage.setItem('sb_current', JSON.stringify(user));
 
   document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' 👋 Welcome to Sky Blueprint!';
 
@@ -378,10 +408,10 @@ function cancelPlan() {
 function confirmCancelOnFile() {
   // Mark as cancelled in our records and notify owner
   currentUser.plan = 'cancelled';
-  localStorage.setItem('sb_current', JSON.stringify(currentUser));
-  var users = JSON.parse(localStorage.getItem('sb_users') || '[]');
+  safeStorage.setItem('sb_current', JSON.stringify(currentUser));
+  var users = JSON.parse(safeStorage.getItem('sb_users') || '[]');
   var idx = users.findIndex(function(u){ return u.email === currentUser.email; });
-  if (idx > -1) { users[idx].plan = 'cancelled'; localStorage.setItem('sb_users', JSON.stringify(users)); }
+  if (idx > -1) { users[idx].plan = 'cancelled'; safeStorage.setItem('sb_users', JSON.stringify(users)); }
 
   fetch(BACKEND_URL + '/api/login-notify', {
     method: 'POST', headers: {'Content-Type':'application/json'},
@@ -395,13 +425,13 @@ function confirmCancelOnFile() {
 
 function doLogout() {
   currentUser = null;
-  localStorage.removeItem('sb_current');
+  safeStorage.removeItem('sb_current');
   updateNav();
   showPage('home');
 }
 
 function requireAuth(tool) {
-  const saved = localStorage.getItem('sb_current');
+  const saved = safeStorage.getItem('sb_current');
   if (saved) {
     currentUser = JSON.parse(saved);
     openTool(tool);
@@ -1003,7 +1033,7 @@ function categoriseEmail(email) {
 
 function showAIInbox(data, userEmail) {
   var allEmails = (data.important || []).concat(data.spam || []);
-  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+  var blocked = JSON.parse(safeStorage.getItem('sb_blocked') || '[]');
 
   // Filter out blocked senders
   allEmails = allEmails.filter(function(e) {
@@ -1181,11 +1211,11 @@ function deleteOneEmail(uid, elementId) {
 
 function blockSender(sender) {
   if (!sender) return;
-  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+  var blocked = JSON.parse(safeStorage.getItem('sb_blocked') || '[]');
   var clean = sender.replace(/<[^>]+>/g,'').trim();
   if (!blocked.includes(clean)) {
     blocked.push(clean);
-    localStorage.setItem('sb_blocked', JSON.stringify(blocked));
+    safeStorage.setItem('sb_blocked', JSON.stringify(blocked));
     alert('Blocked: ' + clean + '\nFuture emails from this sender will be ignored.');
     loadBlockedList();
   } else {
@@ -1196,7 +1226,7 @@ function blockSender(sender) {
 function loadBlockedList() {
   var el = document.getElementById('blocked-list');
   if (!el) return;
-  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+  var blocked = JSON.parse(safeStorage.getItem('sb_blocked') || '[]');
   if (blocked.length === 0) {
     el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div style="font-size:36px;margin-bottom:10px">✅</div><p>No blocked senders yet.<br>Click "Block" next to any email to block that sender.</p></div>';
     return;
@@ -1211,15 +1241,15 @@ function loadBlockedList() {
 }
 
 function unblockSender(index) {
-  var blocked = JSON.parse(localStorage.getItem('sb_blocked') || '[]');
+  var blocked = JSON.parse(safeStorage.getItem('sb_blocked') || '[]');
   blocked.splice(index, 1);
-  localStorage.setItem('sb_blocked', JSON.stringify(blocked));
+  safeStorage.setItem('sb_blocked', JSON.stringify(blocked));
   loadBlockedList();
 }
 
 function clearAllBlocked() {
   if (confirm('Unblock all senders?')) {
-    localStorage.removeItem('sb_blocked');
+    safeStorage.removeItem('sb_blocked');
     loadBlockedList();
   }
 }
@@ -1408,9 +1438,9 @@ function regDevice() {
   var name=document.getElementById('p-name').value;
   var model=document.getElementById('p-model').value;
   if(!name||!model){alert('Please fill in your name and device model.');return;}
-  var devices=JSON.parse(localStorage.getItem('sb_devices')||'[]');
+  var devices=JSON.parse(safeStorage.getItem('sb_devices')||'[]');
   devices.push({name,model,imei:document.getElementById('p-imei').value,color:document.getElementById('p-color').value,date:document.getElementById('p-date').value,registered:new Date().toISOString()});
-  localStorage.setItem('sb_devices',JSON.stringify(devices));
+  safeStorage.setItem('sb_devices',JSON.stringify(devices));
   document.getElementById('reg-msg').innerHTML='<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:14px"><strong style="color:var(--green)">✅ '+model+' registered successfully!</strong><p style="color:var(--muted);font-size:13px;margin:6px 0 0">Your device is protected. Go to Track Device tab to locate it anytime.</p></div>';
 }
 
@@ -2583,12 +2613,12 @@ function reminderTab(tab, el) {
 }
 
 function getReminders() {
-  try { return JSON.parse(localStorage.getItem('sb_reminders') || '[]'); }
+  try { return JSON.parse(safeStorage.getItem('sb_reminders') || '[]'); }
   catch(e) { return []; }
 }
 
 function saveReminders(list) {
-  localStorage.setItem('sb_reminders', JSON.stringify(list));
+  safeStorage.setItem('sb_reminders', JSON.stringify(list));
 }
 
 function addReminder() {
@@ -2943,10 +2973,10 @@ function processPayment() {
 function markPlanActive(plan, name, email, phone) {
   if (currentUser) {
     currentUser.plan = (plan === 'website') ? currentUser.plan : plan;
-    var users = JSON.parse(localStorage.getItem('sb_users') || '[]');
+    var users = JSON.parse(safeStorage.getItem('sb_users') || '[]');
     var idx = users.findIndex(function(u){ return u.email === currentUser.email; });
-    if (idx > -1) { users[idx] = currentUser; localStorage.setItem('sb_users', JSON.stringify(users)); }
-    localStorage.setItem('sb_current', JSON.stringify(currentUser));
+    if (idx > -1) { users[idx] = currentUser; safeStorage.setItem('sb_users', JSON.stringify(users)); }
+    safeStorage.setItem('sb_current', JSON.stringify(currentUser));
     var banner = document.getElementById('trial-banner');
     if (banner && plan !== 'website') {
       banner.innerHTML = '✅ <strong>You are now on Sky Blueprint ' + plan.toUpperCase() + '!</strong> Enjoy full access to all tools.';
@@ -3120,7 +3150,7 @@ var SEED_REVIEWS = [
 
 function getReviews() {
   try {
-    var stored = JSON.parse(localStorage.getItem('sb_reviews') || 'null');
+    var stored = JSON.parse(safeStorage.getItem('sb_reviews') || 'null');
     if (stored && stored.length) return stored;
   } catch(e) {}
   return SEED_REVIEWS.slice();
@@ -3233,7 +3263,7 @@ function submitReview() {
   // Save locally
   var reviews = getReviews();
   reviews.unshift(review);
-  localStorage.setItem('sb_reviews', JSON.stringify(reviews));
+  safeStorage.setItem('sb_reviews', JSON.stringify(reviews));
 
   // Send to backend so everyone sees it + notify owner
   fetch(BACKEND_URL + '/api/add-review', {
@@ -3255,7 +3285,7 @@ function submitReview() {
 
 document.addEventListener('DOMContentLoaded', function() {
   // Check if user is already logged in
-  const saved = localStorage.getItem('sb_current');
+  const saved = safeStorage.getItem('sb_current');
   if (saved) {
     try {
       currentUser = JSON.parse(saved);
@@ -3382,7 +3412,7 @@ function mapCity(c){document.getElementById('ms').value=c;searchM();}
 // ── Init ──
 document.addEventListener('DOMContentLoaded', function() {
   // Check if user is already logged in
-  const saved = localStorage.getItem('sb_current');
+  const saved = safeStorage.getItem('sb_current');
   if (saved) {
     try {
       currentUser = JSON.parse(saved);
@@ -3817,8 +3847,8 @@ async function guideDismiss() {
 
 // Auto-greet after 8 seconds on homepage (once per session)
 setTimeout(function() {
-  if (!sessionStorage.getItem('guide_greeted') && !guideOpen) {
-    sessionStorage.setItem('guide_greeted', '1');
+  if (!safeSession.getItem('guide_greeted') && !guideOpen) {
+    safeSession.setItem('guide_greeted', '1');
     toggleGuide();
   }
 }, 8000);
