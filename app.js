@@ -1,3 +1,5 @@
+// VERSION: 2026-COVER-LETTER-FIX-v9
+console.log("Sky Blueprint app.js VERSION 9 loaded - cover letter ready");
 // ── Sky Blueprint App ──
 // YOUR PAYSTACK PUBLIC KEY — replace with your real key from paystack.com/dashboard
 var PAYSTACK_PUBLIC_KEY = 'pk_live_b07f0d8b9ee7305c57362ec9bbb89fe1eb0f9433';
