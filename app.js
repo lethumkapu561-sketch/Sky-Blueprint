@@ -2125,13 +2125,13 @@ function showMatchingJobs(data, name, loc, jobTitle) {
 
   var resultHTML =
     '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:18px">' +
-    '<strong style="color:var(--green);display:block;margin-bottom:6px">CV Built for ' + (name||'You') + '!</strong>' +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">' +
-    '<button onclick="downloadCV()" style="flex:1;min-width:120px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">📥 Download File</button>' +
-    '<button onclick="printCV()" style="flex:1;min-width:120px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#a5b4fc;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">🖨️ Print / PDF</button>' +
-    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
+    '<strong style="color:var(--green);display:block;margin-bottom:12px;font-size:16px">✅ CV Built for ' + (name||'You') + '!</strong>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
+    '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📄 Save as PDF</button>' +
+    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
     '</div>' +
-    '<p style="font-size:11px;color:#64748b;margin-bottom:14px">📱 Download saves to your phone/PC — share on WhatsApp or email when applying</p>' +
+    '<button onclick="createCoverLetter()" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px">✍️ Create Matching Cover Letter</button>' +
+    '<p style="font-size:11px;color:#64748b;margin-bottom:14px">📱 "Save as PDF" works on phone & PC. Then share on WhatsApp or email when applying.</p>' +
     '<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:12px;margin-bottom:16px">' +
     '<strong style="color:#fff;display:block;margin-bottom:4px">🎯 Your Level: ' + (data.levelLabel||'') + '</strong>' +
     '<p style="color:var(--muted);font-size:13px;margin:0">' + levelAdvice + '</p>' +
