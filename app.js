@@ -1533,6 +1533,7 @@ function renderCVBuilder(el) {
     <p>Build your CV — AI detects your qualification level and only shows jobs you qualify for.</p>
     <div class="tab-bar">
       <div class="tab active" onclick="cvTab2('build',this)">Build My CV</div>
+      <div class="tab" onclick="cvTab2('cover',this)">Cover Letter</div>
       <div class="tab" onclick="cvTab2('jobs',this)">Matching Jobs</div>
       <div class="tab" onclick="cvTab2('upload',this)">Upload CV</div>
     </div>
@@ -1615,6 +1616,10 @@ function renderCVBuilder(el) {
       <div id="cv-msg" style="margin-top:14px"></div>
     </div>
 
+    <div id="cvt-cover" style="display:none">
+      <p style="color:var(--muted);text-align:center;padding:20px">Loading cover letter tool...</p>
+    </div>
+
     <div id="cvt-jobs" style="display:none">
       <div id="job-match-content">
         <p style="color:var(--muted);text-align:center;padding:30px">Build your CV first to see matching jobs</p>
@@ -1638,9 +1643,36 @@ function renderCVBuilder(el) {
 function cvTab2(t, el) {
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   el.classList.add('active');
-  ['build','jobs','upload'].forEach(id=>{
-    document.getElementById('cvt-'+id).style.display = id===t?'block':'none';
+  ['build','cover','jobs','upload'].forEach(id=>{
+    var elem = document.getElementById('cvt-'+id);
+    if (elem) elem.style.display = id===t?'block':'none';
   });
+  // When Cover Letter tab opens, render the form
+  if (t === 'cover') renderCoverLetterTab();
+}
+
+function renderCoverLetterTab() {
+  var box = document.getElementById('cvt-cover');
+  if (!box) return;
+
+  // Pull current CV data from the form (so they do not have to build first)
+  var fn = (document.getElementById('cv-fn') || {value:''}).value.trim();
+  var ln = (document.getElementById('cv-ln') || {value:''}).value.trim();
+  var jt = (document.getElementById('cv-jt') || {value:''}).value.trim();
+
+  box.innerHTML =
+    '<div class="cv-sec-title">Create Your Cover Letter</div>' +
+    '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">Fill in your name and details in the "Build My CV" tab first. Then complete these fields and we create a professional cover letter that matches your CV.</p>' +
+    '<div style="background:rgba(56,189,248,0.06);border-left:3px solid #38bdf8;border-radius:8px;padding:12px 14px;margin-bottom:16px">' +
+    '<div style="font-size:11px;font-weight:700;color:#38bdf8;margin-bottom:6px">💡 EXPERT TIPS (from 200+ HR managers):</div>' +
+    '<div style="font-size:11px;color:var(--muted);line-height:1.6">• Tailor it to THIS job — generic letters get ignored<br>• Show what VALUE you bring, not just what you did<br>• Explain WHY this specific company<br>• Never lie — 86% of HR catch it</div>' +
+    '</div>' +
+    '<div class="form-group"><label>Company Name *</label><input type="text" id="cl-company" placeholder="e.g. Shoprite Holdings"></div>' +
+    '<div class="form-group"><label>Job Title You Are Applying For *</label><input type="text" id="cl-role" placeholder="e.g. Sales Assistant" value="' + (jt || '') + '"></div>' +
+    '<div class="form-group"><label>Hiring Manager Name (if you know it)</label><input type="text" id="cl-manager" placeholder="e.g. Ms. Dlamini (or leave blank)"></div>' +
+    '<div class="form-group"><label>Why do you want THIS job? (1-2 sentences) *</label><textarea id="cl-why" rows="3" placeholder="e.g. I admire how your company serves South African communities and I want to grow my retail career with a trusted brand."></textarea></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="generateCoverLetter()">Generate My Cover Letter</button>' +
+    '<div id="cl-result" style="margin-top:16px"></div>';
 }
 
 function previewPhoto(input) {
@@ -1792,7 +1824,7 @@ function buildAndMatchCV() {
     '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📄 Save as PDF</button>' +
     '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
     '</div>' +
-    '<button id="cl-open-btn" onclick="createCoverLetter()" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px">✍️ Create Matching Cover Letter</button>' +
+    '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">✍️ Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
     '<p style="font-size:11px;color:#64748b;margin:0">📱 "Save as PDF" works on phone & PC — when the print screen opens, choose <strong>Save as PDF</strong>. Then share on WhatsApp or email.</p>' +
     '</div>';
 
@@ -1960,7 +1992,26 @@ function createCoverLetter() {
 }
 
 function generateCoverLetter() {
+  // Build CV data straight from the form (works without building CV first)
   var d = window._cvData;
+  if (!d || !d.fn) {
+    d = {
+      fn: (document.getElementById('cv-fn') || {value:''}).value.trim(),
+      ln: (document.getElementById('cv-ln') || {value:''}).value.trim(),
+      em: (document.getElementById('cv-em') || {value:''}).value.trim(),
+      ph: (document.getElementById('cv-ph') || {value:''}).value.trim(),
+      ci: (document.getElementById('cv-ci') || {value:''}).value.trim(),
+      qual: (document.getElementById('cv-qual-level') || {value:''}).value,
+      jt: (document.getElementById('cv-jt') || {value:''}).value.trim(),
+      co: (document.getElementById('cv-co') || {value:''}).value.trim(),
+      sk: (document.getElementById('cv-sk') || {value:''}).value.trim(),
+      sum: (document.getElementById('cv-sum') || {value:''}).value.trim(),
+      exp: (document.getElementById('cv-exp') || {value:''}).value
+    };
+    window._cvData = d;
+  }
+  if (!d.fn) { alert('Please fill in your name in the "Build My CV" tab first.'); return; }
+
   var company = (document.getElementById('cl-company') || {value:''}).value.trim();
   var role = (document.getElementById('cl-role') || {value:''}).value.trim();
   var manager = (document.getElementById('cl-manager') || {value:''}).value.trim();
@@ -2031,8 +2082,9 @@ function generateCoverLetter() {
   window._clHTML = clHTML;
   window._clName = (d.fn + '_' + d.ln + '_CoverLetter').replace(/\s+/g,'_');
 
-  // Show success with download options
-  document.getElementById('cv-msg').innerHTML =
+  // Show success with download options - into cl-result if it exists, else cv-msg
+  var outEl = document.getElementById('cl-result') || document.getElementById('cv-msg');
+  outEl.innerHTML =
     '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:18px">' +
     '<strong style="color:var(--green);display:block;margin-bottom:8px;font-size:16px">✅ Cover Letter Ready!</strong>' +
     '<p style="font-size:12px;color:var(--muted);margin-bottom:14px">Tailored for <strong style="color:#fff">' + role + '</strong> at <strong style="color:#fff">' + company + '</strong></p>' +
@@ -2040,7 +2092,6 @@ function generateCoverLetter() {
     '<button onclick="downloadCoverLetter()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📄 Save as PDF</button>' +
     '<button onclick="previewCoverLetter()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
     '</div>' +
-    '<button onclick="buildAndMatchCV()" style="width:100%;box-sizing:border-box;margin-top:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:8px;padding:11px;font-family:var(--font);cursor:pointer;font-size:13px">← Back to CV</button>' +
     '<div style="background:rgba(139,92,246,0.08);border-radius:8px;padding:12px;margin-top:12px">' +
     '<p style="font-size:11px;color:#c4b5fd;margin:0;line-height:1.6">💡 <strong>Expert tip:</strong> Read your cover letter out loud before sending. Make sure it explains WHY you want this specific job — recruiters can tell when it is generic!</p>' +
     '</div>' +
@@ -2196,7 +2247,7 @@ function showMatchingJobs(data, name, loc, jobTitle) {
     '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📄 Save as PDF</button>' +
     '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
     '</div>' +
-    '<button id="cl-open-btn" onclick="createCoverLetter()" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px">✍️ Create Matching Cover Letter</button>' +
+    '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">✍️ Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
     '<p style="font-size:11px;color:#64748b;margin-bottom:14px">📱 "Save as PDF" works on phone & PC. Then share on WhatsApp or email when applying.</p>' +
     '<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:12px;margin-bottom:16px">' +
     '<strong style="color:#fff;display:block;margin-bottom:4px">🎯 Your Level: ' + (data.levelLabel||'') + '</strong>' +
