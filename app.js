@@ -1872,7 +1872,26 @@ function previewCV() {
 }
 
 function createCoverLetter() {
-  if (!window._cvData) { alert('Please build your CV first.'); return; }
+  // If cvData not set, try to rebuild it from the CV form fields
+  if (!window._cvData) {
+    var fn = (document.getElementById('cv-fn') || {value:''}).value.trim();
+    var ln = (document.getElementById('cv-ln') || {value:''}).value.trim();
+    if (fn) {
+      window._cvData = {
+        fn: fn, ln: ln,
+        em: (document.getElementById('cv-em') || {value:''}).value.trim(),
+        ph: (document.getElementById('cv-ph') || {value:''}).value.trim(),
+        ci: (document.getElementById('cv-ci') || {value:''}).value.trim(),
+        qual: (document.getElementById('cv-qual-level') || {value:''}).value,
+        jt: (document.getElementById('cv-jt') || {value:''}).value.trim(),
+        co: (document.getElementById('cv-co') || {value:''}).value.trim(),
+        sk: (document.getElementById('cv-sk') || {value:''}).value.trim(),
+        sum: (document.getElementById('cv-sum') || {value:''}).value.trim(),
+        exp: (document.getElementById('cv-exp') || {value:''}).value
+      };
+    }
+  }
+  if (!window._cvData) { alert('Please build your CV first, then create your cover letter.'); return; }
   var d = window._cvData;
 
   // Show a small form to capture the job they are applying for (expert tip: tailor to specific role)
