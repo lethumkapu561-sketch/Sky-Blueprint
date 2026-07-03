@@ -398,3 +398,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--sky)!imp
 .review-modal-box input,.review-modal-box textarea{width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px;color:#fff;font-family:var(--font);font-size:14px}
 
 @media(max-width:900px){.review-summary{grid-template-columns:1fr;gap:24px;text-align:center}.rs-action{justify-content:center}.review-grid{grid-template-columns:1fr}}
+
+/* ── PROFESSIONAL TOOL PAGE HEADER ── */
+.tool-page-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.tool-page-header .back-btn:hover{transform:translateX(-3px);box-shadow:0 4px 16px rgba(56,189,248,0.25)!important;border-color:rgba(56,189,248,0.6)!important}
+.tool-page-title{font-family:var(--display);font-size:22px;font-weight:800;color:#fff;text-align:center;flex:1}
+@media(max-width:600px){.tool-page-title{font-size:17px}.tool-page-header .back-btn{padding:9px 14px!important;font-size:13px!important}}
