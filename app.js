@@ -1757,12 +1757,15 @@ function buildAndMatchCV() {
     '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:18px">' +
     '<strong style="color:var(--green);display:block;margin-bottom:12px;font-size:16px">✅ CV Built for ' + fn + ' ' + ln + '!</strong>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
-    '<button onclick="downloadCV()" style="flex:1;min-width:120px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📥 Download File</button>' +
-    '<button onclick="printCV()" style="flex:1;min-width:120px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#a5b4fc;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">🖨️ Print / PDF</button>' +
-    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
+    '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📄 Save as PDF</button>' +
+    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
     '</div>' +
-    '<p style="font-size:11px;color:#64748b;margin:0">📱 Download saves to your phone/PC — share on WhatsApp or email when applying for jobs</p>' +
+    '<button onclick="createCoverLetter()" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px">✍️ Create Matching Cover Letter</button>' +
+    '<p style="font-size:11px;color:#64748b;margin:0">📱 "Save as PDF" works on phone & PC — when the print screen opens, choose <strong>Save as PDF</strong>. Then share on WhatsApp or email.</p>' +
     '</div>';
+
+  // Store CV data for cover letter
+  window._cvData = { fn:fn, ln:ln, em:em, ph:ph, ci:ci, qual:qualLabel, jt:jt, co:co, sk:sk, sum:sum, exp:exp };
 
   // Now match jobs
   var levelData = detectLevel(qual, exp);
@@ -1793,6 +1796,59 @@ function detectLevel(qual, exp) {
 }
 
 function downloadCV() {
+  // Download a REAL PDF file - works on both PC and phone
+  if (!window._cvHTML) { alert('Please build your CV first.'); return; }
+
+  // Use html2pdf if available for a true PDF file
+  if (typeof html2pdf !== 'undefined') {
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = window._cvHTML;
+    // strip the print button from the PDF
+    var noprint = wrapper.querySelectorAll('.no-print');
+    noprint.forEach(function(n){ n.remove(); });
+
+    var opt = {
+      margin: 0,
+      filename: (window._cvName || 'My_CV') + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#060914' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    alert('Preparing your PDF... it will download in a moment.');
+    html2pdf().set(opt).from(wrapper).save().catch(function(){
+      // fallback to print method
+      downloadCVPrint();
+    });
+    return;
+  }
+  // Fallback: browser print-to-PDF
+  downloadCVPrint();
+}
+
+function downloadCVPrint() {
+  if (!window._cvHTML) { alert('Please build your CV first.'); return; }
+  var win = window.open('', '_blank');
+  if (!win) { alert('Please allow pop-ups for this site, then tap Download again.'); return; }
+  win.document.write(window._cvHTML);
+  win.document.close();
+  win.focus();
+  setTimeout(function() {
+    win.print(); // On PC: choose "Save as PDF". On phone: choose "Save as PDF"
+  }, 700);
+}
+
+function printCV() {
+  if (!window._cvHTML) { alert('Please build your CV first.'); return; }
+  var win = window.open('', '_blank');
+  if (!win) { alert('Please allow pop-ups for this site, then tap Print again.'); return; }
+  win.document.write(window._cvHTML);
+  win.document.close();
+  win.focus();
+  setTimeout(function() { win.print(); }, 700);
+}
+
+function downloadCVFile() {
+  // Alternative - saves the raw file to device (for those who want the file itself)
   if (!window._cvHTML) { alert('Please build your CV first.'); return; }
   try {
     var blob = new Blob([window._cvHTML], { type: 'text/html' });
@@ -1804,27 +1860,162 @@ function downloadCV() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    setTimeout(function() {
-      alert('CV downloaded! Open the file in your browser then press Ctrl+P and choose Save as PDF.');
-    }, 500);
-  } catch(e) {
-    printCV();
-  }
-}
-
-function printCV() {
-  if (!window._cvHTML) { alert('Please build your CV first.'); return; }
-  var win = window.open('', '_blank');
-  win.document.write(window._cvHTML);
-  win.document.close();
-  win.focus();
-  setTimeout(function() { win.print(); }, 600);
+  } catch(e) { downloadCV(); }
 }
 
 function previewCV() {
   if (!window._cvHTML) { alert('Please build your CV first.'); return; }
   var win = window.open('', '_blank');
+  if (!win) { alert('Please allow pop-ups for this site to preview.'); return; }
   win.document.write(window._cvHTML);
+  win.document.close();
+}
+
+function createCoverLetter() {
+  if (!window._cvData) { alert('Please build your CV first.'); return; }
+  var d = window._cvData;
+
+  // Show a small form to capture the job they are applying for (expert tip: tailor to specific role)
+  document.getElementById('cv-msg').innerHTML =
+    '<div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:14px;padding:20px">' +
+    '<strong style="color:#a855f7;display:block;margin-bottom:6px;font-size:16px">✍️ Create Your Cover Letter</strong>' +
+    '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">A cover letter should be tailored to the exact job. Fill in these details and we build a professional one that matches your CV.</p>' +
+    '<div style="background:rgba(56,189,248,0.06);border-left:3px solid #38bdf8;border-radius:8px;padding:12px 14px;margin-bottom:16px">' +
+    '<div style="font-size:11px;font-weight:700;color:#38bdf8;margin-bottom:6px">💡 EXPERT TIPS (from 200+ HR managers):</div>' +
+    '<div style="font-size:11px;color:var(--muted);line-height:1.6">• Tailor it to THIS job — generic letters get ignored<br>• Show what VALUE you bring, not just what you did<br>• Explain WHY this specific company<br>• Never lie — 86% of HR catch it</div>' +
+    '</div>' +
+    '<div class="form-group"><label>Company Name *</label><input type="text" id="cl-company" placeholder="e.g. Shoprite Holdings"></div>' +
+    '<div class="form-group"><label>Job Title You Are Applying For *</label><input type="text" id="cl-role" placeholder="e.g. Sales Assistant" value="' + (d.jt || '') + '"></div>' +
+    '<div class="form-group"><label>Hiring Manager Name (if you know it)</label><input type="text" id="cl-manager" placeholder="e.g. Ms. Dlamini (or leave blank)"></div>' +
+    '<div class="form-group"><label>Why do you want THIS job? (1-2 sentences) *</label><textarea id="cl-why" rows="3" placeholder="e.g. I admire how your company serves South African communities and I want to grow my retail career with a trusted brand."></textarea></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="generateCoverLetter()">Generate My Cover Letter</button>' +
+    '<button style="width:100%;box-sizing:border-box;margin-top:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:8px;padding:11px;font-family:var(--font);cursor:pointer;font-size:13px" onclick="buildAndMatchCV()">← Back to CV</button>' +
+    '</div>';
+}
+
+function generateCoverLetter() {
+  var d = window._cvData;
+  var company = (document.getElementById('cl-company') || {value:''}).value.trim();
+  var role = (document.getElementById('cl-role') || {value:''}).value.trim();
+  var manager = (document.getElementById('cl-manager') || {value:''}).value.trim();
+  var why = (document.getElementById('cl-why') || {value:''}).value.trim();
+
+  if (!company || !role || !why) { alert('Please fill in the company, job title, and why you want the job.'); return; }
+
+  var greeting = manager ? 'Dear ' + manager + ',' : 'Dear Hiring Manager,';
+  var today = new Date().toLocaleDateString('en-ZA', { year:'numeric', month:'long', day:'numeric' });
+
+  // Build skills sentence
+  var skills = d.sk ? d.sk.split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+  var skillsSentence = skills.length ? 'My key strengths include ' + (skills.length > 2 ? skills.slice(0,3).join(', ') : skills.join(' and ')) + ', which I am confident will add value to your team.' : '';
+
+  // Experience sentence (expert tip: lead with experience/value, not education)
+  var expSentence = '';
+  if (d.jt && d.co) {
+    expSentence = 'In my role as ' + d.jt + ' at ' + d.co + ', I developed practical experience and a strong work ethic that I am eager to bring to ' + company + '.';
+  } else if (d.jt) {
+    expSentence = 'Through my experience as ' + d.jt + ', I have built skills that directly support this role.';
+  } else {
+    expSentence = 'I am a dedicated and fast-learning individual, ready to contribute and grow within your organisation.';
+  }
+
+  // Professional summary line
+  var summaryLine = d.sum ? d.sum : 'I am a motivated professional committed to delivering quality work and continuous growth.';
+
+  // Build the cover letter HTML (expert-based: tailored, tells the story, shows value, specific to company)
+  var clHTML =
+'<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+'<title>Cover Letter - ' + d.fn + ' ' + d.ln + '</title><style>' +
+'@import url(\'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap\');' +
+'*{margin:0;padding:0;box-sizing:border-box}' +
+'body{font-family:Inter,Arial,sans-serif;color:#1a1a2e;background:#fff;line-height:1.7;font-size:11pt}' +
+'.page{max-width:800px;margin:0 auto;padding:50px 60px}' +
+'.header{border-bottom:3px solid #38bdf8;padding-bottom:20px;margin-bottom:30px}' +
+'.name{font-size:24pt;font-weight:700;color:#0d1f3c}' +
+'.contact{font-size:10pt;color:#555;margin-top:8px}' +
+'.date{margin:24px 0;color:#555;font-size:10pt}' +
+'.company-block{margin-bottom:24px;font-weight:600;color:#0d1f3c}' +
+'.body-text{margin-bottom:16px;text-align:justify}' +
+'.signature{margin-top:32px}' +
+'.sig-name{font-weight:700;color:#0d1f3c;font-size:13pt;margin-top:4px}' +
+'.footer{margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;text-align:center;font-size:9pt;color:#38bdf8;font-weight:600}' +
+'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}' +
+'</style></head><body><div class="page">' +
+'<div class="header">' +
+'<div class="name">' + d.fn + ' ' + d.ln + '</div>' +
+'<div class="contact">' + [d.em, d.ph, d.ci].filter(Boolean).join('  |  ') + '</div>' +
+'</div>' +
+'<div class="date">' + today + '</div>' +
+'<div class="company-block">The Hiring Team<br>' + company + '</div>' +
+'<p class="body-text">' + greeting + '</p>' +
+'<p class="body-text">I am writing to apply for the position of <strong>' + role + '</strong> at ' + company + '. ' + why + '</p>' +
+'<p class="body-text">' + summaryLine + ' ' + expSentence + '</p>' +
+'<p class="body-text">' + skillsSentence + ' I am a reliable, hardworking person who shows up consistently and takes pride in doing a job well. I am confident that I can make a positive contribution to ' + company + ' from day one.</p>' +
+'<p class="body-text">I would welcome the opportunity to discuss how my skills and dedication align with your needs. Thank you for taking the time to consider my application. I look forward to hearing from you.</p>' +
+'<div class="signature">' +
+'<p>Yours sincerely,</p>' +
+'<div class="sig-name">' + d.fn + ' ' + d.ln + '</div>' +
+'</div>' +
+'<div class="footer">Created with Sky Blueprint — Your Digital Life, Unified</div>' +
+'</div>' +
+'<div class="no-print" style="text-align:center;padding:20px;background:#f5f5f5">' +
+'<button onclick="window.print()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">📄 Save as PDF</button>' +
+'</div></body></html>';
+
+  window._clHTML = clHTML;
+  window._clName = (d.fn + '_' + d.ln + '_CoverLetter').replace(/\s+/g,'_');
+
+  // Show success with download options
+  document.getElementById('cv-msg').innerHTML =
+    '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:18px">' +
+    '<strong style="color:var(--green);display:block;margin-bottom:8px;font-size:16px">✅ Cover Letter Ready!</strong>' +
+    '<p style="font-size:12px;color:var(--muted);margin-bottom:14px">Tailored for <strong style="color:#fff">' + role + '</strong> at <strong style="color:#fff">' + company + '</strong></p>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+    '<button onclick="downloadCoverLetter()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📄 Save as PDF</button>' +
+    '<button onclick="previewCoverLetter()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
+    '</div>' +
+    '<button onclick="buildAndMatchCV()" style="width:100%;box-sizing:border-box;margin-top:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:8px;padding:11px;font-family:var(--font);cursor:pointer;font-size:13px">← Back to CV</button>' +
+    '<div style="background:rgba(139,92,246,0.08);border-radius:8px;padding:12px;margin-top:12px">' +
+    '<p style="font-size:11px;color:#c4b5fd;margin:0;line-height:1.6">💡 <strong>Expert tip:</strong> Read your cover letter out loud before sending. Make sure it explains WHY you want this specific job — recruiters can tell when it is generic!</p>' +
+    '</div>' +
+    '</div>';
+}
+
+function downloadCoverLetter() {
+  if (!window._clHTML) { alert('Please create your cover letter first.'); return; }
+  if (typeof html2pdf !== 'undefined') {
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = window._clHTML;
+    wrapper.querySelectorAll('.no-print').forEach(function(n){ n.remove(); });
+    var opt = {
+      margin: 0,
+      filename: (window._clName || 'Cover_Letter') + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    alert('Preparing your cover letter PDF... it will download in a moment.');
+    html2pdf().set(opt).from(wrapper).save().catch(function(){ downloadCoverLetterPrint(); });
+    return;
+  }
+  downloadCoverLetterPrint();
+}
+
+function downloadCoverLetterPrint() {
+  if (!window._clHTML) { alert('Please create your cover letter first.'); return; }
+  var win = window.open('', '_blank');
+  if (!win) { alert('Please allow pop-ups, then tap Save as PDF again.'); return; }
+  win.document.write(window._clHTML);
+  win.document.close();
+  win.focus();
+  setTimeout(function() { win.print(); }, 700);
+}
+
+function previewCoverLetter() {
+  if (!window._clHTML) { alert('Please create your cover letter first.'); return; }
+  var win = window.open('', '_blank');
+  if (!win) { alert('Please allow pop-ups to preview.'); return; }
+  win.document.write(window._clHTML);
   win.document.close();
 }
 
