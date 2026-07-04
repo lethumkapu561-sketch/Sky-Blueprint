@@ -480,6 +480,8 @@ function openTool(name) {
     'sa-map': '🗺️ SA Map',
     'reminders': '🔔 My Reminders & Tasks',
     'learnerships': '🎓 Learnerships & Internships',
+    'templates': '📊 Templates Store',
+    'pdf-tools': '📑 PDF Tools',
   };
   document.getElementById('tool-page-title').textContent = titles[name] || 'Tool';
   const body = document.getElementById('tool-page-body');
@@ -493,6 +495,8 @@ function openTool(name) {
     'sa-map': renderSAMap,
     'reminders': renderReminders,
     'learnerships': renderLearnerships,
+    'templates': renderTemplates,
+    'pdf-tools': renderPDFTools,
   };
   // SA Map is always free - skip trial check
   if (name !== 'sa-map' && isTrialExpired(currentUser)) {
@@ -2313,6 +2317,267 @@ function uploadAndAnalyzeCV(input) {
 
 
 // ── SA Map ──
+function renderPDFTools(el) {
+  el.innerHTML =
+    '<div class="tool-screen">' +
+    '<h2>📑 PDF Tools</h2>' +
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Convert your files to PDF instantly — right in your browser.</p>' +
+    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Fast, private and secure. Your files never leave your device.</p>' +
+
+    '<div class="tab-bar">' +
+    '<div class="tab active" onclick="pdfTab(\'csv\',this)">CSV / Excel to PDF</div>' +
+    '<div class="tab" onclick="pdfTab(\'image\',this)">Images to PDF</div>' +
+    '<div class="tab" onclick="pdfTab(\'text\',this)">Text to PDF</div>' +
+    '</div>' +
+
+    // CSV/Excel to PDF
+    '<div id="pdf-csv">' +
+    '<div class="cv-sec-title">Convert CSV or Excel to PDF</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload a .csv or .xlsx file and we turn it into a clean, printable PDF table.</p>' +
+    '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
+    '<input type="file" id="csv-file" accept=".csv,.xlsx,.xls" onchange="handleCSVFile(this)" style="display:none">' +
+    '<div style="font-size:40px;margin-bottom:10px">📄</div>' +
+    '<button class="btn-primary" onclick="document.getElementById(\'csv-file\').click()">Choose CSV / Excel File</button>' +
+    '<p id="csv-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '</div>' +
+    '<div id="csv-result"></div>' +
+    '</div>' +
+
+    // Images to PDF
+    '<div id="pdf-image" style="display:none">' +
+    '<div class="cv-sec-title">Convert Images to PDF</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload one or more photos (JPG/PNG) and we combine them into a single PDF.</p>' +
+    '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
+    '<input type="file" id="img-file" accept="image/*" multiple onchange="handleImageFiles(this)" style="display:none">' +
+    '<div style="font-size:40px;margin-bottom:10px">🖼️</div>' +
+    '<button class="btn-primary" onclick="document.getElementById(\'img-file\').click()">Choose Images</button>' +
+    '<p id="img-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '</div>' +
+    '<div id="img-result"></div>' +
+    '</div>' +
+
+    // Text to PDF
+    '<div id="pdf-text" style="display:none">' +
+    '<div class="cv-sec-title">Convert Text to PDF</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Type or paste your text and download it as a clean PDF document.</p>' +
+    '<div class="form-group"><label>Document Title</label><input type="text" id="txt-title" placeholder="e.g. My Notes"></div>' +
+    '<div class="form-group"><label>Your Text</label><textarea id="txt-body" rows="10" placeholder="Type or paste your text here..."></textarea></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="textToPDF()">Convert to PDF</button>' +
+    '</div>' +
+
+    '<div style="background:rgba(139,92,246,0.06);border-radius:12px;padding:14px;margin-top:20px">' +
+    '<p style="font-size:12px;color:#c4b5fd;margin:0;line-height:1.6">🔒 <strong>100% Private:</strong> All conversions happen on your device. Your files are never uploaded to any server.</p>' +
+    '</div>' +
+    '</div>';
+}
+
+function pdfTab(t, el) {
+  document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+  el.classList.add('active');
+  ['csv','image','text'].forEach(function(id){
+    var e = document.getElementById('pdf-' + id);
+    if (e) e.style.display = id===t?'block':'none';
+  });
+}
+
+var _csvData = null;
+function handleCSVFile(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  document.getElementById('csv-filename').textContent = '✓ ' + file.name;
+  var ext = file.name.split('.').pop().toLowerCase();
+
+  if (ext === 'csv') {
+    Papa.parse(file, {
+      complete: function(results) {
+        _csvData = results.data;
+        showCSVReady(file.name);
+      }
+    });
+  } else {
+    // Excel
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, { type:'array' });
+      var sheet = wb.Sheets[wb.SheetNames[0]];
+      _csvData = XLSX.utils.sheet_to_json(sheet, { header:1 });
+      showCSVReady(file.name);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+function showCSVReady(filename) {
+  document.getElementById('csv-result').innerHTML =
+    '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:16px;text-align:center">' +
+    '<strong style="color:#10b981;display:block;margin-bottom:10px">✅ File loaded! ' + (_csvData ? _csvData.length : 0) + ' rows ready.</strong>' +
+    '<button class="btn-primary" onclick="convertCSVtoPDF(\'' + filename.replace(/\.[^.]+$/,'') + '\')">📄 Download as PDF</button>' +
+    '</div>';
+}
+
+function convertCSVtoPDF(name) {
+  if (!_csvData || !_csvData.length) { alert('Please upload a file first.'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF();
+  var head = [_csvData[0]];
+  var body = _csvData.slice(1).filter(function(r){ return r.some(function(c){ return c !== '' && c != null; }); });
+  doc.autoTable({ head: head, body: body, styles:{fontSize:8}, headStyles:{fillColor:[37,99,235]} });
+  doc.save((name || 'converted') + '.pdf');
+  alert('✅ PDF downloaded!');
+}
+
+var _imageFiles = [];
+function handleImageFiles(input) {
+  if (!input.files || !input.files.length) return;
+  _imageFiles = Array.from(input.files);
+  document.getElementById('img-filename').textContent = '✓ ' + _imageFiles.length + ' image(s) selected';
+  document.getElementById('img-result').innerHTML =
+    '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:16px;text-align:center">' +
+    '<button class="btn-primary" onclick="convertImagesToPDF()">📄 Combine into PDF</button>' +
+    '</div>';
+}
+
+function convertImagesToPDF() {
+  if (!_imageFiles.length) { alert('Please choose images first.'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF();
+  var loaded = 0;
+  _imageFiles.forEach(function(file, index) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        if (index > 0) doc.addPage();
+        var pw = doc.internal.pageSize.getWidth();
+        var ph = doc.internal.pageSize.getHeight();
+        var ratio = Math.min(pw / img.width, ph / img.height);
+        var w = img.width * ratio;
+        var h = img.height * ratio;
+        doc.addImage(e.target.result, 'JPEG', (pw-w)/2, (ph-h)/2, w, h);
+        loaded++;
+        if (loaded === _imageFiles.length) {
+          doc.save('images.pdf');
+          alert('✅ PDF downloaded!');
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function textToPDF() {
+  var title = (document.getElementById('txt-title') || {value:''}).value.trim() || 'Document';
+  var body = (document.getElementById('txt-body') || {value:''}).value.trim();
+  if (!body) { alert('Please type some text first.'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF();
+  doc.setFontSize(18);
+  doc.setTextColor(37,99,235);
+  doc.text(title, 15, 20);
+  doc.setFontSize(11);
+  doc.setTextColor(0,0,0);
+  var lines = doc.splitTextToSize(body, 180);
+  doc.text(lines, 15, 32);
+  doc.save(title.replace(/\s+/g,'_') + '.pdf');
+  alert('✅ PDF downloaded!');
+}
+
+function renderTemplates(el) {
+  var templates = [
+    { id:'invoice', name:'Professional Invoice', icon:'🧾', price:35, cat:'Business', desc:'Auto-calculates line totals, subtotal, VAT and total. Includes your banking details.' },
+    { id:'quote', name:'Quotation Template', icon:'📋', price:35, cat:'Business', desc:'Professional quotes with terms & conditions. Send before invoicing.' },
+    { id:'stock', name:'Stock / Inventory Tracker', icon:'📦', price:45, cat:'Business', desc:'Tracks products, flags LOW/OUT of stock automatically, shows total stock value.' },
+    { id:'bizbudget', name:'Business Budget / Cash Flow', icon:'💰', price:45, cat:'Business', desc:'Income vs expenses, budgeted vs actual, auto money-left calculation.' },
+    { id:'wages', name:'Staff Wage Register', icon:'👥', price:45, cat:'Business', desc:'Enter hours & rate — auto-calculates gross, deductions and net pay per employee.' },
+    { id:'monthly', name:'Monthly Budget Planner', icon:'🏠', price:25, cat:'Personal', desc:'Simple personal budget. Money in vs out. Perfect for families.' },
+    { id:'marksheet', name:'School Mark Sheet', icon:'📝', price:35, cat:'School', desc:'Auto-calculates totals, averages, PASS/FAIL and class average.' },
+    { id:'attendance', name:'Class Attendance Register', icon:'✅', price:35, cat:'School', desc:'Mark P/A/L/S daily. Auto-counts attendance percentage per learner.' }
+  ];
+
+  var bundles = [
+    { id:'bundle-biz', name:'Business Bundle', icon:'💼', price:149, desc:'All 5 business templates (Invoice, Quote, Stock, Budget, Wages). Save R56!' },
+    { id:'bundle-school', name:'School Bundle', icon:'🎓', price:79, desc:'Mark Sheet + Attendance Register. For teachers.' },
+    { id:'bundle-all', name:'Everything Bundle', icon:'⭐', price:199, desc:'ALL 8 templates. Best value — save over R100!' }
+  ];
+
+  var cards = templates.map(function(t){
+    return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px;display:flex;flex-direction:column">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+      '<span style="font-size:28px">' + t.icon + '</span>' +
+      '<div><div style="font-size:15px;font-weight:700;color:#fff">' + t.name + '</div>' +
+      '<span style="font-size:10px;background:rgba(56,189,248,0.15);color:#38bdf8;padding:2px 8px;border-radius:10px">' + t.cat + '</span></div>' +
+      '</div>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px;flex:1">' + t.desc + '</p>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:22px;font-weight:800;color:#10b981">R' + t.price + '</span>' +
+      '<button onclick="buyTemplate(\'' + t.id + '\',\'' + t.name + '\',' + t.price + ')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Buy Now</button>' +
+      '</div></div>';
+  }).join('');
+
+  var bundleCards = bundles.map(function(b){
+    return '<div style="background:linear-gradient(135deg,rgba(56,189,248,0.1),rgba(99,102,241,0.08));border:1px solid rgba(56,189,248,0.3);border-radius:14px;padding:18px;display:flex;flex-direction:column">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
+      '<span style="font-size:28px">' + b.icon + '</span>' +
+      '<div style="font-size:16px;font-weight:800;color:#fff">' + b.name + '</div></div>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px;flex:1">' + b.desc + '</p>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:24px;font-weight:800;color:#10b981">R' + b.price + '</span>' +
+      '<button onclick="buyTemplate(\'' + b.id + '\',\'' + b.name + '\',' + b.price + ')" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Buy Bundle</button>' +
+      '</div></div>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="tool-screen">' +
+    '<h2>📊 Templates Store</h2>' +
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Professional, ready-to-use spreadsheets for business, school and home.</p>' +
+    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Every template auto-calculates for you. Buy once, keep forever.</p>' +
+
+    '<div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:14px;margin-bottom:20px">' +
+    '<div style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">💚 BEST VALUE — BUNDLES</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">' + bundleCards + '</div>' +
+    '</div>' +
+
+    '<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:12px">Individual Templates</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">' + cards + '</div>' +
+
+    '<div style="background:rgba(56,189,248,0.06);border-radius:12px;padding:16px;margin-top:20px">' +
+    '<p style="font-size:12px;color:var(--muted);margin:0;line-height:1.6">💡 <strong style="color:#fff">How it works:</strong> Click Buy, pay securely with Paystack, and we email your template file to you within a few hours. Keep it forever and use it as many times as you like.</p>' +
+    '</div>' +
+    '</div>';
+}
+
+function buyTemplate(id, name, price) {
+  var email = (currentUser && currentUser.email) ? currentUser.email : '';
+  if (!email) { alert('Please log in first so we can email your template to you.'); showPage('login'); return; }
+
+  // Notify owner of the purchase intent + open Paystack
+  fetch(BACKEND_URL + '/api/template-order', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ templateId:id, templateName:name, price:price, email:email, name:(currentUser.fname||'')+' '+(currentUser.lname||'') })
+  }).catch(function(){});
+
+  if (typeof PaystackPop !== 'undefined') {
+    var handler = PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: email,
+      amount: price * 100,
+      currency: 'ZAR',
+      ref: 'TPL-' + id + '-' + Date.now(),
+      metadata: { template: name, buyer: email },
+      callback: function(response) {
+        alert('🎉 Payment successful! We will email "' + name + '" to ' + email + ' shortly. Reference: ' + response.reference);
+      },
+      onClose: function() {}
+    });
+    handler.openIframe();
+  } else {
+    alert('Opening secure checkout for ' + name + ' (R' + price + ')...');
+    window.open(PAYSTACK_MONTHLY_LINK, '_blank');
+  }
+}
+
 function renderLearnerships(el) {
   el.innerHTML = `
   <div class="tool-screen">
@@ -2959,7 +3224,7 @@ function startPaystack(plan) {
   };
   var subs = {
     website: 'R450 once-off · We build your professional website in 24-48 hours',
-    monthly: 'R55/month · All 8 tools · Auto-debit via Paystack · Cancel anytime',
+    monthly: 'R55/month · All 10 tools · Auto-debit via Paystack · Cancel anytime',
     yearly: 'R1,980 per year for 3 years · Auto-renews yearly · All tools'
   };
   document.getElementById('modal-title').textContent = titles[plan] || 'Subscribe to Sky Blueprint';
@@ -3613,7 +3878,7 @@ async function startGuide() {
 }
 
 async function explainPlatform() {
-  await guideMsg('Sky Blueprint is a South African digital platform with <strong>8 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
+  await guideMsg('Sky Blueprint is a South African digital platform with <strong>10 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
   guideOptions([
     { label: '🚀 Let me start using the tools!', action: showToolMenu },
     { label: '💰 Tell me about pricing', action: explainPricing },

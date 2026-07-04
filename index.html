@@ -71,7 +71,7 @@
           🇿🇦 Made for South Africa
         </div>
         <h1>Build. Protect.<br><span class="grad-text">Grow.</span></h1>
-        <p class="hero-p">Sky Blueprint gives South African entrepreneurs, job seekers and professionals eight powerful tools — all in one platform — for one simple monthly fee.</p>
+        <p class="hero-p">Sky Blueprint gives South African entrepreneurs, job seekers and professionals ten powerful tools — all in one platform — for one simple monthly fee.</p>
         <div class="hero-ctas">
           <button class="btn-primary" onclick="showPage('signup')">Get Started — R55/month</button>
           <button class="btn-outline" onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'})">See All Tools</button>
@@ -175,6 +175,24 @@
           <p>Check if you qualify, then get matching learnerships and internships emailed to you with apply links.</p>
           <div class="tc-arrow">Open Tool →</div>
         </div>
+        <div class="tool-card" onclick="requireAuth('templates')">
+          <div class="tc-top">
+            <div class="tc-icon" style="background:linear-gradient(135deg,#10b981,#059669)">📊</div>
+            <span class="tc-badge">New</span>
+          </div>
+          <h3>Templates Store</h3>
+          <p>Professional invoices, budgets, stock trackers, mark sheets and more. Buy once, keep forever.</p>
+          <div class="tc-arrow">Open Tool →</div>
+        </div>
+        <div class="tool-card" onclick="requireAuth('pdf-tools')">
+          <div class="tc-top">
+            <div class="tc-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)">📑</div>
+            <span class="tc-badge">New</span>
+          </div>
+          <h3>PDF Tools</h3>
+          <p>Convert CSV, Excel, images and text to PDF instantly. Fast, private, secure — right in your browser.</p>
+          <div class="tc-arrow">Open Tool →</div>
+        </div>
       </div>
     </section>
 
@@ -209,7 +227,7 @@
           <div class="pc-price">R55</div>
           <div class="pc-period">per month • auto-debit</div>
           <div class="pc-features">
-            <div class="pc-feat">✅ All 8 tools — full access</div>
+            <div class="pc-feat">✅ All 10 tools — full access</div>
             <div class="pc-feat">✅ Email Cleaner (Gmail, Outlook, Yahoo)</div>
             <div class="pc-feat">✅ AI Business Mentor 24/7</div>
             <div class="pc-feat">✅ CV Builder & Job Matching</div>
@@ -329,7 +347,7 @@
         </div>
 
         <div class="about-stats">
-          <div class="as"><strong>8</strong><span>Powerful Tools</span></div>
+          <div class="as"><strong>10</strong><span>Powerful Tools</span></div>
           <div class="as"><strong>24/7</strong><span>Always Available</span></div>
           <div class="as"><strong>R55</strong><span>Per Month Only</span></div>
           <div class="as"><strong>🇿🇦</strong><span>SA Built</span></div>
@@ -488,6 +506,8 @@
           <div class="tool-card" onclick="openTool('sa-map')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)">🗺️</div></div><h3>SA Map</h3><p>Explore South Africa on live map.</p><div class="tc-arrow">Open →</div></div>
           <div class="tool-card" onclick="requireAuth('reminders')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🔔</div><span class="tc-badge">New</span></div><h3>Reminders & Tasks</h3><p>Never miss a meeting, task or family event.</p><div class="tc-arrow">Open →</div></div>
           <div class="tool-card" onclick="requireAuth('learnerships')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">🎓</div><span class="tc-badge">New</span></div><h3>Learnerships & Internships</h3><p>Find learnerships & internships you qualify for.</p><div class="tc-arrow">Open →</div></div>
+          <div class="tool-card" onclick="requireAuth('templates')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#10b981,#059669)">📊</div><span class="tc-badge">New</span></div><h3>Templates Store</h3><p>Buy professional spreadsheet templates.</p><div class="tc-arrow">Open →</div></div>
+          <div class="tool-card" onclick="requireAuth('pdf-tools')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)">📑</div><span class="tc-badge">New</span></div><h3>PDF Tools</h3><p>Convert files to PDF instantly.</p><div class="tc-arrow">Open →</div></div>
         </div>
       </div>
     </div>
@@ -798,5 +818,10 @@
 </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 </body>
 </html>
