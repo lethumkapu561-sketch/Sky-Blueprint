@@ -404,3 +404,84 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--sky)!imp
 .tool-page-header .back-btn:hover{transform:translateX(-3px);box-shadow:0 4px 16px rgba(56,189,248,0.25)!important;border-color:rgba(56,189,248,0.6)!important}
 .tool-page-title{font-family:var(--display);font-size:22px;font-weight:800;color:#fff;text-align:center;flex:1}
 @media(max-width:600px){.tool-page-title{font-size:17px}.tool-page-header .back-btn{padding:9px 14px!important;font-size:13px!important}}
+
+/* ═══════════════════════════════════════════
+   COMPREHENSIVE MOBILE RESPONSIVE FIX
+   ═══════════════════════════════════════════ */
+
+/* Prevent any horizontal overflow globally */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+* { box-sizing: border-box; }
+
+/* Tablets and small laptops */
+@media (max-width: 900px) {
+  .tools-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+}
+
+/* Phones */
+@media (max-width: 640px) {
+  /* Tighter section padding so content isn't squeezed */
+  .tools-sec, .about-sec { padding: 50px 16px; }
+  .hero { padding: 80px 16px 40px; }
+  .dash-body { padding: 24px 16px; }
+  .tool-page-body { padding: 24px 16px; }
+  .nav-inner { padding: 0 16px; }
+  .reviews-sec { padding: 50px 16px; }
+
+  /* Single column everything */
+  .tools-grid { grid-template-columns: 1fr; gap: 14px; }
+  .tool-card { padding: 20px; }
+
+  /* Hero text smaller */
+  .hero-content h1 { font-size: 34px !important; line-height: 1.15; }
+  .hero-p { font-size: 15px; }
+  .section-title, .sec-title { font-size: 26px !important; }
+
+  /* Stats wrap nicely */
+  .about-stats { flex-wrap: wrap; justify-content: center; gap: 20px; }
+  .about-stats .as { min-width: 120px; }
+
+  /* Reviews: stack the summary */
+  .review-summary { grid-template-columns: 1fr !important; gap: 20px; padding: 20px; }
+  .review-grid { grid-template-columns: 1fr !important; }
+  .rs-number { font-size: 48px; }
+
+  /* Pricing single column */
+  .pricing-cards { grid-template-columns: 1fr; }
+  .price-card { padding: 24px 20px; }
+
+  /* Forms full width */
+  .form-row { grid-template-columns: 1fr !important; }
+  .auth-box { padding: 28px 20px; }
+
+  /* Tool page header buttons don't overflow */
+  .tool-page-header { flex-wrap: wrap; gap: 10px; }
+  .tool-page-title { font-size: 16px !important; order: -1; width: 100%; text-align: center; }
+
+  /* Tables and wide content scroll instead of breaking layout */
+  .tool-screen table { display: block; overflow-x: auto; white-space: nowrap; }
+
+  /* Buttons full width and tappable */
+  .btn-primary { font-size: 15px; padding: 14px 20px; }
+
+  /* Headings scale down */
+  h1 { font-size: 30px !important; }
+  h2 { font-size: 22px !important; }
+  h3 { font-size: 17px !important; }
+
+  /* Dashboard title */
+  .dash-title { font-size: 24px !important; }
+
+  /* Any grid with min-width columns becomes single column */
+  [style*="grid-template-columns:repeat(auto-fit"] { grid-template-columns: 1fr !important; }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .hero-content h1 { font-size: 28px !important; }
+  .tool-card { padding: 16px; }
+  .tools-sec, .about-sec, .hero { padding-left: 12px; padding-right: 12px; }
+}
