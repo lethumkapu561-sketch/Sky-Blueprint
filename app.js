@@ -190,53 +190,34 @@ function doLogin() {
   const pass = document.getElementById('login-pass').value;
   if (!email || !pass) { alert('Please enter your email and password.'); return; }
 
-  // OWNER ACCOUNT - free access, no password check needed for owner
-  if (email.toLowerCase() === OWNER_EMAIL.toLowerCase()) {
-    var ownerUser = { fname:'Wongalethu', lname:'Mkapu', email:OWNER_EMAIL, phone:'0656013544', plan:'owner' };
-    currentUser = ownerUser;
-    safeStorage.setItem('sb_current', JSON.stringify(ownerUser));
-    document.getElementById('dash-greeting').textContent = 'Welcome back, Owner 👑 Wongalethu!';
-    var banner = document.getElementById('trial-banner');
-    if (banner) { banner.innerHTML = '👑 <strong>Owner Account</strong> — Full free access to all tools. You control Sky Blueprint.'; banner.style.background='rgba(245,158,11,0.08)'; banner.style.borderColor='rgba(245,158,11,0.3)'; }
-    updateNav();
-    showPage('dashboard');
-    if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
-    return;
-  }
-
-  // Check stored users
-  const users = JSON.parse(safeStorage.getItem('sb_users') || '[]');
-  const user = users.find(u => u.email === email && u.pass === btoa(pass));
-  if (!user) { alert('Incorrect email or password. Please try again.'); return; }
-
-  currentUser = user;
-  safeStorage.setItem('sb_current', JSON.stringify(user));
-  document.getElementById('dash-greeting').textContent = 'Hi ' + user.fname + ' ' + (user.lname||'') + ' Welcome back!';
-
-  // Notify owner of login
-  fetch(BACKEND_URL + '/api/login-notify', {
+  // Log in via the SERVER - it checks the password and returns the real plan
+  fetch(BACKEND_URL + '/api/auth/login', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ fname:user.fname, lname:user.lname, email:user.email, action:'login' })
-  }).catch(function(){});
+    body: JSON.stringify({ email: email, password: pass })
+  })
+  .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+  .then(function(res){
+    if (!res.ok) { alert(res.d.error || 'Incorrect email or password.'); return; }
+    currentUser = res.d.user;
+    safeStorage.setItem('sb_token', res.d.token);
+    safeStorage.setItem('sb_current', JSON.stringify(currentUser));
 
-  // Show account status
-  var banner = document.getElementById('trial-banner');
-  if (banner) {
-    if (user.plan === 'pro' || user.plan === 'paid' || user.plan === 'business') {
-      banner.innerHTML = '✅ <strong>Account Active</strong> — ' + user.email + '. All tools unlocked.';
-      banner.style.background = 'rgba(16,185,129,0.08)';
-      banner.style.borderColor = 'rgba(16,185,129,0.3)';
+    if (currentUser.plan === 'owner') {
+      document.getElementById('dash-greeting').textContent = 'Welcome back, Owner 👑 Wongalethu!';
     } else {
-      var joined = user.joined || Date.now();
-      var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined)/(1000*60*60*24)));
-      banner.innerHTML = '⏳ <strong>Trial Account</strong> — ' + daysLeft + ' day(s) left. <button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)">Subscribe R55/month</button>';
+      document.getElementById('dash-greeting').textContent = 'Hi ' + currentUser.fname + ' ' + (currentUser.lname||'') + ' Welcome back!';
     }
-  }
 
-  // If they were trying to open a tool, open it now
-  updateNav();
-  if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
-  else showPage('dashboard');
+    fetch(BACKEND_URL + '/api/login-notify', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ fname:currentUser.fname, lname:currentUser.lname, email:currentUser.email, action:'login' })
+    }).catch(function(){});
+
+    updateNav();
+    if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
+    else showPage('dashboard');
+  })
+  .catch(function(){ alert('Could not connect to log in. Please check your internet and try again.'); });
 }
 
 function doSignup() {
@@ -248,42 +229,42 @@ function doSignup() {
   if (!fname || !email || !pass) { alert('Please fill in your name, email and password.'); return; }
   if (pass.length < 6) { alert('Password must be at least 6 characters.'); return; }
 
-  const users = JSON.parse(safeStorage.getItem('sb_users') || '[]');
-  if (users.find(u => u.email === email)) { alert('An account with this email already exists. Please log in.'); return; }
-
-  const user = { fname, lname, email, phone, pass: btoa(pass), plan: 'trial', joined: Date.now() };
-  users.push(user);
-  safeStorage.setItem('sb_users', JSON.stringify(users));
-  currentUser = user;
-  safeStorage.setItem('sb_current', JSON.stringify(user));
-
-  document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' 👋 Welcome to Sky Blueprint!';
-
-  // Show account created confirmation in trial banner
-  var banner = document.getElementById('trial-banner');
-  if (banner) {
-    banner.innerHTML = '🎉 <strong>Account Created for ' + email + '!</strong> Your 7-day free trial is now active. ' +
-      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">Subscribe R55/month</button>';
-    banner.style.background = 'rgba(16,185,129,0.08)';
-    banner.style.borderColor = 'rgba(16,185,129,0.3)';
-  }
-
-  // Send welcome email to customer
-  fetch(BACKEND_URL + '/api/welcome-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: email, fname: fname, lname: lname })
-  }).catch(function(){});
-
-  // Notify owner of new signup
-  fetch(BACKEND_URL + '/api/login-notify', {
+  // Create the account on the SERVER (secure - plan is controlled server-side)
+  fetch(BACKEND_URL + '/api/auth/signup', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ fname:fname, lname:lname, email:email, action:'signup' })
-  }).catch(function(){});
+    body: JSON.stringify({ fname, lname, email, phone, password: pass })
+  })
+  .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+  .then(function(res){
+    if (!res.ok) { alert(res.d.error || 'Could not create account.'); return; }
+    // Save the session token - this is how the server knows who we are
+    currentUser = res.d.user;
+    safeStorage.setItem('sb_token', res.d.token);
+    safeStorage.setItem('sb_current', JSON.stringify(currentUser));
 
-  updateNav();
-  if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
-  else showPage('dashboard');
+    document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' 👋 Welcome to Sky Blueprint!';
+    var banner = document.getElementById('trial-banner');
+    if (banner) {
+      banner.innerHTML = '🎉 <strong>Account Created!</strong> Subscribe to unlock all tools. ' +
+        '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">Subscribe R55/month</button>';
+      banner.style.background = 'rgba(16,185,129,0.08)';
+      banner.style.borderColor = 'rgba(16,185,129,0.3)';
+    }
+
+    fetch(BACKEND_URL + '/api/welcome-email', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, fname: fname, lname: lname })
+    }).catch(function(){});
+    fetch(BACKEND_URL + '/api/login-notify', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ fname:fname, lname:lname, email:email, action:'signup' })
+    }).catch(function(){});
+
+    updateNav();
+    if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
+    else showPage('dashboard');
+  })
+  .catch(function(){ alert('Could not connect to create your account. Please check your internet and try again.'); });
 }
 
 function showAccount() {
@@ -408,25 +389,30 @@ function cancelPlan() {
 }
 
 function confirmCancelOnFile() {
-  // Mark as cancelled in our records and notify owner
-  currentUser.plan = 'cancelled';
-  safeStorage.setItem('sb_current', JSON.stringify(currentUser));
-  var users = JSON.parse(safeStorage.getItem('sb_users') || '[]');
-  var idx = users.findIndex(function(u){ return u.email === currentUser.email; });
-  if (idx > -1) { users[idx].plan = 'cancelled'; safeStorage.setItem('sb_users', JSON.stringify(users)); }
+  var token = safeStorage.getItem('sb_token');
+  // Tell the server to cancel (server is the source of truth)
+  fetch(BACKEND_URL + '/api/cancel-plan', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ token: token })
+  }).catch(function(){});
 
+  if (currentUser) {
+    currentUser.plan = 'cancelled';
+    safeStorage.setItem('sb_current', JSON.stringify(currentUser));
+  }
   fetch(BACKEND_URL + '/api/login-notify', {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ fname:currentUser.fname, lname:currentUser.lname, email:currentUser.email, action:'cancel' })
   }).catch(function(){});
 
   updateNav();
-  alert('Your subscription has been marked as cancelled. We have noted it on our side. Thank you for being part of Sky Blueprint — you are welcome back anytime!');
+  alert('Your subscription has been marked as cancelled. Remember to also cancel on Paystack to stop future charges. You are welcome back anytime!');
   showAccount();
 }
 
 function doLogout() {
   currentUser = null;
+  safeStorage.removeItem('sb_token');
   safeStorage.removeItem('sb_current');
   updateNav();
   showPage('home');
@@ -3340,10 +3326,9 @@ function processPayment() {
       ref: 'SB-M-' + Date.now(),
       metadata: { name: name, phone: phone, plan: 'monthly' },
       callback: function(response) {
-        // This ONLY fires on a real successful payment
+        // This ONLY fires on a real successful payment - verify with server
         closeModal();
-        markPlanActive('monthly', name, email, phone);
-        alert('🎉 Payment successful! Your Sky Blueprint Monthly Plan is now active. Reference: ' + response.reference);
+        markPlanActive('monthly', name, email, phone, response.reference);
       },
       onClose: function() {
         // User closed without paying - NO access granted
@@ -3371,8 +3356,7 @@ function processPayment() {
       metadata: { name: name, phone: phone, plan: 'yearly' },
       callback: function(response) {
         closeModal();
-        markPlanActive('yearly', name, email, phone);
-        alert('🎉 Payment successful! You are now on the Sky Blueprint 3-Year Plan! Reference: ' + response.reference);
+        markPlanActive('yearly', name, email, phone, response.reference);
       },
       onClose: function() {}
     });
@@ -3397,33 +3381,48 @@ function processPayment() {
     metadata: { name: name, phone: phone, plan: currentPlan },
     callback: function(response) {
       closeModal();
-      markPlanActive(currentPlan, name, email, phone);
-      alert('🎉 Payment successful! Reference: ' + response.reference);
+      markPlanActive(currentPlan, name, email, phone, response.reference);
     },
     onClose: function() {}
   });
   handler.openIframe();
 }
 
-function markPlanActive(plan, name, email, phone) {
-  if (currentUser) {
-    currentUser.plan = (plan === 'website') ? currentUser.plan : plan;
-    var users = JSON.parse(safeStorage.getItem('sb_users') || '[]');
-    var idx = users.findIndex(function(u){ return u.email === currentUser.email; });
-    if (idx > -1) { users[idx] = currentUser; safeStorage.setItem('sb_users', JSON.stringify(users)); }
-    safeStorage.setItem('sb_current', JSON.stringify(currentUser));
-    var banner = document.getElementById('trial-banner');
-    if (banner && plan !== 'website') {
-      banner.innerHTML = '✅ <strong>You are now on Sky Blueprint ' + plan.toUpperCase() + '!</strong> Enjoy full access to all tools.';
-      banner.style.background = 'rgba(16,185,129,0.08)';
-      banner.style.borderColor = 'rgba(16,185,129,0.3)';
-    }
+function markPlanActive(plan, name, email, phone, reference) {
+  // SECURE: verify the payment with the server before granting access.
+  // The server asks Paystack directly if the payment is real.
+  var token = safeStorage.getItem('sb_token');
+  if (!token) { alert('Please log in first, then subscribe.'); showPage('login'); return; }
+  if (plan === 'website') {
+    // website orders are leads, not access - just notify
+    fetch(BACKEND_URL + '/api/login-notify', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ fname:name, lname:'', email:email, action:'website-order' }) }).catch(function(){});
+    return;
   }
-  // Notify owner of new paid subscription
-  fetch(BACKEND_URL + '/api/login-notify', {
+  if (!reference) { alert('Payment reference missing. If you were charged, please contact support.'); return; }
+
+  fetch(BACKEND_URL + '/api/verify-payment', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ fname: name, lname: '', email: email, action: 'subscribe-' + plan })
-  }).catch(function(){});
+    body: JSON.stringify({ reference: reference, token: token, plan: plan })
+  })
+  .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); })
+  .then(function(res){
+    if (res.ok && res.d.success) {
+      // Server confirmed the payment is REAL. Update our view from the server's truth.
+      currentUser = res.d.user;
+      safeStorage.setItem('sb_current', JSON.stringify(currentUser));
+      var banner = document.getElementById('trial-banner');
+      if (banner) {
+        banner.innerHTML = '✅ <strong>Payment verified! You are now on Sky Blueprint ' + (currentUser.plan||'').toUpperCase() + '.</strong> All tools unlocked.';
+        banner.style.background = 'rgba(16,185,129,0.08)';
+        banner.style.borderColor = 'rgba(16,185,129,0.3)';
+      }
+      updateNav();
+      showPage('dashboard');
+    } else {
+      alert('We could not verify your payment yet. If you were charged, it may take a moment — please refresh, or contact support with your reference: ' + reference);
+    }
+  })
+  .catch(function(){ alert('Could not verify payment right now. If you were charged, please contact support with reference: ' + reference); });
 }
 
 // ── Init ──
@@ -3727,6 +3726,28 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('dash-greeting').textContent = 'Welcome back, ' + currentUser.fname + '! 👋';
     } catch(e) {}
   }
+  // SECURITY: ask the server for the REAL plan. Overrides any tampered browser value.
+  var _tok = safeStorage.getItem('sb_token');
+  if (_tok) {
+    fetch(BACKEND_URL + '/api/auth/me', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: _tok })
+    })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(data){
+      if (data && data.success) {
+        currentUser = data.user;
+        safeStorage.setItem('sb_current', JSON.stringify(currentUser));
+        updateNav();
+      } else {
+        currentUser = null;
+        safeStorage.removeItem('sb_token');
+        safeStorage.removeItem('sb_current');
+        updateNav();
+      }
+    })
+    .catch(function(){});
+  }
   // Update nav to show name + trial days if logged in
   updateNav();
   // Start reminder checker globally so reminders chime anywhere
@@ -3853,6 +3874,28 @@ document.addEventListener('DOMContentLoaded', function() {
       currentUser = JSON.parse(saved);
       document.getElementById('dash-greeting').textContent = 'Welcome back, ' + currentUser.fname + '! 👋';
     } catch(e) {}
+  }
+  // SECURITY: ask the server for the REAL plan. Overrides any tampered browser value.
+  var _tok = safeStorage.getItem('sb_token');
+  if (_tok) {
+    fetch(BACKEND_URL + '/api/auth/me', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: _tok })
+    })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(data){
+      if (data && data.success) {
+        currentUser = data.user;
+        safeStorage.setItem('sb_current', JSON.stringify(currentUser));
+        updateNav();
+      } else {
+        currentUser = null;
+        safeStorage.removeItem('sb_token');
+        safeStorage.removeItem('sb_current');
+        updateNav();
+      }
+    })
+    .catch(function(){});
   }
   // Update nav to show name + trial days if logged in
   updateNav();
