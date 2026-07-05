@@ -2486,20 +2486,20 @@ function textToPDF() {
 
 function renderTemplates(el) {
   var templates = [
-    { id:'invoice', name:'Professional Invoice', icon:'🧾', price:35, cat:'Business', img:'Professional_Invoice_Template-1.png', desc:'Auto-calculates line totals, subtotal, VAT and total. Includes your banking details.' },
-    { id:'quote', name:'Quotation Template', icon:'📋', price:35, cat:'Business', img:'Quotation_Template-1.png', desc:'Professional quotes with terms & conditions. Send before invoicing.' },
-    { id:'stock', name:'Stock / Inventory Tracker', icon:'📦', price:45, cat:'Business', img:'Stock_Inventory_Tracker-1.png', desc:'Tracks products, flags LOW/OUT of stock automatically, shows total stock value.' },
-    { id:'bizbudget', name:'Business Budget / Cash Flow', icon:'💰', price:45, cat:'Business', img:'Business_Budget_Planner-1.png', desc:'Income vs expenses, budgeted vs actual, auto money-left calculation.' },
-    { id:'wages', name:'Staff Wage Register', icon:'👥', price:45, cat:'Business', img:'Staff_Wage_Register-1.png', desc:'Enter hours & rate — auto-calculates gross, deductions and net pay per employee.' },
-    { id:'monthly', name:'Monthly Budget Planner', icon:'🏠', price:25, cat:'Personal', img:'Monthly_Budget_Planner-1.png', desc:'Simple personal budget. Money in vs out. Perfect for families.' },
-    { id:'marksheet', name:'School Mark Sheet', icon:'📝', price:35, cat:'School', img:'School_Mark_Sheet-1.png', desc:'Auto-calculates totals, averages, PASS/FAIL and class average.' },
-    { id:'attendance', name:'Class Attendance Register', icon:'✅', price:35, cat:'School', img:'Class_Attendance_Register-1.png', desc:'Mark P/A/L/S daily. Auto-counts attendance percentage per learner.' }
+    { id:'invoice', name:'Professional Invoice', icon:'🧾', price:99, cat:'Business', img:'Professional_Invoice_Template-1.png', desc:'Auto-calculates line totals, subtotal, VAT and total. Includes your banking details.' },
+    { id:'quote', name:'Quotation Template', icon:'📋', price:99, cat:'Business', img:'Quotation_Template-1.png', desc:'Professional quotes with terms & conditions. Send before invoicing.' },
+    { id:'stock', name:'Stock / Inventory Tracker', icon:'📦', price:149, cat:'Business', img:'Stock_Inventory_Tracker-1.png', desc:'Tracks products, flags LOW/OUT of stock automatically, shows total stock value.' },
+    { id:'bizbudget', name:'Business Budget / Cash Flow', icon:'💰', price:149, cat:'Business', img:'Business_Budget_Planner-1.png', desc:'Income vs expenses, budgeted vs actual, auto money-left calculation.' },
+    { id:'wages', name:'Staff Wage Register', icon:'👥', price:149, cat:'Business', img:'Staff_Wage_Register-1.png', desc:'Enter hours & rate — auto-calculates gross, deductions and net pay per employee.' },
+    { id:'monthly', name:'Monthly Budget Planner', icon:'🏠', price:59, cat:'Personal', img:'Monthly_Budget_Planner-1.png', desc:'Simple personal budget. Money in vs out. Perfect for families.' },
+    { id:'marksheet', name:'School Mark Sheet', icon:'📝', price:89, cat:'School', img:'School_Mark_Sheet-1.png', desc:'Auto-calculates totals, averages, PASS/FAIL and class average.' },
+    { id:'attendance', name:'Class Attendance Register', icon:'✅', price:89, cat:'School', img:'Class_Attendance_Register-1.png', desc:'Mark P/A/L/S daily. Auto-counts attendance percentage per learner.' }
   ];
 
   var bundles = [
-    { id:'bundle-biz', name:'Business Bundle', icon:'💼', price:149, desc:'All 5 business templates (Invoice, Quote, Stock, Budget, Wages). Save R56!' },
-    { id:'bundle-school', name:'School Bundle', icon:'🎓', price:79, desc:'Mark Sheet + Attendance Register. For teachers.' },
-    { id:'bundle-all', name:'Everything Bundle', icon:'⭐', price:199, desc:'ALL 8 templates. Best value — save over R100!' }
+    { id:'bundle-biz', name:'Business Bundle', icon:'💼', price:499, desc:'All 5 business templates (Invoice, Quote, Stock, Budget, Wages). Save R146!' },
+    { id:'bundle-school', name:'School Bundle', icon:'🎓', price:149, desc:'Mark Sheet + Attendance Register. Save R29!' },
+    { id:'bundle-all', name:'Everything Bundle', icon:'⭐', price:699, desc:'ALL 8 templates. Best value — save over R180!' }
   ];
 
   var cards = templates.map(function(t){
