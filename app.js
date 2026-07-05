@@ -2558,13 +2558,28 @@ function previewTemplate(img, name) {
   modal.id = 'tpl-preview-modal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
   modal.onclick = function(){ modal.remove(); };
+
+  // Build the image URL using the current site path (works no matter the repo path)
+  var base = window.location.pathname.replace(/[^/]*$/, '');
+  var imgUrl = base + img;
+
   modal.innerHTML =
     '<div style="max-width:600px;width:100%;text-align:center" onclick="event.stopPropagation()">' +
     '<div style="color:#fff;font-size:18px;font-weight:700;margin-bottom:12px">' + name + ' — Preview</div>' +
-    '<img src="/Sky-Blueprint/' + img + '" style="max-width:100%;max-height:75vh;border-radius:12px;border:2px solid rgba(56,189,248,0.4);background:#fff" onerror="this.parentNode.innerHTML=\'<div style=&quot;color:#94a3b8;padding:40px&quot;>Preview image loading... make sure the image is uploaded to your repo.</div>\'">' +
+    '<img id="tpl-preview-img" src="' + imgUrl + '" style="max-width:100%;max-height:75vh;border-radius:12px;border:2px solid rgba(56,189,248,0.4);background:#fff">' +
+    '<div id="tpl-preview-err" style="display:none;color:#f87171;padding:20px;font-size:13px"></div>' +
     '<div style="margin-top:14px"><button onclick="document.getElementById(\'tpl-preview-modal\').remove()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Close</button></div>' +
     '</div>';
   document.body.appendChild(modal);
+
+  // Handle image error with the exact URL shown so we can debug
+  var imgEl = document.getElementById('tpl-preview-img');
+  imgEl.onerror = function() {
+    imgEl.style.display = 'none';
+    var err = document.getElementById('tpl-preview-err');
+    err.style.display = 'block';
+    err.innerHTML = 'Could not load the preview image.<br><br>The site looked for it at:<br><span style="color:#38bdf8;word-break:break-all">' + imgUrl + '</span><br><br>Make sure a file with this EXACT name is in your repo.';
+  };
 }
 
 function buyTemplate(id, name, price) {
