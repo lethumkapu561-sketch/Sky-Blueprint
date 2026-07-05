@@ -2486,14 +2486,14 @@ function textToPDF() {
 
 function renderTemplates(el) {
   var templates = [
-    { id:'invoice', name:'Professional Invoice', icon:'🧾', price:35, cat:'Business', desc:'Auto-calculates line totals, subtotal, VAT and total. Includes your banking details.' },
-    { id:'quote', name:'Quotation Template', icon:'📋', price:35, cat:'Business', desc:'Professional quotes with terms & conditions. Send before invoicing.' },
-    { id:'stock', name:'Stock / Inventory Tracker', icon:'📦', price:45, cat:'Business', desc:'Tracks products, flags LOW/OUT of stock automatically, shows total stock value.' },
-    { id:'bizbudget', name:'Business Budget / Cash Flow', icon:'💰', price:45, cat:'Business', desc:'Income vs expenses, budgeted vs actual, auto money-left calculation.' },
-    { id:'wages', name:'Staff Wage Register', icon:'👥', price:45, cat:'Business', desc:'Enter hours & rate — auto-calculates gross, deductions and net pay per employee.' },
-    { id:'monthly', name:'Monthly Budget Planner', icon:'🏠', price:25, cat:'Personal', desc:'Simple personal budget. Money in vs out. Perfect for families.' },
-    { id:'marksheet', name:'School Mark Sheet', icon:'📝', price:35, cat:'School', desc:'Auto-calculates totals, averages, PASS/FAIL and class average.' },
-    { id:'attendance', name:'Class Attendance Register', icon:'✅', price:35, cat:'School', desc:'Mark P/A/L/S daily. Auto-counts attendance percentage per learner.' }
+    { id:'invoice', name:'Professional Invoice', icon:'🧾', price:35, cat:'Business', img:'Professional_Invoice_Template-1.png', desc:'Auto-calculates line totals, subtotal, VAT and total. Includes your banking details.' },
+    { id:'quote', name:'Quotation Template', icon:'📋', price:35, cat:'Business', img:'Quotation_Template-1.png', desc:'Professional quotes with terms & conditions. Send before invoicing.' },
+    { id:'stock', name:'Stock / Inventory Tracker', icon:'📦', price:45, cat:'Business', img:'Stock_Inventory_Tracker-1.png', desc:'Tracks products, flags LOW/OUT of stock automatically, shows total stock value.' },
+    { id:'bizbudget', name:'Business Budget / Cash Flow', icon:'💰', price:45, cat:'Business', img:'Business_Budget_Planner-1.png', desc:'Income vs expenses, budgeted vs actual, auto money-left calculation.' },
+    { id:'wages', name:'Staff Wage Register', icon:'👥', price:45, cat:'Business', img:'Staff_Wage_Register-1.png', desc:'Enter hours & rate — auto-calculates gross, deductions and net pay per employee.' },
+    { id:'monthly', name:'Monthly Budget Planner', icon:'🏠', price:25, cat:'Personal', img:'Monthly_Budget_Planner-1.png', desc:'Simple personal budget. Money in vs out. Perfect for families.' },
+    { id:'marksheet', name:'School Mark Sheet', icon:'📝', price:35, cat:'School', img:'School_Mark_Sheet-1.png', desc:'Auto-calculates totals, averages, PASS/FAIL and class average.' },
+    { id:'attendance', name:'Class Attendance Register', icon:'✅', price:35, cat:'School', img:'Class_Attendance_Register-1.png', desc:'Mark P/A/L/S daily. Auto-counts attendance percentage per learner.' }
   ];
 
   var bundles = [
@@ -2510,10 +2510,12 @@ function renderTemplates(el) {
       '<span style="font-size:10px;background:rgba(56,189,248,0.15);color:#38bdf8;padding:2px 8px;border-radius:10px">' + t.cat + '</span></div>' +
       '</div>' +
       '<p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px;flex:1">' + t.desc + '</p>' +
-      '<div style="display:flex;align-items:center;justify-content:space-between">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">' +
       '<span style="font-size:22px;font-weight:800;color:#10b981">R' + t.price + '</span>' +
-      '<button onclick="buyTemplate(\'' + t.id + '\',\'' + t.name + '\',' + t.price + ')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Buy Now</button>' +
-      '</div></div>';
+      '<div style="display:flex;gap:6px">' +
+      (t.img ? '<button onclick="previewTemplate(\'' + t.img + '\',\'' + t.name + '\')" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' : '') +
+      '<button onclick="buyTemplate(\'' + t.id + '\',\'' + t.name + '\',' + t.price + ')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Buy Now</button>' +
+      '</div></div></div>';
   }).join('');
 
   var bundleCards = bundles.map(function(b){
@@ -2549,6 +2551,22 @@ function renderTemplates(el) {
     '</div>';
 }
 
+function previewTemplate(img, name) {
+  var existing = document.getElementById('tpl-preview-modal');
+  if (existing) existing.remove();
+  var modal = document.createElement('div');
+  modal.id = 'tpl-preview-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.onclick = function(){ modal.remove(); };
+  modal.innerHTML =
+    '<div style="max-width:600px;width:100%;text-align:center" onclick="event.stopPropagation()">' +
+    '<div style="color:#fff;font-size:18px;font-weight:700;margin-bottom:12px">' + name + ' — Preview</div>' +
+    '<img src="/Sky-Blueprint/' + img + '" style="max-width:100%;max-height:75vh;border-radius:12px;border:2px solid rgba(56,189,248,0.4);background:#fff" onerror="this.parentNode.innerHTML=\'<div style=&quot;color:#94a3b8;padding:40px&quot;>Preview image loading... make sure the image is uploaded to your repo.</div>\'">' +
+    '<div style="margin-top:14px"><button onclick="document.getElementById(\'tpl-preview-modal\').remove()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Close</button></div>' +
+    '</div>';
+  document.body.appendChild(modal);
+}
+
 function buyTemplate(id, name, price) {
   // No subscription needed - just need an email to send the file to
   var email = (currentUser && currentUser.email) ? currentUser.email : '';
@@ -2572,7 +2590,7 @@ function buyTemplate(id, name, price) {
       ref: 'TPL-' + id + '-' + Date.now(),
       metadata: { template: name, buyer: email },
       callback: function(response) {
-        alert('🎉 Payment successful! We will email "' + name + '" to ' + email + ' shortly. Reference: ' + response.reference);
+        deliverTemplate(id, name, email, response.reference);
       },
       onClose: function() {}
     });
@@ -2581,6 +2599,47 @@ function buyTemplate(id, name, price) {
     alert('Opening secure checkout for ' + name + ' (R' + price + ')...');
     window.open(PAYSTACK_MONTHLY_LINK, '_blank');
   }
+}
+
+// Map each template/bundle to its downloadable file(s) in the repo
+var TEMPLATE_FILES = {
+  invoice: ['Professional_Invoice_Template.xlsx'],
+  quote: ['Quotation_Template.xlsx'],
+  stock: ['Stock_Inventory_Tracker.xlsx'],
+  bizbudget: ['Business_Budget_Planner.xlsx'],
+  wages: ['Staff_Wage_Register.xlsx'],
+  monthly: ['Monthly_Budget_Planner.xlsx'],
+  marksheet: ['School_Mark_Sheet.xlsx'],
+  attendance: ['Class_Attendance_Register.xlsx'],
+  'bundle-biz': ['Professional_Invoice_Template.xlsx','Quotation_Template.xlsx','Stock_Inventory_Tracker.xlsx','Business_Budget_Planner.xlsx','Staff_Wage_Register.xlsx'],
+  'bundle-school': ['School_Mark_Sheet.xlsx','Class_Attendance_Register.xlsx'],
+  'bundle-all': ['Professional_Invoice_Template.xlsx','Quotation_Template.xlsx','Stock_Inventory_Tracker.xlsx','Business_Budget_Planner.xlsx','Staff_Wage_Register.xlsx','Monthly_Budget_Planner.xlsx','School_Mark_Sheet.xlsx','Class_Attendance_Register.xlsx']
+};
+
+function deliverTemplate(id, name, email, reference) {
+  var files = TEMPLATE_FILES[id] || [];
+  // Auto-download each file to the customer device
+  files.forEach(function(fname, i) {
+    setTimeout(function() {
+      var a = document.createElement('a');
+      a.href = '/Sky-Blueprint/templates/' + fname;
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }, i * 800);
+  });
+
+  // Confirm to buyer + notify owner it was delivered
+  fetch(BACKEND_URL + '/api/template-order', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ templateId:id, templateName:name, email:email, reference:reference, delivered:true })
+  }).catch(function(){});
+
+  var msg = files.length > 1
+    ? '🎉 Payment successful! Your ' + files.length + ' files are downloading now. Check your Downloads folder!'
+    : '🎉 Payment successful! "' + name + '" is downloading now. Check your Downloads folder!';
+  alert(msg + '\n\nReference: ' + reference + '\n\nIf the download did not start, email us at ' + OWNER_EMAIL + ' with your reference.');
 }
 
 function renderLearnerships(el) {
