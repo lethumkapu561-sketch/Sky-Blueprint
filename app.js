@@ -498,8 +498,8 @@ function openTool(name) {
     'templates': renderTemplates,
     'pdf-tools': renderPDFTools,
   };
-  // SA Map is always free - skip trial check
-  if (name !== 'sa-map' && isTrialExpired(currentUser)) {
+  // SA Map and Templates Store are free to browse - skip subscription check
+  if (name !== 'sa-map' && name !== 'templates' && isTrialExpired(currentUser)) {
     showTrialExpired();
     return;
   }
@@ -2532,7 +2532,8 @@ function renderTemplates(el) {
     '<div class="tool-screen">' +
     '<h2>📊 Templates Store</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Professional, ready-to-use spreadsheets for business, school and home.</p>' +
-    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Every template auto-calculates for you. Buy once, keep forever.</p>' +
+    '<p style="font-size:12px;color:#38bdf8;margin-bottom:8px;font-style:italic">Every template auto-calculates for you. Buy once, keep forever.</p>' +
+    '<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 14px;margin-bottom:20px;text-align:center"><span style="font-size:12px;color:#10b981;font-weight:600">✅ No subscription needed — just buy the template you want and keep it forever!</span></div>' +
 
     '<div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:14px;margin-bottom:20px">' +
     '<div style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">💚 BEST VALUE — BUNDLES</div>' +
@@ -2549,13 +2550,17 @@ function renderTemplates(el) {
 }
 
 function buyTemplate(id, name, price) {
+  // No subscription needed - just need an email to send the file to
   var email = (currentUser && currentUser.email) ? currentUser.email : '';
-  if (!email) { alert('Please log in first so we can email your template to you.'); showPage('login'); return; }
+  if (!email) {
+    email = prompt('Enter your email address so we can send you "' + name + '" after payment:');
+    if (!email || email.indexOf('@') === -1) { alert('A valid email is needed to receive your template.'); return; }
+  }
 
   // Notify owner of the purchase intent + open Paystack
   fetch(BACKEND_URL + '/api/template-order', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ templateId:id, templateName:name, price:price, email:email, name:(currentUser.fname||'')+' '+(currentUser.lname||'') })
+    body: JSON.stringify({ templateId:id, templateName:name, price:price, email:email, name:(currentUser ? (currentUser.fname||'')+' '+(currentUser.lname||'') : 'Guest') })
   }).catch(function(){});
 
   if (typeof PaystackPop !== 'undefined') {
