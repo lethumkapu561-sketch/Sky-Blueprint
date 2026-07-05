@@ -3323,20 +3323,42 @@ function processPayment() {
   const phone = document.getElementById('pay-phone').value.trim();
   if (!name || !email) { alert('Please enter your name and email to continue.'); return; }
 
-  // MONTHLY - send to Paystack subscription payment page (auto-charges R55 every month)
+  // MONTHLY - charge R55 via Paystack popup. Access is granted ONLY after payment succeeds.
   if (currentPlan === 'monthly') {
-    closeModal();
-    // Mark intent locally - real activation confirmed by Paystack
-    markPlanActive('monthly', name, email, phone);
-    window.open(PAYSTACK_MONTHLY_LINK + '?email=' + encodeURIComponent(email), '_blank');
+    if (typeof PaystackPop === 'undefined') {
+      // Popup library not loaded - fall back to the payment page (access NOT granted until confirmed)
+      closeModal();
+      alert('Opening secure Paystack checkout. Your access activates once payment is confirmed.');
+      window.open(PAYSTACK_MONTHLY_LINK + '?email=' + encodeURIComponent(email), '_blank');
+      return;
+    }
+    var handlerM = PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: email,
+      amount: 5500, // R55.00 in cents
+      currency: 'ZAR',
+      ref: 'SB-M-' + Date.now(),
+      metadata: { name: name, phone: phone, plan: 'monthly' },
+      callback: function(response) {
+        // This ONLY fires on a real successful payment
+        closeModal();
+        markPlanActive('monthly', name, email, phone);
+        alert('🎉 Payment successful! Your Sky Blueprint Monthly Plan is now active. Reference: ' + response.reference);
+      },
+      onClose: function() {
+        // User closed without paying - NO access granted
+      }
+    });
+    handlerM.openIframe();
     return;
   }
 
   // YEARLY - use Paystack subscription plan (R1,980/year for 3 years) via popup
   if (currentPlan === 'yearly') {
     if (typeof PaystackPop === 'undefined') {
+      // Popup not loaded - open checkout but do NOT grant access until confirmed
       closeModal();
-      markPlanActive('yearly', name, email, phone);
+      alert('Opening secure Paystack checkout. Your access activates once payment is confirmed.');
       window.open('https://paystack.com/pay/' + PAYSTACK_YEARLY_PLAN, '_blank');
       return;
     }
