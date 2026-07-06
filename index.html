@@ -50,8 +50,17 @@
     <a href="#tools" onclick="closeMobileNav();document.getElementById('tools').scrollIntoView({behavior:'smooth'})">Tools</a>
     <a href="#pricing" onclick="closeMobileNav();document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
     <a href="#about" onclick="closeMobileNav();document.getElementById('about').scrollIntoView({behavior:'smooth'})">About</a>
-    <button class="btn-ghost-sm" onclick="showPage('login');closeMobileNav()">Log In</button>
-    <button class="btn-primary-sm" onclick="showPage('signup');closeMobileNav()">Get Started</button>
+    <div id="mm-logged-out">
+      <button class="btn-ghost-sm" onclick="showPage('login');closeMobileNav()">Log In</button>
+      <button class="btn-primary-sm" onclick="showPage('signup');closeMobileNav()">Get Started</button>
+    </div>
+    <div id="mm-logged-in" class="mm-account" style="display:none">
+      <span id="mm-badge" class="mm-badge"></span>
+      <div id="mm-name" style="color:#fff;font-weight:600;font-size:15px;margin-bottom:4px"></div>
+      <button onclick="showAccount();closeMobileNav()">👤 My Account</button>
+      <button onclick="showPage('dashboard');closeMobileNav()">🏠 My Tools</button>
+      <button onclick="doLogout();closeMobileNav()">Log Out</button>
+    </div>
   </div>
 </nav>
 

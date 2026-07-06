@@ -82,6 +82,11 @@ function updateNav() {
   var loggedIn = document.getElementById('nav-logged-in');
   var badge = document.getElementById('nav-trial-badge');
   var username = document.getElementById('nav-username');
+  // Mobile menu elements
+  var mmOut = document.getElementById('mm-logged-out');
+  var mmIn = document.getElementById('mm-logged-in');
+  var mmBadge = document.getElementById('mm-badge');
+  var mmName = document.getElementById('mm-name');
 
   if (!loggedOut || !loggedIn) return;
 
@@ -91,33 +96,26 @@ function updateNav() {
     currentUser = u;
     loggedOut.style.display = 'none';
     loggedIn.style.display = 'flex';
+    if (mmOut) mmOut.style.display = 'none';
+    if (mmIn) mmIn.style.display = 'block';
 
     if (username) username.innerHTML = '👤 ' + (u.fname || 'My Account');
+    if (mmName) mmName.textContent = '👤 ' + (u.fname || '') + ' ' + (u.lname || '');
 
-    // Trial badge
-    if (badge) {
-      if (u.plan === 'owner') {
-        badge.textContent = '👑 Owner';
-        badge.style.background = 'rgba(245,158,11,0.15)';
-        badge.style.color = '#f59e0b';
-      } else if (u.plan === 'monthly' || u.plan === 'yearly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
-        badge.textContent = '✅ Active Plan';
-        badge.style.background = 'rgba(16,185,129,0.15)';
-        badge.style.color = '#10b981';
-      } else if (u.plan === 'cancelled') {
-        badge.textContent = '⏳ Plan Ended';
-        badge.style.background = 'rgba(239,68,68,0.15)';
-        badge.style.color = '#f87171';
-      } else {
-        // No free trial - prompt to subscribe
-        badge.textContent = '🔒 Subscribe · R55/month';
-        badge.style.background = 'rgba(245,158,11,0.15)';
-        badge.style.color = '#f59e0b';
-      }
-    }
+    // Build the badge text/colour once, use for both desktop + mobile
+    var bText, bBg, bColor;
+    if (u.plan === 'owner') { bText='👑 Owner'; bBg='rgba(245,158,11,0.15)'; bColor='#f59e0b'; }
+    else if (u.plan === 'monthly' || u.plan === 'yearly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') { bText='✅ Active Plan'; bBg='rgba(16,185,129,0.15)'; bColor='#10b981'; }
+    else if (u.plan === 'cancelled') { bText='⏳ Plan Ended'; bBg='rgba(239,68,68,0.15)'; bColor='#f87171'; }
+    else { bText='🔒 Subscribe · R55/month'; bBg='rgba(245,158,11,0.15)'; bColor='#f59e0b'; }
+
+    if (badge) { badge.textContent=bText; badge.style.background=bBg; badge.style.color=bColor; }
+    if (mmBadge) { mmBadge.textContent=bText; mmBadge.style.background=bBg; mmBadge.style.color=bColor; }
   } else {
     loggedOut.style.display = 'flex';
     loggedIn.style.display = 'none';
+    if (mmOut) mmOut.style.display = 'block';
+    if (mmIn) mmIn.style.display = 'none';
   }
 
   // Also update the dashboard trial banner with live countdown

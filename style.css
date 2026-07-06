@@ -551,3 +551,57 @@ body {
     overflow-wrap: break-word;
   }
 }
+
+/* ═══════════════════════════════════════════
+   NAV MOBILE FIX - stop the top bar overflowing
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Force-hide the logged-in actions in the top bar (they overflow).
+     !important beats the inline display:flex set by JavaScript. */
+  #nav-logged-in,
+  #nav-logged-out {
+    display: none !important;
+  }
+  /* Only the hamburger shows on the right */
+  .hamburger { display: flex !important; margin-left: auto; }
+
+  /* Keep the top bar tidy and on one line */
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 60px;
+  }
+  .logo { font-size: 18px; }
+}
+
+/* The mobile menu shows account info instead */
+.mobile-menu .mm-account {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+.mobile-menu .mm-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(56,189,248,0.15);
+  color: #38bdf8;
+  margin-bottom: 10px;
+}
+.mobile-menu button {
+  width: 100%;
+  text-align: left;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-family: var(--font);
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 8px;
+}
