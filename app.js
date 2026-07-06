@@ -502,7 +502,7 @@ function renderWebsiteBuilder(el) {
 
     <div id="wb-form">
 
-      <!-- PERSONAL DETAILS -->
+            <!-- PERSONAL DETAILS -->
       <div class="cv-sec-title">Your Contact Details</div>
       <div class="form-row">
         <div class="form-group"><label>Full Name *</label><input type="text" id="wb-name" placeholder="e.g. Sipho Dlamini"></div>
@@ -653,6 +653,21 @@ function renderWebsiteBuilder(el) {
         </select>
       </div>
 
+      <!-- PREMIUM PACKAGE OPTION -->
+      <div class="cv-sec-title">Website Package</div>
+      <div class="form-group">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:linear-gradient(135deg,rgba(168,85,247,0.06),rgba(99,102,241,0.05));border:1px solid rgba(168,85,247,0.25);border-radius:12px;padding:16px">
+          <input type="checkbox" id="wb-premium" onchange="updateWbPrice()" style="width:18px;height:18px;accent-color:#a855f7;cursor:pointer;margin-top:2px">
+          <span style="flex:1">
+            <strong style="color:#fff;font-size:14px">⭐ Upgrade to Premium — R3,500 all-inclusive</strong><br>
+            <span style="font-size:12px;color:var(--muted);line-height:1.7;display:block;margin-top:6px">
+              Everything done for you: up to 5 pages, online payment setup (Paystack), custom favicon, .co.za domain (1st year free), business email setup, and 1 month priority support. No extra fees.
+            </span>
+          </span>
+        </label>
+        <p style="font-size:10px;color:#64748b;margin-top:6px">Leave unticked for our standard R450 website build (you can still add a domain & favicon below).</p>
+      </div>
+
       <!-- DOMAIN & PRICING -->
       <div class="cv-sec-title">Domain & Pricing</div>
       <div class="form-group"><label>Domain Preference *</label>
@@ -680,10 +695,11 @@ function renderWebsiteBuilder(el) {
       <!-- PRICE SUMMARY -->
       <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.06));border:1px solid rgba(56,189,248,0.25);border-radius:16px;padding:22px;margin:16px 0">
         <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">Order Summary</div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:9px;font-size:13px">
-          <span style="color:var(--muted)">Website Design & Build (72 hours)</span>
-          <span style="color:#fff;font-weight:600">R450</span>
+        <div id="wb-base-row" style="display:flex;justify-content:space-between;margin-bottom:9px;font-size:13px">
+          <span style="color:var(--muted)" id="wb-base-label">Website Design & Build (72 hours)</span>
+          <span style="color:#fff;font-weight:600" id="wb-base-price">R450</span>
         </div>
+        <div id="wb-premium-row" style="display:none;margin-bottom:9px;font-size:11px;color:#a855f7;line-height:1.6">✓ 5 pages · Paystack setup · favicon · .co.za domain (1st yr) · business email · priority support</div>
         <div id="wb-domain-row" style="display:none;justify-content:space-between;margin-bottom:9px;font-size:13px">
           <span style="color:var(--muted)" id="wb-domain-label">Domain</span>
           <span style="color:#38bdf8;font-weight:600" id="wb-domain-price">R0</span>
@@ -758,6 +774,10 @@ function renderWebsiteBuilder(el) {
 }
 
 function updateWbPrice() {
+  // Premium package option
+  var premiumEl = document.getElementById('wb-premium');
+  var isPremium = premiumEl && premiumEl.checked;
+
   var val = (document.getElementById('wb-domain') || {value:'none'}).value;
   var extras = { none:0, com:300, coza:500, net:300, org:300, own:0 };
   var labels = { com:'.com domain', coza:'.co.za domain', net:'.net domain', org:'.org domain' };
@@ -769,19 +789,40 @@ function updateWbPrice() {
   var ownWrap = document.getElementById('wb-own-domain-wrap');
   var favicon = document.getElementById('wb-favicon');
   var favRow = document.getElementById('wb-favicon-row');
+  var baseRow = document.getElementById('wb-base-row');
+  var baseLabel = document.getElementById('wb-base-label');
+  var basePrice = document.getElementById('wb-base-price');
+  var premRow = document.getElementById('wb-premium-row');
 
+  var faviconFee = (favicon && favicon.checked) ? 50 : 0;
+
+  if (isPremium) {
+    // Premium is R3,500 all-inclusive (domain + favicon included)
+    extra = 0; faviconFee = 0;
+    if (baseLabel) baseLabel.textContent = 'Premium Package (all-inclusive)';
+    if (basePrice) basePrice.textContent = 'R3,500';
+    if (premRow) premRow.style.display = 'block';
+    if (ownWrap) ownWrap.style.display = 'none';
+    if (row) row.style.display = 'none';
+    if (favRow) favRow.style.display = 'none';
+    if (total) total.textContent = 'R3,500';
+    return;
+  }
+
+  // Standard R450 build
+  if (baseLabel) baseLabel.textContent = 'Website Design & Build (72 hours)';
+  if (basePrice) basePrice.textContent = 'R450';
+  if (premRow) premRow.style.display = 'none';
   if (ownWrap) ownWrap.style.display = val === 'own' ? 'block' : 'none';
   if (row) row.style.display = extra > 0 ? 'flex' : 'none';
   if (label && labels[val]) label.textContent = labels[val];
   if (price) price.textContent = 'R' + extra;
-
-  var faviconFee = (favicon && favicon.checked) ? 50 : 0;
   if (favRow) favRow.style.display = faviconFee > 0 ? 'flex' : 'none';
-
   if (total) total.textContent = 'R' + (450 + extra + faviconFee);
 }
 
 function submitWebsiteOrder() {
+  var isPremium = (document.getElementById('wb-premium') || {checked:false}).checked;
   var name   = (document.getElementById('wb-name')  ||{value:''}).value.trim();
   var phone  = (document.getElementById('wb-phone') ||{value:''}).value.trim();
   var email  = (document.getElementById('wb-email') ||{value:''}).value.trim();
@@ -815,17 +856,22 @@ function submitWebsiteOrder() {
   };
 
   var faviconChecked = (document.getElementById('wb-favicon') || {checked:false}).checked;
+  var domainExtra = { none:0, com:300, coza:500, net:300, org:300, own:0 }[domain] || 0;
   var faviconFee = faviconChecked ? 50 : 0;
-  var grandTotal = (totals[domain] || 450) + faviconFee;
+  var grandTotal;
+  if (isPremium) { grandTotal = 3500; domainExtra = 0; faviconFee = 0; }
+  else { grandTotal = 450 + domainExtra + faviconFee; }
 
   var order = {
     name:name, phone:phone, email:email,
+    package: isPremium ? 'PREMIUM (R3,500 all-inclusive)' : 'Standard (R450 build)',
     business:biz, city:city, category:cat,
     description:desc, colorTheme:colorNames[color]||color,
-    domain:domainLabels[domain], logo:logo, pages:pages,
-    favicon: faviconChecked ? 'Yes — custom favicon (+R50)' : 'No favicon',
+    domain: isPremium ? '.co.za domain (included in Premium)' : domainLabels[domain],
+    logo:logo, pages:pages,
+    favicon: isPremium ? 'Yes — included in Premium' : (faviconChecked ? 'Yes — custom favicon (+R50)' : 'No favicon'),
     monthlyHosting: 'R55/month hosting',
-    totalCharge:'R'+grandTotal+' once-off + R55/month hosting',
+    totalCharge:'R'+grandTotal.toLocaleString()+' once-off + R55/month hosting',
     extraRequests:extra,
     orderTime:new Date().toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})
   };
