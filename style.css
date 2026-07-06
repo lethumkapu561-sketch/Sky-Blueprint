@@ -485,3 +485,69 @@ html, body {
   .tool-card { padding: 16px; }
   .tools-sec, .about-sec, .hero { padding-left: 12px; padding-right: 12px; }
 }
+
+/* ═══════════════════════════════════════════
+   DEFINITIVE MOBILE OVERFLOW FIX (final, overrides all)
+   ═══════════════════════════════════════════ */
+
+/* Lock the whole document to the screen width - nothing can exceed it */
+html {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+body {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  position: relative;
+}
+
+/* The glow circles were pushing the page wide - contain them */
+.hero-glow, .g1, .g2 {
+  max-width: 100vw !important;
+}
+@media (max-width: 768px) {
+  .g1, .g2 {
+    width: 250px !important;
+    height: 250px !important;
+    left: auto !important;
+    right: auto !important;
+  }
+  .g1 { top: 0 !important; left: -80px !important; }
+  .g2 { display: none !important; }
+}
+
+/* Force every direct section to never exceed screen width */
+#nav, section, footer, .page, .hero, .tools-sec, .about-sec,
+.reviews-sec, .dash-body, .tool-page-body, .pricing-sec,
+.review-summary, .review-grid, .tools-grid, .pricing-cards {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* On phones, kill any wide grid and stack everything */
+@media (max-width: 768px) {
+  .review-summary {
+    display: block !important;
+    padding: 20px !important;
+  }
+  .review-summary > * { margin-bottom: 16px; }
+  .rs-bars { min-width: 0 !important; max-width: 100% !important; }
+  .rs-action { justify-content: flex-start !important; }
+
+  /* Any element with inline grid min-widths becomes single column */
+  [style*="minmax(200px"], [style*="minmax(240px"],
+  [style*="minmax(280px"], [style*="minmax(300px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Images never overflow */
+  img { max-width: 100% !important; height: auto; }
+
+  /* Long words/emails wrap instead of pushing width */
+  .rc-verified, .accountRow, td, th, p, span, div {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+}
