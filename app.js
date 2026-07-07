@@ -466,6 +466,7 @@ function openTool(name) {
     'learnerships': '🎓 Learnerships & Internships',
     'templates': '📊 Templates Store',
     'pdf-tools': '📑 PDF Tools',
+    'customers': '👥 Customer Manager',
   };
   document.getElementById('tool-page-title').textContent = titles[name] || 'Tool';
   const body = document.getElementById('tool-page-body');
@@ -481,6 +482,7 @@ function openTool(name) {
     'learnerships': renderLearnerships,
     'templates': renderTemplates,
     'pdf-tools': renderPDFTools,
+    'customers': renderCustomerManager,
   };
   // SA Map and Templates Store are free to browse - skip subscription check
   if (name !== 'sa-map' && name !== 'templates' && isTrialExpired(currentUser)) {
@@ -2347,6 +2349,145 @@ function uploadAndAnalyzeCV(input) {
 
 
 // ── SA Map ──
+function renderCustomerManager(el) {
+  el.innerHTML =
+    '<div class="tool-screen">' +
+    '<h2>👥 Customer Manager</h2>' +
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Keep all your customers in one place — contacts, notes and purchase history.</p>' +
+    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Private and secure. Only you can see your customer list.</p>' +
+    '<button class="btn-primary" style="margin-bottom:20px" onclick="openCustomerForm()">+ Add New Customer</button>' +
+    '<div id="cm-search-wrap" style="margin-bottom:16px;display:none"><input type="text" id="cm-search" placeholder="🔍 Search customers by name..." oninput="filterCustomers()" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px;color:#fff;font-family:var(--font);font-size:14px"></div>' +
+    '<div id="cm-list"><p style="color:var(--muted);text-align:center;padding:30px">Loading your customers...</p></div>' +
+    '</div>';
+  loadCustomers();
+}
+
+var _customers = [];
+
+function loadCustomers() {
+  var token = safeStorage.getItem('sb_token');
+  if (!token) { document.getElementById('cm-list').innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px">Please log in to use the Customer Manager.</p>'; return; }
+  fetch(BACKEND_URL + '/api/customers/list', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ token: token })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    _customers = (data && data.customers) || [];
+    renderCustomerList(_customers);
+  })
+  .catch(function(){ document.getElementById('cm-list').innerHTML = '<p style="color:#f87171;text-align:center;padding:30px">Could not load customers. Check your internet and try again.</p>'; });
+}
+
+function renderCustomerList(list) {
+  var wrap = document.getElementById('cm-list');
+  var searchWrap = document.getElementById('cm-search-wrap');
+  if (searchWrap) searchWrap.style.display = _customers.length > 3 ? 'block' : 'none';
+
+  if (!list || !list.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:40px 20px;background:rgba(255,255,255,0.03);border-radius:14px;border:1px dashed rgba(255,255,255,0.1)">' +
+      '<div style="font-size:44px;margin-bottom:12px">👥</div>' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">No customers yet</p>' +
+      '<p style="color:var(--muted);font-size:13px">Tap "Add New Customer" to start building your customer list.</p>' +
+      '</div>';
+    return;
+  }
+
+  wrap.innerHTML = '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">' + list.length + ' customer' + (list.length===1?'':'s') + '</div>' +
+    list.map(function(c){
+      return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:12px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px">' + escapeHtml(c.name) + '</div>' +
+        (c.phone ? '<div style="font-size:13px;color:#38bdf8;margin-bottom:2px">📞 ' + escapeHtml(c.phone) + '</div>' : '') +
+        (c.email ? '<div style="font-size:12px;color:var(--muted);margin-bottom:2px;word-break:break-all">✉️ ' + escapeHtml(c.email) + '</div>' : '') +
+        (c.lastPurchase ? '<div style="font-size:12px;color:#10b981;margin-top:4px">🛒 ' + escapeHtml(c.lastPurchase) + '</div>' : '') +
+        (c.notes ? '<div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px">📝 ' + escapeHtml(c.notes) + '</div>' : '') +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:6px">' +
+        (c.phone ? '<a href="https://wa.me/' + c.phone.replace(/[^0-9]/g,'').replace(/^0/,'27') + '" target="_blank" style="background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.3);color:#25d366;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;text-decoration:none;text-align:center;white-space:nowrap">WhatsApp</a>' : '') +
+        '<button onclick="editCustomer(\'' + c.id + '\')" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)">Edit</button>' +
+        '<button onclick="deleteCustomer(\'' + c.id + '\',\'' + escapeHtml(c.name).replace(/\'/g,"") + '\')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)">Delete</button>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function filterCustomers() {
+  var q = (document.getElementById('cm-search') || {value:''}).value.toLowerCase();
+  var filtered = _customers.filter(function(c){ return c.name.toLowerCase().indexOf(q) > -1; });
+  renderCustomerList(filtered);
+}
+
+function openCustomerForm(existing) {
+  var c = existing || {};
+  var modal = document.createElement('div');
+  modal.id = 'cm-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto';
+  modal.innerHTML =
+    '<div style="background:#0f1629;border:1px solid rgba(56,189,248,0.2);border-radius:20px;padding:28px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">' +
+    '<h3 style="color:#fff;font-size:19px;margin-bottom:16px">' + (existing ? 'Edit Customer' : 'Add New Customer') + '</h3>' +
+    '<input type="hidden" id="cm-id" value="' + (c.id || '') + '">' +
+    '<div class="form-group"><label>Customer Name *</label><input type="text" id="cm-name" value="' + (c.name ? escapeHtml(c.name) : '') + '" placeholder="e.g. John Doe"></div>' +
+    '<div class="form-group"><label>Phone Number</label><input type="tel" id="cm-phone" value="' + (c.phone ? escapeHtml(c.phone) : '') + '" placeholder="e.g. 082 123 4567"></div>' +
+    '<div class="form-group"><label>Email (optional)</label><input type="email" id="cm-email" value="' + (c.email ? escapeHtml(c.email) : '') + '" placeholder="e.g. john@email.com"></div>' +
+    '<div class="form-group"><label>Last Purchase / Service (optional)</label><input type="text" id="cm-purchase" value="' + (c.lastPurchase ? escapeHtml(c.lastPurchase) : '') + '" placeholder="e.g. Haircut R80, or Invoice #12"></div>' +
+    '<div class="form-group"><label>Notes (optional)</label><textarea id="cm-notes" rows="3" placeholder="e.g. Prefers appointments on weekends. Allergic to...">' + (c.notes ? escapeHtml(c.notes) : '') + '</textarea></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:8px" onclick="saveCustomer()">' + (existing ? 'Save Changes' : 'Add Customer') + '</button>' +
+    '<button style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:10px;padding:12px;font-family:var(--font);cursor:pointer;font-size:14px" onclick="document.getElementById(\'cm-modal\').remove()">Cancel</button>' +
+    '</div>';
+  modal.onclick = function(){ modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+function editCustomer(id) {
+  var c = _customers.find(function(x){ return x.id === id; });
+  if (c) openCustomerForm(c);
+}
+
+function saveCustomer() {
+  var token = safeStorage.getItem('sb_token');
+  var id = (document.getElementById('cm-id')||{value:''}).value;
+  var customer = {
+    name: (document.getElementById('cm-name')||{value:''}).value.trim(),
+    phone: (document.getElementById('cm-phone')||{value:''}).value.trim(),
+    email: (document.getElementById('cm-email')||{value:''}).value.trim(),
+    lastPurchase: (document.getElementById('cm-purchase')||{value:''}).value.trim(),
+    notes: (document.getElementById('cm-notes')||{value:''}).value.trim()
+  };
+  if (!customer.name) { alert('Please enter the customer name.'); return; }
+
+  var endpoint, body;
+  if (id) { customer.id = id; endpoint = '/api/customers/update'; body = { token: token, customer: customer }; }
+  else { endpoint = '/api/customers/add'; body = { token: token, customer: customer }; }
+
+  fetch(BACKEND_URL + endpoint, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data && data.success) {
+      var m = document.getElementById('cm-modal'); if (m) m.remove();
+      loadCustomers();
+    } else { alert((data && data.error) || 'Could not save customer.'); }
+  })
+  .catch(function(){ alert('Could not save. Check your internet and try again.'); });
+}
+
+function deleteCustomer(id, name) {
+  if (!confirm('Delete ' + name + ' from your customers? This cannot be undone.')) return;
+  var token = safeStorage.getItem('sb_token');
+  fetch(BACKEND_URL + '/api/customers/delete', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ token: token, customerId: id })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(){ loadCustomers(); })
+  .catch(function(){ alert('Could not delete. Try again.'); });
+}
+
 function renderPDFTools(el) {
   el.innerHTML =
     '<div class="tool-screen">' +
@@ -3333,7 +3474,7 @@ function startPaystack(plan) {
   };
   var subs = {
     website: 'R450 once-off · We build your professional website in 24-48 hours',
-    monthly: 'R55/month · All 10 tools · Auto-debit via Paystack · Cancel anytime',
+    monthly: 'R55/month · All 11 tools · Auto-debit via Paystack · Cancel anytime',
     yearly: 'R1,980 per year for 3 years · Auto-renews yearly · All tools'
   };
   document.getElementById('modal-title').textContent = titles[plan] || 'Subscribe to Sky Blueprint';
@@ -4066,7 +4207,7 @@ async function startGuide() {
 }
 
 async function explainPlatform() {
-  await guideMsg('Sky Blueprint is a South African digital platform with <strong>10 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
+  await guideMsg('Sky Blueprint is a South African digital platform with <strong>11 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
   guideOptions([
     { label: '🚀 Let me start using the tools!', action: showToolMenu },
     { label: '💰 Tell me about pricing', action: explainPricing },
