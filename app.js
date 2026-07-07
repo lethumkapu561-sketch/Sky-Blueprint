@@ -686,6 +686,18 @@ function renderWebsiteBuilder(el) {
         <div class="form-group"><label>Your existing domain name</label><input type="text" id="wb-domain-name" placeholder="e.g. mybusiness.co.za"></div>
       </div>
 
+      <!-- HOSTINGER PARTNER OPTION -->
+      <div style="background:linear-gradient(135deg,rgba(103,58,183,0.08),rgba(56,189,248,0.05));border:1px solid rgba(103,58,183,0.25);border-radius:14px;padding:16px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          <strong style="color:#fff;font-size:14px">Want to own your domain & hosting yourself?</strong>
+        </div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:12px">
+          You can buy your own domain and hosting directly from <strong style="color:#a78bfa">Hostinger</strong> — our trusted partner. It is affordable, reliable, and you keep full control of your domain. Great if you want everything in your own name.
+        </p>
+        <a href="https://www.hostinger.com?REFERRALCODE=XONLETHUMW3C" target="_blank" rel="noopener" style="display:inline-block;background:linear-gradient(135deg,#673ab7,#38bdf8);color:#fff;text-decoration:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;font-family:var(--font)">Get Hostinger Hosting & Domain →</a>
+      </div>
+
       <!-- FAVICON ADD-ON -->
       <div class="form-group">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.15);border-radius:10px;padding:14px">
