@@ -654,3 +654,30 @@ body {
   }
   .tool-page-title { font-size: 16px !important; }
 }
+
+/* ═══════════════════════════════════════════
+   DASHBOARD HEADER MOBILE FIX — stop greeting+buttons overlapping
+   ═══════════════════════════════════════════ */
+@media (max-width: 700px) {
+  .dash-header {
+    height: auto !important;
+    min-height: 60px !important;
+    padding: 12px 16px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  /* Hide the greeting text + account buttons on mobile - they clutter and overlap.
+     The hamburger menu already has My Account and Log Out. */
+  .dash-user {
+    display: none !important;
+  }
+  /* Show the compact mobile account buttons instead */
+  .dash-user-mobile {
+    display: flex !important;
+    align-items: center;
+  }
+  .dash-title {
+    font-size: 22px !important;
+    line-height: 1.2 !important;
+  }
+}
