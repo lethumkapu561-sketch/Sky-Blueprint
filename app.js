@@ -456,17 +456,17 @@ function showTrialExpired() {
 
 function openTool(name) {
   const titles = {
-    'website-builder': '🌐 Website Builder',
-    'email-cleaner': '📧 Email Cleaner',
-    'find-phone': '📍 Find My Phone',
-    'ai-mentor': '🤖 AI Business Mentor',
-    'cv-builder': '📄 CV Builder & Jobs',
-    'sa-map': '🗺️ SA Map',
-    'reminders': '🔔 My Reminders & Tasks',
-    'learnerships': '🎓 Learnerships & Internships',
-    'templates': '📊 Templates Store',
-    'pdf-tools': '📑 PDF Tools',
-    'customers': '👥 Customer Manager',
+    'website-builder': 'Website Builder',
+    'email-cleaner': 'AI Email Secretary',
+    'find-phone': 'Find My Phone',
+    'ai-mentor': 'AI Business Mentor',
+    'cv-builder': 'CV Builder & Jobs',
+    'sa-map': 'SA Map',
+    'reminders': 'Reminders & Tasks',
+    'learnerships': 'Learnerships & Internships',
+    'templates': 'Templates Store',
+    'pdf-tools': 'PDF Tools',
+    'customers': 'Customer Manager',
   };
   document.getElementById('tool-page-title').textContent = titles[name] || 'Tool';
   const body = document.getElementById('tool-page-body');
@@ -497,7 +497,7 @@ function openTool(name) {
 function renderWebsiteBuilder(el) {
   el.innerHTML = `
   <div class="tool-screen">
-    <h2>🌐 Website Builder</h2>
+    <h2>Website Builder</h2>
     <p style="color:var(--muted);font-size:14px;margin-bottom:20px">
       Fill in your business details. We build your professional website in <strong style="color:#38bdf8">72 hours</strong> and deliver it directly to you.
     </p>
@@ -892,7 +892,7 @@ function submitWebsiteOrder() {
 function renderEmailCleaner(el) {
   el.innerHTML = `
   <div class="tool-screen">
-    <h2>📧 AI Email Secretary</h2>
+    <h2>AI Email Secretary</h2>
     <p style="color:var(--muted);font-size:14px;margin-bottom:6px">Your AI secretary that manages your inbox while you work.</p>
     <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">"Turn 500 emails into 5 important tasks."</p>
 
@@ -1388,7 +1388,7 @@ function payForPhone() {
 function renderFindPhoneFull(el) {
   el.innerHTML = `
   <div class="tool-screen">
-    <h2>📍 Find My Phone</h2>
+    <h2>Find My Phone</h2>
     <p>Your devices are protected. Track, ring, lock or wipe remotely from anywhere.</p>
     <div class="tab-bar">
       <div class="tab active" onclick="phoneTab2('reg',this)">Register Device</div>
@@ -1565,7 +1565,7 @@ async function sendAI() {
 function renderCVBuilder(el) {
   el.innerHTML = `
   <div class="tool-screen">
-    <h2>📄 CV Builder & Job Finder</h2>
+    <h2>CV Builder & Job Finder</h2>
     <p>Build your CV — AI detects your qualification level and only shows jobs you qualify for.</p>
     <div class="tab-bar">
       <div class="tab active" onclick="cvTab2('build',this)">Build My CV</div>
@@ -2352,7 +2352,7 @@ function uploadAndAnalyzeCV(input) {
 function renderCustomerManager(el) {
   el.innerHTML =
     '<div class="tool-screen">' +
-    '<h2>👥 Customer Manager</h2>' +
+    '<h2>Customer Manager</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Keep all your customers in one place — contacts, notes and purchase history.</p>' +
     '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Private and secure. Only you can see your customer list.</p>' +
     '<button class="btn-primary" style="margin-bottom:20px" onclick="openCustomerForm()">+ Add New Customer</button>' +
@@ -2364,9 +2364,23 @@ function renderCustomerManager(el) {
 
 var _customers = [];
 
+function requireToken() {
+  var token = safeStorage.getItem('sb_token');
+  if (!token) {
+    if (confirm('For security, please log in again to use this feature. Log in now?')) {
+      showPage('login');
+    }
+    return null;
+  }
+  return token;
+}
+
 function loadCustomers() {
   var token = safeStorage.getItem('sb_token');
-  if (!token) { document.getElementById('cm-list').innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px">Please log in to use the Customer Manager.</p>'; return; }
+  if (!token) {
+    document.getElementById('cm-list').innerHTML = '<div style="text-align:center;padding:30px"><p style="color:var(--muted);margin-bottom:14px">Please log in again to use the Customer Manager.</p><button class="btn-primary" onclick="showPage(\'login\')">Log In</button></div>';
+    return;
+  }
   fetch(BACKEND_URL + '/api/customers/list', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ token: token })
@@ -2491,7 +2505,7 @@ function deleteCustomer(id, name) {
 function renderPDFTools(el) {
   el.innerHTML =
     '<div class="tool-screen">' +
-    '<h2>📑 PDF Tools</h2>' +
+    '<h2>PDF Tools</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Convert your files to PDF instantly — right in your browser.</p>' +
     '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Fast, private and secure. Your files never leave your device.</p>' +
 
@@ -2703,7 +2717,7 @@ function renderTemplates(el) {
 
   el.innerHTML =
     '<div class="tool-screen">' +
-    '<h2>📊 Templates Store</h2>' +
+    '<h2>Templates Store</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Professional, ready-to-use spreadsheets for business, school and home.</p>' +
     '<p style="font-size:12px;color:#38bdf8;margin-bottom:8px;font-style:italic">Every template auto-calculates for you. Buy once, keep forever.</p>' +
     '<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 14px;margin-bottom:20px;text-align:center"><span style="font-size:12px;color:#10b981;font-weight:600">✅ No subscription needed — just buy the template you want and keep it forever!</span></div>' +
@@ -2831,7 +2845,7 @@ function deliverTemplate(id, name, email, reference) {
 function renderLearnerships(el) {
   el.innerHTML = `
   <div class="tool-screen">
-    <h2>🎓 Learnerships & Internships</h2>
+    <h2>Learnerships & Internships</h2>
     <p style="color:var(--muted);font-size:14px;margin-bottom:4px">Find learnerships and internships you qualify for — sent straight to your email.</p>
     <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">We check if you qualify, then send you the best matching opportunities and apply links.</p>
 
@@ -3109,7 +3123,7 @@ function resetLearnerships() {
 function renderReminders(el) {
   el.innerHTML = `
   <div class="tool-screen">
-    <h2>🔔 My Reminders & Tasks</h2>
+    <h2>My Reminders & Tasks</h2>
     <p style="color:var(--muted);font-size:14px;margin-bottom:4px">Never miss a meeting, task, habit or family gathering again.</p>
     <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Your personal assistant that reminds you while you focus on what matters.</p>
 

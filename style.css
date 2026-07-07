@@ -4,7 +4,7 @@
   --sky:#38bdf8;--indigo:#6366f1;--green:#10b981;
   --text:#e2e8f0;--muted:#64748b;--border:rgba(255,255,255,0.08);
   --card:rgba(255,255,255,0.03);
-  --font:'Inter',sans-serif;--display:'Syne',sans-serif;
+  --font:'Inter',sans-serif;--display:'Plus Jakarta Sans',sans-serif;
 }
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;min-height:100vh}
