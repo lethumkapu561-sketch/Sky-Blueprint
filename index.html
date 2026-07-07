@@ -80,7 +80,7 @@
           🇿🇦 Made for South Africa
         </div>
         <h1>Build. Protect.<br><span class="grad-text">Grow.</span></h1>
-        <p class="hero-p">Sky Blueprint gives South African entrepreneurs, job seekers and professionals ten powerful tools — all in one platform — for one simple monthly fee.</p>
+        <p class="hero-p">Sky Blueprint gives South African entrepreneurs, job seekers and professionals eleven powerful tools — all in one platform — for one simple monthly fee.</p>
         <div class="hero-ctas">
           <button class="btn-primary" onclick="showPage('signup')">Get Started — R55/month</button>
           <button class="btn-outline" onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'})">See All Tools</button>
@@ -202,6 +202,15 @@
           <p>Convert CSV, Excel, images and text to PDF instantly. Fast, private, secure — right in your browser.</p>
           <div class="tc-arrow">Open Tool →</div>
         </div>
+        <div class="tool-card" onclick="requireAuth('customers')">
+          <div class="tc-top">
+            <div class="tc-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">👥</div>
+            <span class="tc-badge">New</span>
+          </div>
+          <h3>Customer Manager</h3>
+          <p>Keep all your customers in one place — contacts, notes, purchase history. Message them on WhatsApp in one tap.</p>
+          <div class="tc-arrow">Open Tool →</div>
+        </div>
       </div>
     </section>
 
@@ -236,7 +245,7 @@
           <div class="pc-price">R55</div>
           <div class="pc-period">per month • auto-debit</div>
           <div class="pc-features">
-            <div class="pc-feat">✅ All 10 tools — full access</div>
+            <div class="pc-feat">✅ All 11 tools — full access</div>
             <div class="pc-feat">✅ Email Cleaner (Gmail, Outlook, Yahoo)</div>
             <div class="pc-feat">✅ AI Business Mentor 24/7</div>
             <div class="pc-feat">✅ CV Builder & Job Matching</div>
@@ -356,7 +365,7 @@
         </div>
 
         <div class="about-stats">
-          <div class="as"><strong>10</strong><span>Powerful Tools</span></div>
+          <div class="as"><strong>11</strong><span>Powerful Tools</span></div>
           <div class="as"><strong>24/7</strong><span>Always Available</span></div>
           <div class="as"><strong>R55</strong><span>Per Month Only</span></div>
           <div class="as"><strong>🇿🇦</strong><span>SA Built</span></div>
@@ -517,6 +526,7 @@
           <div class="tool-card" onclick="requireAuth('learnerships')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">🎓</div><span class="tc-badge">New</span></div><h3>Learnerships & Internships</h3><p>Find learnerships & internships you qualify for.</p><div class="tc-arrow">Open →</div></div>
           <div class="tool-card" onclick="openTool('templates')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#10b981,#059669)">📊</div><span class="tc-badge">New</span></div><h3>Templates Store</h3><p>Buy professional spreadsheet templates.</p><div class="tc-arrow">Open →</div></div>
           <div class="tool-card" onclick="requireAuth('pdf-tools')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)">📑</div><span class="tc-badge">New</span></div><h3>PDF Tools</h3><p>Convert files to PDF instantly.</p><div class="tc-arrow">Open →</div></div>
+          <div class="tool-card" onclick="requireAuth('customers')"><div class="tc-top"><div class="tc-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">👥</div><span class="tc-badge">New</span></div><h3>Customer Manager</h3><p>Save and manage your customers.</p><div class="tc-arrow">Open →</div></div>
         </div>
       </div>
     </div>
@@ -547,7 +557,7 @@
     <div class="tool-page-wrap">
       <div class="tool-page-header">
         <button class="back-btn" onclick="showPage('dashboard')" style="background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(99,102,241,0.12));border:1px solid rgba(56,189,248,0.35);color:#38bdf8;border-radius:12px;padding:11px 20px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;transition:all 0.2s;box-shadow:0 2px 10px rgba(56,189,248,0.1)">
-          <span style="font-size:16px">←</span> Back to My Tools
+          <span style="font-size:16px">←</span> My Tools
         </button>
         <div class="tool-page-title" id="tool-page-title">Tool</div>
         <button onclick="showPage('home')" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;border-radius:12px;padding:11px 18px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px;transition:all 0.2s">
