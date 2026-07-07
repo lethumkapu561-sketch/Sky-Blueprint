@@ -278,7 +278,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:48px 24px
 .tool-card::after{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(56,189,248,0.06),transparent 50%);opacity:0;transition:opacity 0.3s;pointer-events:none}
 .tool-card:hover::after{opacity:1}
 .tc-icon{box-shadow:0 6px 20px rgba(0,0,0,0.3);transition:transform 0.25s}
-.tool-card:hover .tc-icon{transform:scale(1.08) rotate(-3deg)}
+.tool-card:hover .tc-icon{transform:translateY(-2px)}
 .tc-arrow{font-size:13px;font-weight:600;color:var(--sky);transition:gap 0.2s,letter-spacing 0.2s}
 .tool-card:hover .tc-arrow{letter-spacing:0.5px}
 .tc-badge{background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(56,189,248,0.15));color:#34d399;box-shadow:0 2px 8px rgba(16,185,129,0.2);text-transform:uppercase}
