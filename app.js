@@ -2822,7 +2822,7 @@ function deliverTemplate(id, name, email, reference) {
   files.forEach(function(fname, i) {
     setTimeout(function() {
       var a = document.createElement('a');
-      a.href = '/Sky-Blueprint/templates/' + fname;
+      a.href = 'templates/' + fname;
       a.download = fname;
       document.body.appendChild(a);
       a.click();
