@@ -522,27 +522,27 @@ function renderWebsiteBuilder(el) {
         <div class="form-group"><label>Business Type *</label>
           <select id="wb-cat">
             <option value="">Select your business type</option>
-            <optgroup label="🛍️ Retail & Commerce">
+            <optgroup label=" Retail & Commerce">
               <option>General Retail / Spaza Shop</option>
               <option>Clothing & Fashion Store</option>
               <option>Furniture & Home Decor</option>
               <option>Electronics & Gadgets</option>
               <option>Online Store / E-commerce</option>
             </optgroup>
-            <optgroup label="💻 Technology">
+            <optgroup label=" Technology">
               <option>IT Support & Repairs</option>
               <option>Software Development</option>
               <option>Cellphone Repairs</option>
               <option>CCTV & Security Systems</option>
             </optgroup>
-            <optgroup label="🍽️ Food & Hospitality">
+            <optgroup label=" Food & Hospitality">
               <option>Restaurant / Takeaway</option>
               <option>Catering Services</option>
               <option>Bakery / Confectionery</option>
               <option>Coffee Shop / Cafe</option>
               <option>Event Catering</option>
             </optgroup>
-            <optgroup label="💅 Beauty & Wellness">
+            <optgroup label=" Beauty & Wellness">
               <option>Hair Salon</option>
               <option>Nail Salon</option>
               <option>Barbershop</option>
@@ -550,7 +550,7 @@ function renderWebsiteBuilder(el) {
               <option>Makeup Artist</option>
               <option>Fitness & Personal Training</option>
             </optgroup>
-            <optgroup label="🏗️ Construction & Trades">
+            <optgroup label=" Construction & Trades">
               <option>Construction & Building</option>
               <option>Plumbing Services</option>
               <option>Electrical Services</option>
@@ -558,47 +558,47 @@ function renderWebsiteBuilder(el) {
               <option>Cleaning Services</option>
               <option>Landscaping & Gardening</option>
             </optgroup>
-            <optgroup label="🚗 Transport & Logistics">
+            <optgroup label=" Transport & Logistics">
               <option>Taxi / Transport Service</option>
               <option>Courier & Delivery</option>
               <option>Car Wash & Detailing</option>
               <option>Panel Beating & Auto Repair</option>
               <option>Towing Services</option>
             </optgroup>
-            <optgroup label="❤️ Health & Medical">
+            <optgroup label=" Health & Medical">
               <option>Medical Practice / Clinic</option>
               <option>Pharmacy</option>
               <option>Physiotherapy</option>
               <option>Traditional Healer</option>
               <option>Home Care Services</option>
             </optgroup>
-            <optgroup label="📚 Education & Training">
+            <optgroup label=" Education & Training">
               <option>Tutoring / Extra Lessons</option>
               <option>Daycare / Creche</option>
               <option>Skills Training Centre</option>
               <option>Driving School</option>
             </optgroup>
-            <optgroup label="⚖️ Professional Services">
+            <optgroup label=" Professional Services">
               <option>Law Firm / Legal Services</option>
               <option>Accounting & Tax</option>
               <option>Insurance Brokerage</option>
               <option>Property / Real Estate</option>
               <option>Consulting Services</option>
             </optgroup>
-            <optgroup label="⛪ Community & NGO">
+            <optgroup label=" Community & NGO">
               <option>Church / Ministry</option>
               <option>Non-Profit Organisation</option>
               <option>Community Centre</option>
               <option>Charity / Foundation</option>
             </optgroup>
-            <optgroup label="🎨 Creative & Events">
+            <optgroup label=" Creative & Events">
               <option>Photography & Videography</option>
               <option>Graphic Design</option>
               <option>Event Planning</option>
               <option>Music & Entertainment</option>
               <option>Art & Crafts</option>
             </optgroup>
-            <optgroup label="🌱 Agriculture">
+            <optgroup label=" Agriculture">
               <option>Farming & Agriculture</option>
               <option>Poultry & Livestock</option>
               <option>Garden Supplies</option>
