@@ -114,7 +114,7 @@
     <!-- TOOLS -->
     <section class="tools-sec" id="tools">
       <div class="sec-label">WHAT YOU GET</div>
-      <h2 class="sec-title">Six Powerful Tools.<br>One Monthly Price.</h2>
+      <h2 class="sec-title">Twelve Powerful Tools.<br>One Monthly Price.</h2>
       <div class="tools-grid">
         <div class="tool-card" onclick="requireAuth('website-builder')">
           <div class="tc-top">
@@ -254,7 +254,7 @@
           <div class="pc-price">R55</div>
           <div class="pc-period">per month • auto-debit</div>
           <div class="pc-features">
-            <div class="pc-feat">✅ All 11 tools — full access</div>
+            <div class="pc-feat">✅ All 12 tools — full access</div>
             <div class="pc-feat">✅ Email Cleaner (Gmail, Outlook, Yahoo)</div>
             <div class="pc-feat">✅ AI Business Mentor 24/7</div>
             <div class="pc-feat">✅ CV Builder & Job Matching</div>
@@ -450,7 +450,41 @@
           <a href="#about" onclick="event.preventDefault();document.getElementById('about').scrollIntoView({behavior:'smooth'})">About</a>
           <a href="mailto:lethumkapu561@gmail.com">Contact</a>
         </div>
-        <p style="color:#1e293b;font-size:12px;margin-top:24px">© 2026 Sky Blueprint. All rights reserved.</p>
+        <p style="color:#1e293b;font-size:12px;margin-top:24px">© 2026 Sky Blueprint. All rights reserved. · <a href="#" onclick="showPolicy('privacy');return false" style="color:#334155">Privacy Policy</a> · <a href="#" onclick="showPolicy('terms');return false" style="color:#334155">Terms of Service</a></p>
+
+<!-- POLICY MODAL -->
+<div id="policy-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center;padding:20px" onclick="this.style.display='none'">
+  <div style="background:#0f1629;border:1px solid rgba(56,189,248,0.2);border-radius:20px;padding:28px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto" onclick="event.stopPropagation()">
+    <h3 id="policy-title" style="color:#fff;font-size:19px;margin-bottom:14px">Privacy Policy</h3>
+    <div id="policy-body" style="color:#94a3b8;font-size:13px;line-height:1.8"></div>
+    <button onclick="document.getElementById('policy-modal').style.display='none'" style="margin-top:18px;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Close</button>
+  </div>
+</div>
+<script>
+function showPolicy(type) {
+  var modal = document.getElementById('policy-modal');
+  var title = document.getElementById('policy-title');
+  var body = document.getElementById('policy-body');
+  if (type === 'privacy') {
+    title.textContent = 'Privacy Policy';
+    body.innerHTML = '<p><strong style="color:#e2e8f0">What we collect:</strong> When you create an account we collect your name, email address and phone number. If you use the AI Email Secretary, your email credentials are used only to scan your inbox during your session and are never stored on our servers.</p><br>' +
+      '<p><strong style="color:#e2e8f0">How we use it:</strong> Your information is used to provide our services, process payments, and contact you about your account. We never sell your personal information to anyone.</p><br>' +
+      '<p><strong style="color:#e2e8f0">Payments:</strong> All payments are processed securely by Paystack. Sky Blueprint never sees or stores your card details.</p><br>' +
+      '<p><strong style="color:#e2e8f0">Your files:</strong> Files you process with PDF Tools and the image compressor are handled on your own device. Videos sent for compression are processed on our server and deleted immediately after.</p><br>' +
+      '<p><strong style="color:#e2e8f0">Your rights:</strong> You may request deletion of your account and data at any time by emailing us. We comply with the Protection of Personal Information Act (POPIA) of South Africa.</p><br>' +
+      '<p><strong style="color:#e2e8f0">Contact:</strong> lethumkapu561@gmail.com</p>';
+  } else {
+    title.textContent = 'Terms of Service';
+    body.innerHTML = '<p><strong style="color:#e2e8f0">Service:</strong> Sky Blueprint provides digital tools on a subscription basis (R55/month or 3-year plan) plus once-off products (templates, website builds).</p><br>' +
+      '<p><strong style="color:#e2e8f0">Payments & cancellation:</strong> Subscriptions are billed monthly via Paystack and can be cancelled anytime from your account page. Cancelling stops future charges; no refunds for the current month. Template purchases are once-off and yours to keep.</p><br>' +
+      '<p><strong style="color:#e2e8f0">Website builds:</strong> Website orders are delivered within 72 hours of receiving your details and payment. Domain registrations are subject to availability.</p><br>' +
+      '<p><strong style="color:#e2e8f0">Fair use:</strong> You may not use our tools for illegal purposes, spam, or to harm others. We may suspend accounts that abuse the service.</p><br>' +
+      '<p><strong style="color:#e2e8f0">Liability:</strong> Our tools are provided as-is. While we work hard to keep everything running, we are not liable for indirect losses from service interruptions.</p><br>' +
+      '<p><strong style="color:#e2e8f0">Contact:</strong> lethumkapu561@gmail.com</p>';
+  }
+  modal.style.display = 'flex';
+}
+</script>
       </div>
     </footer>
   </div>
