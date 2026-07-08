@@ -2560,7 +2560,7 @@ function compTab(type, elem) {
   } else {
     body.innerHTML =
       '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
-      '<p style="font-size:13px;color:#f59e0b;font-weight:600;margin-bottom:4px">For short clips only (under 20MB)</p>' +
+      '<p style="font-size:13px;color:#f59e0b;font-weight:600;margin-bottom:4px">For clips up to 2 minutes 30 seconds</p>' +
       '<p style="font-size:12px;color:var(--muted);line-height:1.6">Video compression runs on your device, so it only works for short clips. For longer videos, use a proper app like VLC or an online tool on a computer.</p>' +
       '</div>' +
       '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
@@ -2694,17 +2694,21 @@ function handleVideoCompress() {
   var file = input.files[0];
   if (!file) return;
   var result = document.getElementById('comp-video-result');
-  if (file.size > 20 * 1048576) {
-    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Video too large (' + fmtSize(file.size) + ')</p><p style="color:var(--muted);font-size:12px;margin-top:6px">This tool handles clips under 20MB. For bigger videos, use a computer app like VLC or HandBrake.</p></div>';
+  if (file.size > 200 * 1048576) {
+    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Video too large (' + fmtSize(file.size) + ')</p><p style="color:var(--muted);font-size:12px;margin-top:6px">This tool handles clips up to about 2:30 minutes. For bigger or longer videos, use a computer app like VLC or HandBrake.</p></div>';
     return;
   }
-  result.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Compressing video... this may take a moment, please wait.</p>';
+  result.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Compressing video... for longer clips this can take a minute or two. Please keep this page open.</p>';
 
   var url = URL.createObjectURL(file);
   var video = document.createElement('video');
   video.muted = true; video.playsInline = true;
   video.src = url;
   video.onloadedmetadata = function() {
+    if (video.duration > 150) {
+      result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Video is too long (' + Math.round(video.duration) + 's)</p><p style="color:var(--muted);font-size:12px;margin-top:6px">This tool handles clips up to 2 minutes 30 seconds. Please trim it first or use a computer app for longer videos.</p></div>';
+      return;
+    }
     var scale = 0.6; // reduce dimensions to shrink size
     var w = Math.round(video.videoWidth * scale), h = Math.round(video.videoHeight * scale);
     var canvas = document.createElement('canvas');
@@ -2735,7 +2739,7 @@ function handleVideoCompress() {
     ctxDraw();
     video.onended = function(){ recorder.stop(); };
     // Safety: stop after 60s max
-    setTimeout(function(){ if (recorder.state === 'recording') { video.pause(); recorder.stop(); } }, 60000);
+    setTimeout(function(){ if (recorder.state === 'recording') { video.pause(); recorder.stop(); } }, 160000);
   };
   video.onerror = function(){ result.innerHTML = '<p style="color:#f87171;text-align:center">Could not read this video.</p>'; };
 }
