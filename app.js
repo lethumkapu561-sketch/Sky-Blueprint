@@ -816,12 +816,12 @@ function updateWbPrice() {
     // Premium is R3,500 all-inclusive (domain + favicon included)
     extra = 0; faviconFee = 0;
     if (baseLabel) baseLabel.textContent = 'Premium Package (all-inclusive)';
-    if (basePrice) basePrice.textContent = 'R3,500';
+    if (basePrice) basePrice.textContent = 'R5,000';
     if (premRow) premRow.style.display = 'block';
     if (ownWrap) ownWrap.style.display = 'none';
     if (row) row.style.display = 'none';
     if (favRow) favRow.style.display = 'none';
-    if (total) total.textContent = 'R3,500';
+    if (total) total.textContent = 'R5,000';
     return;
   }
 
