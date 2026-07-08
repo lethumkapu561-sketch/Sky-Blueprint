@@ -2913,26 +2913,26 @@ function textToPDF() {
 
 function renderTemplates(el) {
   var templates = [
-    { id:'invoice', name:'Professional Invoice', icon:'🧾', price:99, cat:'Business', img:'Professional_Invoice_Template-1.png', desc:'Auto-calculates line totals, subtotal, VAT and total. Includes your banking details.' },
-    { id:'quote', name:'Quotation Template', icon:'📋', price:99, cat:'Business', img:'Quotation_Template-1.png', desc:'Professional quotes with terms & conditions. Send before invoicing.' },
-    { id:'stock', name:'Stock / Inventory Tracker', icon:'📦', price:149, cat:'Business', img:'Stock_Inventory_Tracker-1.png', desc:'Tracks products, flags LOW/OUT of stock automatically, shows total stock value.' },
-    { id:'bizbudget', name:'Business Budget / Cash Flow', icon:'💰', price:149, cat:'Business', img:'Business_Budget_Planner-1.png', desc:'Income vs expenses, budgeted vs actual, auto money-left calculation.' },
-    { id:'wages', name:'Staff Wage Register', icon:'👥', price:149, cat:'Business', img:'Staff_Wage_Register-1.png', desc:'Enter hours & rate — auto-calculates gross, deductions and net pay per employee.' },
-    { id:'monthly', name:'Monthly Budget Planner', icon:'🏠', price:59, cat:'Personal', img:'Monthly_Budget_Planner-1.png', desc:'Simple personal budget. Money in vs out. Perfect for families.' },
-    { id:'marksheet', name:'School Mark Sheet', icon:'📝', price:89, cat:'School', img:'School_Mark_Sheet-1.png', desc:'Auto-calculates totals, averages, PASS/FAIL and class average.' },
-    { id:'attendance', name:'Class Attendance Register', icon:'✅', price:89, cat:'School', img:'Class_Attendance_Register-1.png', desc:'Mark P/A/L/S daily. Auto-counts attendance percentage per learner.' }
+    { id:'invoice', name:'Professional Invoice', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-2-1.5L14 22l-2-1.5L10 22l-2-1.5L6 22z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>', price:99, cat:'Business', img:'Professional_Invoice_Template-1.png', desc:'Auto-calculates line totals, subtotal, VAT and total. Includes your banking details.' },
+    { id:'quote', name:'Quotation Template', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 2h6v4H9zM8 10h8M8 14h8M8 18h5"/></svg>', price:99, cat:'Business', img:'Quotation_Template-1.png', desc:'Professional quotes with terms & conditions. Send before invoicing.' },
+    { id:'stock', name:'Stock / Inventory Tracker', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 9-5 9 5-9 5-9-5z"/><path d="M3 8v9l9 5 9-5V8M12 13v9"/></svg>', price:149, cat:'Business', img:'Stock_Inventory_Tracker-1.png', desc:'Tracks products, flags LOW/OUT of stock automatically, shows total stock value.' },
+    { id:'bizbudget', name:'Business Budget / Cash Flow', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 2.5-2c1.5 0 2.5 1 2.5 2s-1 1.5-2.5 2-2.5 1-2.5 2 1 2 2.5 2 2.5-1 2.5-2M12 6v2M12 16v2"/></svg>', price:149, cat:'Business', img:'Business_Budget_Planner-1.png', desc:'Income vs expenses, budgeted vs actual, auto money-left calculation.' },
+    { id:'wages', name:'Staff Wage Register', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 6a3 3 0 0 1 0 6M21 20c0-2-1-4-3-4.5"/></svg>', price:149, cat:'Business', img:'Staff_Wage_Register-1.png', desc:'Enter hours & rate — auto-calculates gross, deductions and net pay per employee.' },
+    { id:'monthly', name:'Monthly Budget Planner', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>', price:59, cat:'Personal', img:'Monthly_Budget_Planner-1.png', desc:'Simple personal budget. Money in vs out. Perfect for families.' },
+    { id:'marksheet', name:'School Mark Sheet', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13l2 2 4-4"/></svg>', price:89, cat:'School', img:'School_Mark_Sheet-1.png', desc:'Auto-calculates totals, averages, PASS/FAIL and class average.' },
+    { id:'attendance', name:'Class Attendance Register', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m8 15 2 2 4-4"/></svg>', price:89, cat:'School', img:'Class_Attendance_Register-1.png', desc:'Mark P/A/L/S daily. Auto-counts attendance percentage per learner.' }
   ];
 
   var bundles = [
-    { id:'bundle-biz', name:'Business Bundle', icon:'💼', price:499, desc:'All 5 business templates (Invoice, Quote, Stock, Budget, Wages). Save R146!' },
-    { id:'bundle-school', name:'School Bundle', icon:'🎓', price:149, desc:'Mark Sheet + Attendance Register. Save R29!' },
-    { id:'bundle-all', name:'Everything Bundle', icon:'⭐', price:699, desc:'ALL 8 templates. Best value — save over R180!' }
+    { id:'bundle-biz', name:'Business Bundle', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>', price:499, desc:'All 5 business templates (Invoice, Quote, Stock, Budget, Wages). Save R146!' },
+    { id:'bundle-school', name:'School Bundle', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5z"/><path d="M6 10v6c0 1 3 3 6 3s6-2 6-3v-6"/></svg>', price:149, desc:'Mark Sheet + Attendance Register. Save R29!' },
+    { id:'bundle-all', name:'Everything Bundle', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3 6.5 7 1-5 5 1.2 7L12 18l-6.2 3.5L7 14.5l-5-5 7-1z"/></svg>', price:699, desc:'ALL 8 templates. Best value — save over R180!' }
   ];
 
   var cards = templates.map(function(t){
     return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px;display:flex;flex-direction:column">' +
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
-      '<span style="font-size:28px">' + t.icon + '</span>' +
+      '<div style="width:44px;height:44px;border-radius:10px;background:rgba(56,189,248,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">' + t.icon + '</div>' +
       '<div><div style="font-size:15px;font-weight:700;color:#fff">' + t.name + '</div>' +
       '<span style="font-size:10px;background:rgba(56,189,248,0.15);color:#38bdf8;padding:2px 8px;border-radius:10px">' + t.cat + '</span></div>' +
       '</div>' +
@@ -2948,7 +2948,7 @@ function renderTemplates(el) {
   var bundleCards = bundles.map(function(b){
     return '<div style="background:linear-gradient(135deg,rgba(56,189,248,0.1),rgba(99,102,241,0.08));border:1px solid rgba(56,189,248,0.3);border-radius:14px;padding:18px;display:flex;flex-direction:column">' +
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
-      '<span style="font-size:28px">' + b.icon + '</span>' +
+      '<div style="width:44px;height:44px;border-radius:10px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">' + b.icon + '</div>' +
       '<div style="font-size:16px;font-weight:800;color:#fff">' + b.name + '</div></div>' +
       '<p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px;flex:1">' + b.desc + '</p>' +
       '<div style="display:flex;align-items:center;justify-content:space-between">' +
