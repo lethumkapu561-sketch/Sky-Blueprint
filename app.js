@@ -2559,13 +2559,20 @@ function compTab(type, elem) {
       '<div id="comp-audio-result"></div>';
   } else {
     body.innerHTML =
-      '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
-      '<p style="font-size:13px;color:#f59e0b;font-weight:600;margin-bottom:4px">For clips up to 2 minutes 30 seconds</p>' +
-      '<p style="font-size:12px;color:var(--muted);line-height:1.6">Video compression runs on your device, so it only works for short clips. For longer videos, use a proper app like VLC or an online tool on a computer.</p>' +
+      '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
+      '<p style="font-size:13px;color:#10b981;font-weight:600;margin-bottom:4px">Compressed on our secure server — nothing freezes on your device</p>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.6">Works for videos up to 250MB and several minutes long. Larger or longer videos may take a minute or two to process.</p>' +
       '</div>' +
+      '<div class="form-group"><label>Target file size</label>' +
+      '<select id="comp-video-target" style="width:100%;box-sizing:border-box">' +
+      '<option value="5">5 MB (smaller, lower quality)</option>' +
+      '<option value="10" selected>10 MB (good balance)</option>' +
+      '<option value="20">20 MB (better quality)</option>' +
+      '<option value="50">50 MB (best quality)</option>' +
+      '</select></div>' +
       '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
-      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Compress a Short Video</p>' +
-      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Max 20MB. Best for clips under 30 seconds.</p>' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Compress a Video</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">MP4, MOV and most video formats. Up to 250MB.</p>' +
       '<input type="file" id="comp-video-input" accept="video/*" onchange="handleVideoCompress()" style="display:none">' +
       '<button class="btn-primary" onclick="document.getElementById(\'comp-video-input\').click()">Choose Video</button>' +
       '</div>' +
@@ -2694,54 +2701,50 @@ function handleVideoCompress() {
   var file = input.files[0];
   if (!file) return;
   var result = document.getElementById('comp-video-result');
-  if (file.size > 200 * 1048576) {
-    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Video too large (' + fmtSize(file.size) + ')</p><p style="color:var(--muted);font-size:12px;margin-top:6px">This tool handles clips up to about 2:30 minutes. For bigger or longer videos, use a computer app like VLC or HandBrake.</p></div>';
+
+  if (file.size > 250 * 1048576) {
+    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Video too large (' + fmtSize(file.size) + ')</p><p style="color:var(--muted);font-size:12px;margin-top:6px">Please choose a video under 250MB.</p></div>';
     return;
   }
-  result.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Compressing video... for longer clips this can take a minute or two. Please keep this page open.</p>';
 
-  var url = URL.createObjectURL(file);
-  var video = document.createElement('video');
-  video.muted = true; video.playsInline = true;
-  video.src = url;
-  video.onloadedmetadata = function() {
-    if (video.duration > 150) {
-      result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Video is too long (' + Math.round(video.duration) + 's)</p><p style="color:var(--muted);font-size:12px;margin-top:6px">This tool handles clips up to 2 minutes 30 seconds. Please trim it first or use a computer app for longer videos.</p></div>';
-      return;
-    }
-    var scale = 0.6; // reduce dimensions to shrink size
-    var w = Math.round(video.videoWidth * scale), h = Math.round(video.videoHeight * scale);
-    var canvas = document.createElement('canvas');
-    canvas.width = w; canvas.height = h;
-    var ctx = canvas.getContext('2d');
-    var stream = canvas.captureStream(24);
-    var mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp8') ? 'video/webm;codecs=vp8' : 'video/webm';
-    var recorder = new MediaRecorder(stream, { mimeType: mimeType, videoBitsPerSecond: 800000 });
-    var chunks = [];
-    recorder.ondataavailable = function(e){ if (e.data.size) chunks.push(e.data); };
-    recorder.onstop = function() {
-      var blob = new Blob(chunks, { type: 'video/webm' });
-      var origSize = file.size, newSize = blob.size;
-      var saved = Math.max(0, Math.round((1 - newSize/origSize) * 100));
-      var dl = URL.createObjectURL(blob);
-      var fname = (file.name.replace(/\.[^.]+$/, '') || 'video') + '-compressed.webm';
-      result.innerHTML =
-        '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:18px;text-align:center">' +
-        '<p style="color:#10b981;font-weight:700;font-size:15px;margin-bottom:10px">' + (saved > 0 ? 'Done! Saved ' + saved + '%' : 'Compressed') + '</p>' +
-        '<p style="font-size:13px;color:var(--muted);margin-bottom:4px">Original: ' + fmtSize(origSize) + '</p>' +
-        '<p style="font-size:13px;color:#fff;margin-bottom:14px">Compressed: ' + fmtSize(newSize) + ' (.webm)</p>' +
-        '<a href="' + dl + '" download="' + fname + '" class="btn-primary" style="text-decoration:none;display:inline-block">Download Compressed Video</a>' +
-        '</div>';
-    };
-    var ctxDraw = function(){ if (!video.paused && !video.ended) { ctx.drawImage(video, 0, 0, w, h); requestAnimationFrame(ctxDraw); } };
-    recorder.start();
-    video.play();
-    ctxDraw();
-    video.onended = function(){ recorder.stop(); };
-    // Safety: stop after 60s max
-    setTimeout(function(){ if (recorder.state === 'recording') { video.pause(); recorder.stop(); } }, 160000);
-  };
-  video.onerror = function(){ result.innerHTML = '<p style="color:#f87171;text-align:center">Could not read this video.</p>'; };
+  var targetMB = (document.getElementById('comp-video-target') || {value:'10'}).value;
+
+  result.innerHTML =
+    '<div style="text-align:center;padding:20px">' +
+    '<div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:14px"></div>' +
+    '<p style="color:var(--muted)">Compressing your video on our server... this can take a minute or two for longer clips. Please keep this page open.</p>' +
+    '</div>';
+
+  var formData = new FormData();
+  formData.append('video', file);
+  formData.append('targetMB', targetMB);
+
+  var origSize = file.size;
+
+  fetch(BACKEND_URL + '/api/compress-video', {
+    method: 'POST',
+    body: formData
+  })
+  .then(function(r) {
+    if (!r.ok) { return r.json().then(function(d){ throw new Error(d.error || 'Compression failed'); }); }
+    return r.blob();
+  })
+  .then(function(blob) {
+    var newSize = blob.size;
+    var saved = Math.max(0, Math.round((1 - newSize/origSize) * 100));
+    var url = URL.createObjectURL(blob);
+    var fname = (file.name.replace(/\.[^.]+$/, '') || 'video') + '-compressed.mp4';
+    result.innerHTML =
+      '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:18px;text-align:center">' +
+      '<p style="color:#10b981;font-weight:700;font-size:15px;margin-bottom:10px">' + (saved > 0 ? 'Done! Saved ' + saved + '%' : 'Compressed') + '</p>' +
+      '<p style="font-size:13px;color:var(--muted);margin-bottom:4px">Original: ' + fmtSize(origSize) + '</p>' +
+      '<p style="font-size:13px;color:#fff;margin-bottom:14px">Compressed: ' + fmtSize(newSize) + ' (.mp4)</p>' +
+      '<a href="' + url + '" download="' + fname + '" class="btn-primary" style="text-decoration:none;display:inline-block">Download Compressed Video</a>' +
+      '</div>';
+  })
+  .catch(function(err) {
+    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Could not compress this video</p><p style="color:var(--muted);font-size:12px;margin-top:6px">' + (err.message || 'Please try again or use a different file.') + '</p></div>';
+  });
 }
 
 function renderPDFTools(el) {
