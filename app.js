@@ -467,6 +467,7 @@ function openTool(name) {
     'templates': 'Templates Store',
     'pdf-tools': 'PDF Tools',
     'customers': 'Customer Manager',
+    'compressor': 'File Compressor',
   };
   document.getElementById('tool-page-title').textContent = titles[name] || 'Tool';
   const body = document.getElementById('tool-page-body');
@@ -483,6 +484,7 @@ function openTool(name) {
     'templates': renderTemplates,
     'pdf-tools': renderPDFTools,
     'customers': renderCustomerManager,
+    'compressor': renderCompressor,
   };
   // SA Map and Templates Store are free to browse - skip subscription check
   if (name !== 'sa-map' && name !== 'templates' && isTrialExpired(currentUser)) {
@@ -2514,6 +2516,230 @@ function deleteCustomer(id, name) {
   .catch(function(){ alert('Could not delete. Try again.'); });
 }
 
+function renderCompressor(el) {
+  el.innerHTML =
+    '<div class="tool-screen">' +
+    '<h2>File Compressor</h2>' +
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Make your images, audio and short videos smaller — right on your device.</p>' +
+    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Private & secure. Your files never leave your device.</p>' +
+    '<div class="pdf-tabs" style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">' +
+    '<div class="tab active" onclick="compTab(\'image\',this)">Image</div>' +
+    '<div class="tab" onclick="compTab(\'audio\',this)">Audio</div>' +
+    '<div class="tab" onclick="compTab(\'video\',this)">Video</div>' +
+    '</div>' +
+    '<div id="comp-body"></div>' +
+    '</div>';
+  compTab('image', document.querySelector('.pdf-tabs .tab'));
+}
+
+function compTab(type, elem) {
+  document.querySelectorAll('#tool-page-body .tab').forEach(function(t){ t.classList.remove('active'); });
+  if (elem) elem.classList.add('active');
+  var body = document.getElementById('comp-body');
+
+  if (type === 'image') {
+    body.innerHTML =
+      '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Compress an Image</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">JPG or PNG. Makes photos smaller for WhatsApp, email, uploads.</p>' +
+      '<input type="file" id="comp-img-input" accept="image/*" onchange="handleImageCompress()" style="display:none">' +
+      '<button class="btn-primary" onclick="document.getElementById(\'comp-img-input\').click()">Choose Image</button>' +
+      '</div>' +
+      '<div class="form-group"><label>Quality: <span id="comp-q-val">70%</span> (lower = smaller file)</label>' +
+      '<input type="range" id="comp-quality" min="20" max="95" value="70" oninput="document.getElementById(\'comp-q-val\').textContent=this.value+\'%\'" style="width:100%"></div>' +
+      '<div id="comp-img-result"></div>';
+  } else if (type === 'audio') {
+    body.innerHTML =
+      '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Compress Audio</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Up to 20MB. Reduces audio file size (MP3, WAV, M4A).</p>' +
+      '<input type="file" id="comp-audio-input" accept="audio/*" onchange="handleAudioCompress()" style="display:none">' +
+      '<button class="btn-primary" onclick="document.getElementById(\'comp-audio-input\').click()">Choose Audio File</button>' +
+      '</div>' +
+      '<div id="comp-audio-result"></div>';
+  } else {
+    body.innerHTML =
+      '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
+      '<p style="font-size:13px;color:#f59e0b;font-weight:600;margin-bottom:4px">For short clips only (under 20MB)</p>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.6">Video compression runs on your device, so it only works for short clips. For longer videos, use a proper app like VLC or an online tool on a computer.</p>' +
+      '</div>' +
+      '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Compress a Short Video</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Max 20MB. Best for clips under 30 seconds.</p>' +
+      '<input type="file" id="comp-video-input" accept="video/*" onchange="handleVideoCompress()" style="display:none">' +
+      '<button class="btn-primary" onclick="document.getElementById(\'comp-video-input\').click()">Choose Video</button>' +
+      '</div>' +
+      '<div id="comp-video-result"></div>';
+  }
+}
+
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(2) + ' MB';
+}
+
+function handleImageCompress() {
+  var input = document.getElementById('comp-img-input');
+  var file = input.files[0];
+  if (!file) return;
+  var result = document.getElementById('comp-img-result');
+  result.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Compressing...</p>';
+  var quality = parseInt(document.getElementById('comp-quality').value) / 100;
+  var origSize = file.size;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      // Optionally scale down very large images
+      var maxDim = 1920;
+      var w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(function(blob) {
+        if (!blob) { result.innerHTML = '<p style="color:#f87171;text-align:center">Could not compress this image.</p>'; return; }
+        var newSize = blob.size;
+        var saved = Math.max(0, Math.round((1 - newSize/origSize) * 100));
+        var url = URL.createObjectURL(blob);
+        var fname = (file.name.replace(/\.[^.]+$/, '') || 'image') + '-compressed.jpg';
+        result.innerHTML =
+          '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:18px;text-align:center">' +
+          '<p style="color:#10b981;font-weight:700;font-size:15px;margin-bottom:10px">Done! Saved ' + saved + '%</p>' +
+          '<p style="font-size:13px;color:var(--muted);margin-bottom:4px">Original: ' + fmtSize(origSize) + '</p>' +
+          '<p style="font-size:13px;color:#fff;margin-bottom:14px">Compressed: ' + fmtSize(newSize) + '</p>' +
+          '<a href="' + url + '" download="' + fname + '" class="btn-primary" style="text-decoration:none;display:inline-block">Download Compressed Image</a>' +
+          '</div>';
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = function(){ result.innerHTML = '<p style="color:#f87171;text-align:center">Could not read this image.</p>'; };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleAudioCompress() {
+  var input = document.getElementById('comp-audio-input');
+  var file = input.files[0];
+  if (!file) return;
+  var result = document.getElementById('comp-audio-result');
+  if (file.size > 20 * 1048576) {
+    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">File too large (' + fmtSize(file.size) + ')</p><p style="color:var(--muted);font-size:12px;margin-top:6px">Please choose an audio file under 20MB.</p></div>';
+    return;
+  }
+  result.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Processing audio...</p>';
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) { result.innerHTML = '<p style="color:#f87171;text-align:center">Your browser does not support audio processing.</p>'; return; }
+    var actx = new AudioCtx();
+    actx.decodeAudioData(e.target.result.slice(0), function(buffer) {
+      // Downsample to mono 22050Hz to reduce size
+      var targetRate = 22050;
+      var length = Math.round(buffer.duration * targetRate);
+      var offline = new OfflineAudioContext(1, length, targetRate);
+      var src = offline.createBufferSource();
+      src.buffer = buffer;
+      src.connect(offline.destination);
+      src.start();
+      offline.startRendering().then(function(rendered) {
+        var wav = audioBufferToWav(rendered);
+        var blob = new Blob([wav], { type: 'audio/wav' });
+        var origSize = file.size, newSize = blob.size;
+        var saved = Math.max(0, Math.round((1 - newSize/origSize) * 100));
+        var url = URL.createObjectURL(blob);
+        var fname = (file.name.replace(/\.[^.]+$/, '') || 'audio') + '-compressed.wav';
+        result.innerHTML =
+          '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:18px;text-align:center">' +
+          '<p style="color:#10b981;font-weight:700;font-size:15px;margin-bottom:10px">' + (saved > 0 ? 'Done! Saved ' + saved + '%' : 'Processed') + '</p>' +
+          '<p style="font-size:13px;color:var(--muted);margin-bottom:4px">Original: ' + fmtSize(origSize) + '</p>' +
+          '<p style="font-size:13px;color:#fff;margin-bottom:14px">Compressed: ' + fmtSize(newSize) + '</p>' +
+          '<a href="' + url + '" download="' + fname + '" class="btn-primary" style="text-decoration:none;display:inline-block">Download Compressed Audio</a>' +
+          '</div>';
+      });
+    }, function(){ result.innerHTML = '<p style="color:#f87171;text-align:center">Could not process this audio file.</p>'; });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function audioBufferToWav(buffer) {
+  var numCh = buffer.numberOfChannels, len = buffer.length * numCh * 2 + 44;
+  var out = new DataView(new ArrayBuffer(len));
+  var ch = [], offset = 0, pos = 0;
+  function setStr(s){ for(var i=0;i<s.length;i++) out.setUint8(pos++, s.charCodeAt(i)); }
+  function set16(d){ out.setUint16(pos, d, true); pos += 2; }
+  function set32(d){ out.setUint32(pos, d, true); pos += 4; }
+  setStr('RIFF'); set32(len-8); setStr('WAVE'); setStr('fmt '); set32(16); set16(1); set16(numCh);
+  set32(buffer.sampleRate); set32(buffer.sampleRate*2*numCh); set16(numCh*2); set16(16); setStr('data'); set32(len-44-8);
+  for (var i=0;i<numCh;i++) ch.push(buffer.getChannelData(i));
+  while (offset < buffer.length) {
+    for (var c=0;c<numCh;c++) {
+      var s = Math.max(-1, Math.min(1, ch[c][offset]));
+      out.setInt16(pos, s<0 ? s*0x8000 : s*0x7FFF, true); pos += 2;
+    }
+    offset++;
+  }
+  return out.buffer;
+}
+
+function handleVideoCompress() {
+  var input = document.getElementById('comp-video-input');
+  var file = input.files[0];
+  if (!file) return;
+  var result = document.getElementById('comp-video-result');
+  if (file.size > 20 * 1048576) {
+    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Video too large (' + fmtSize(file.size) + ')</p><p style="color:var(--muted);font-size:12px;margin-top:6px">This tool handles clips under 20MB. For bigger videos, use a computer app like VLC or HandBrake.</p></div>';
+    return;
+  }
+  result.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Compressing video... this may take a moment, please wait.</p>';
+
+  var url = URL.createObjectURL(file);
+  var video = document.createElement('video');
+  video.muted = true; video.playsInline = true;
+  video.src = url;
+  video.onloadedmetadata = function() {
+    var scale = 0.6; // reduce dimensions to shrink size
+    var w = Math.round(video.videoWidth * scale), h = Math.round(video.videoHeight * scale);
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    var stream = canvas.captureStream(24);
+    var mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp8') ? 'video/webm;codecs=vp8' : 'video/webm';
+    var recorder = new MediaRecorder(stream, { mimeType: mimeType, videoBitsPerSecond: 800000 });
+    var chunks = [];
+    recorder.ondataavailable = function(e){ if (e.data.size) chunks.push(e.data); };
+    recorder.onstop = function() {
+      var blob = new Blob(chunks, { type: 'video/webm' });
+      var origSize = file.size, newSize = blob.size;
+      var saved = Math.max(0, Math.round((1 - newSize/origSize) * 100));
+      var dl = URL.createObjectURL(blob);
+      var fname = (file.name.replace(/\.[^.]+$/, '') || 'video') + '-compressed.webm';
+      result.innerHTML =
+        '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:18px;text-align:center">' +
+        '<p style="color:#10b981;font-weight:700;font-size:15px;margin-bottom:10px">' + (saved > 0 ? 'Done! Saved ' + saved + '%' : 'Compressed') + '</p>' +
+        '<p style="font-size:13px;color:var(--muted);margin-bottom:4px">Original: ' + fmtSize(origSize) + '</p>' +
+        '<p style="font-size:13px;color:#fff;margin-bottom:14px">Compressed: ' + fmtSize(newSize) + ' (.webm)</p>' +
+        '<a href="' + dl + '" download="' + fname + '" class="btn-primary" style="text-decoration:none;display:inline-block">Download Compressed Video</a>' +
+        '</div>';
+    };
+    var ctxDraw = function(){ if (!video.paused && !video.ended) { ctx.drawImage(video, 0, 0, w, h); requestAnimationFrame(ctxDraw); } };
+    recorder.start();
+    video.play();
+    ctxDraw();
+    video.onended = function(){ recorder.stop(); };
+    // Safety: stop after 60s max
+    setTimeout(function(){ if (recorder.state === 'recording') { video.pause(); recorder.stop(); } }, 60000);
+  };
+  video.onerror = function(){ result.innerHTML = '<p style="color:#f87171;text-align:center">Could not read this video.</p>'; };
+}
+
 function renderPDFTools(el) {
   el.innerHTML =
     '<div class="tool-screen">' +
@@ -4233,7 +4459,7 @@ async function startGuide() {
 }
 
 async function explainPlatform() {
-  await guideMsg('Sky Blueprint is a South African digital platform with <strong>11 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
+  await guideMsg('Sky Blueprint is a South African digital platform with <strong>12 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
   guideOptions([
     { label: '🚀 Let me start using the tools!', action: showToolMenu },
     { label: '💰 Tell me about pricing', action: explainPricing },
