@@ -663,7 +663,7 @@ function renderWebsiteBuilder(el) {
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:linear-gradient(135deg,rgba(168,85,247,0.06),rgba(99,102,241,0.05));border:1px solid rgba(168,85,247,0.25);border-radius:12px;padding:16px">
           <input type="checkbox" id="wb-premium" onchange="updateWbPrice()" style="width:18px;height:18px;accent-color:#a855f7;cursor:pointer;margin-top:2px">
           <span style="flex:1">
-            <strong style="color:#fff;font-size:14px">⭐ Upgrade to Premium — R3,500 all-inclusive</strong><br>
+            <strong style="color:#fff;font-size:14px">⭐ Upgrade to Premium — R5,000 all-inclusive</strong><br>
             <span style="font-size:12px;color:var(--muted);line-height:1.7;display:block;margin-top:6px">
               Everything done for you: up to 5 pages, online payment setup (Paystack), custom favicon, .co.za domain (1st year free), business email setup, and 1 month priority support. No extra fees.
             </span>
