@@ -99,15 +99,15 @@ function updateNav() {
     if (mmOut) mmOut.style.display = 'none';
     if (mmIn) mmIn.style.display = 'block';
 
-    if (username) username.innerHTML = '👤 ' + (u.fname || 'My Account');
-    if (mmName) mmName.textContent = '👤 ' + (u.fname || '') + ' ' + (u.lname || '');
+    if (username) username.innerHTML = '' + (u.fname || 'My Account');
+    if (mmName) mmName.textContent = '' + (u.fname || '') + ' ' + (u.lname || '');
 
     // Build the badge text/colour once, use for both desktop + mobile
     var bText, bBg, bColor;
-    if (u.plan === 'owner') { bText='👑 Owner'; bBg='rgba(245,158,11,0.15)'; bColor='#f59e0b'; }
+    if (u.plan === 'owner') { bText='Owner'; bBg='rgba(245,158,11,0.15)'; bColor='#f59e0b'; }
     else if (u.plan === 'monthly' || u.plan === 'yearly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') { bText='✅ Active Plan'; bBg='rgba(16,185,129,0.15)'; bColor='#10b981'; }
-    else if (u.plan === 'cancelled') { bText='⏳ Plan Ended'; bBg='rgba(239,68,68,0.15)'; bColor='#f87171'; }
-    else { bText='🔒 Subscribe · R55/month'; bBg='rgba(245,158,11,0.15)'; bColor='#f59e0b'; }
+    else if (u.plan === 'cancelled') { bText='Plan Ended'; bBg='rgba(239,68,68,0.15)'; bColor='#f87171'; }
+    else { bText='Subscribe · R55/month'; bBg='rgba(245,158,11,0.15)'; bColor='#f59e0b'; }
 
     if (badge) { badge.textContent=bText; badge.style.background=bBg; badge.style.color=bColor; }
     if (mmBadge) { mmBadge.textContent=bText; mmBadge.style.background=bBg; mmBadge.style.color=bColor; }
@@ -128,7 +128,7 @@ function updateDashBanner() {
   var u = currentUser;
 
   if (u.plan === 'owner') {
-    banner.innerHTML = '👑 <strong>Owner Account</strong> — Full free access to all tools, forever.';
+    banner.innerHTML = '<strong>Owner Account</strong> — Full free access to all tools, forever.';
     banner.style.background = 'rgba(245,158,11,0.08)';
     banner.style.borderColor = 'rgba(245,158,11,0.3)';
   } else if (u.plan === 'monthly' || u.plan === 'yearly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
@@ -136,13 +136,13 @@ function updateDashBanner() {
     banner.style.background = 'rgba(16,185,129,0.08)';
     banner.style.borderColor = 'rgba(16,185,129,0.3)';
   } else if (u.plan === 'cancelled') {
-    banner.innerHTML = '⏳ <strong>Plan Ended</strong> — Re-subscribe to use the tools again. ' +
+    banner.innerHTML = '<strong>Plan Ended</strong> — Re-subscribe to use the tools again. ' +
       '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
     banner.style.background = 'rgba(239,68,68,0.08)';
     banner.style.borderColor = 'rgba(239,68,68,0.3)';
   } else {
     // No free trial - subscribe to unlock
-    banner.innerHTML = '🔒 <strong>Subscribe to unlock all tools</strong> — just R55/month, cancel anytime. ' +
+    banner.innerHTML = '<strong>Subscribe to unlock all tools</strong> — just R55/month, cancel anytime. ' +
       '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
     banner.style.background = 'rgba(245,158,11,0.08)';
     banner.style.borderColor = 'rgba(245,158,11,0.3)';
@@ -175,10 +175,10 @@ function togglePass(inputId, btn) {
   if (!input) return;
   if (input.type === 'password') {
     input.type = 'text';
-    btn.textContent = '🙈';
+    btn.textContent = '';
   } else {
     input.type = 'password';
-    btn.textContent = '👁️';
+    btn.textContent = '️';
   }
 }
 
@@ -201,7 +201,7 @@ function doLogin() {
     safeStorage.setItem('sb_current', JSON.stringify(currentUser));
 
     if (currentUser.plan === 'owner') {
-      document.getElementById('dash-greeting').textContent = 'Welcome back, Owner 👑 Wongalethu!';
+      document.getElementById('dash-greeting').textContent = 'Welcome back, Owner Wongalethu!';
     } else {
       document.getElementById('dash-greeting').textContent = 'Hi ' + currentUser.fname + ' ' + (currentUser.lname||'') + ' Welcome back!';
     }
@@ -240,10 +240,10 @@ function doSignup() {
     safeStorage.setItem('sb_token', res.d.token);
     safeStorage.setItem('sb_current', JSON.stringify(currentUser));
 
-    document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' 👋 Welcome to Sky Blueprint!';
+    document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' Welcome to Sky Blueprint!';
     var banner = document.getElementById('trial-banner');
     if (banner) {
-      banner.innerHTML = '🎉 <strong>Account Created!</strong> Subscribe to unlock all tools. ' +
+      banner.innerHTML = '<strong>Account Created!</strong> Subscribe to unlock all tools. ' +
         '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">Subscribe R55/month</button>';
       banner.style.background = 'rgba(16,185,129,0.08)';
       banner.style.borderColor = 'rgba(16,185,129,0.3)';
@@ -283,13 +283,13 @@ function showAccount() {
   // Calculate trial days or subscription info
   var statusHTML = '';
   if (u.plan === 'owner') {
-    statusHTML = '<div style="display:inline-block;background:rgba(245,158,11,0.15);color:#f59e0b;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">👑 OWNER</div>';
+    statusHTML = '<div style="display:inline-block;background:rgba(245,158,11,0.15);color:#f59e0b;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">OWNER</div>';
   } else if (u.plan === 'monthly' || u.plan === 'yearly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
     statusHTML = '<div style="display:inline-block;background:rgba(16,185,129,0.15);color:#10b981;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">✅ ACTIVE</div>';
   } else {
     var joined = u.joined || Date.now();
     var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined) / (1000*60*60*24)));
-    statusHTML = '<div style="display:inline-block;background:rgba(56,189,248,0.15);color:#38bdf8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">⏳ TRIAL — ' + daysLeft + ' DAYS LEFT</div>';
+    statusHTML = '<div style="display:inline-block;background:rgba(56,189,248,0.15);color:#38bdf8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">TRIAL — ' + daysLeft + ' DAYS LEFT</div>';
   }
 
   var joinedDate = u.joined ? new Date(u.joined).toLocaleDateString('en-ZA', {year:'numeric',month:'long',day:'numeric'}) : 'Recently';
@@ -306,10 +306,10 @@ function showAccount() {
     '</div>' +
 
     '<div style="display:flex;flex-direction:column;gap:12px">' +
-    accountRow('📧', 'Email', u.email) +
-    (u.phone ? accountRow('📱', 'Phone', u.phone) : '') +
-    accountRow('💳', 'Current Plan', planName) +
-    accountRow('📅', 'Member Since', joinedDate) +
+    accountRow('', 'Email', u.email) +
+    (u.phone ? accountRow('', 'Phone', u.phone) : '') +
+    accountRow('', 'Current Plan', planName) +
+    accountRow('', 'Member Since', joinedDate) +
     '</div>' +
     '</div>' +
 
@@ -328,7 +328,7 @@ function showAccount() {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">You have the 3-Year Plan (R1,980/year). Enjoy all tools.</p>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
   } else if (u.plan === 'owner') {
-    html += '<p style="font-size:13px;color:#f59e0b">👑 You are the owner. You have full free access to everything, forever.</p>';
+    html += '<p style="font-size:13px;color:#f59e0b">You are the owner. You have full free access to everything, forever.</p>';
   }
 
   html += '</div>' +
@@ -362,7 +362,7 @@ function cancelPlan() {
   body.innerHTML =
     '<div style="max-width:560px;margin:0 auto">' +
     '<div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:16px;padding:28px">' +
-    '<div style="font-size:44px;text-align:center;margin-bottom:14px">😔</div>' +
+    '<div style="font-size:44px;text-align:center;margin-bottom:14px"></div>' +
     '<h3 style="color:#fff;font-size:19px;text-align:center;margin-bottom:8px">Cancel Your Subscription</h3>' +
     '<p style="color:var(--muted);font-size:13px;text-align:center;line-height:1.7;margin-bottom:20px">We are sorry to see you go. To stop your R55/month charges, follow these quick steps — your subscription is managed securely by Paystack.</p>' +
 
@@ -375,7 +375,7 @@ function cancelPlan() {
     '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#38bdf8">4.</strong> Click <strong style="color:#f87171">"Cancel Subscription"</strong> and confirm</div>' +
     '</div></div>' +
 
-    '<p style="font-size:12px;color:#64748b;line-height:1.6;margin-bottom:18px">💡 You can also click "Manage Subscription" in any payment reminder email Paystack sends you before each charge. After cancelling, you keep access until your current paid month ends.</p>' +
+    '<p style="font-size:12px;color:#64748b;line-height:1.6;margin-bottom:18px">You can also click "Manage Subscription" in any payment reminder email Paystack sends you before each charge. After cancelling, you keep access until your current paid month ends.</p>' +
 
     '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:10px" onclick="confirmCancelOnFile()">I Have Cancelled on Paystack</button>' +
     '<button style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px" onclick="showAccount()">← Keep My Subscription</button>' +
@@ -439,16 +439,16 @@ function isTrialExpired(user) {
 function showTrialExpired() {
   var body = document.getElementById('tool-page-body');
   if (body) {
-    document.getElementById('tool-page-title').textContent = '🔒 Subscribe to Unlock';
+    document.getElementById('tool-page-title').textContent = 'Subscribe to Unlock';
     body.innerHTML =
       '<div class="tool-screen" style="text-align:center;padding:40px 20px">' +
-      '<div style="font-size:56px;margin-bottom:16px">🔒</div>' +
+      '<div style="font-size:56px;margin-bottom:16px"></div>' +
       '<h2 style="color:#fff;margin-bottom:10px">Subscribe to Unlock This Tool</h2>' +
       '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all premium Sky Blueprint tools for just <strong style="color:#38bdf8">R55/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
       '<div style="max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:10px">' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">Pay Once — R1,980 for 3 Years</button>' +
-      '<button style="width:100%;box-sizing:border-box;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px;margin-top:6px" onclick="openTool(\'sa-map\')">🗺️ Use SA Map (Free)</button>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px;margin-top:6px" onclick="openTool(\'sa-map\')">Use SA Map (Free)</button>' +
       '</div></div>';
     showPage('tool');
   }
@@ -524,27 +524,27 @@ function renderWebsiteBuilder(el) {
         <div class="form-group"><label>Business Type *</label>
           <select id="wb-cat">
             <option value="">Select your business type</option>
-            <optgroup label="🛍️ Retail & Commerce">
+            <optgroup label="Retail & Commerce">
               <option>General Retail / Spaza Shop</option>
               <option>Clothing & Fashion Store</option>
               <option>Furniture & Home Decor</option>
               <option>Electronics & Gadgets</option>
               <option>Online Store / E-commerce</option>
             </optgroup>
-            <optgroup label="💻 Technology">
+            <optgroup label="Technology">
               <option>IT Support & Repairs</option>
               <option>Software Development</option>
               <option>Cellphone Repairs</option>
               <option>CCTV & Security Systems</option>
             </optgroup>
-            <optgroup label="🍽️ Food & Hospitality">
+            <optgroup label="Food & Hospitality">
               <option>Restaurant / Takeaway</option>
               <option>Catering Services</option>
               <option>Bakery / Confectionery</option>
               <option>Coffee Shop / Cafe</option>
               <option>Event Catering</option>
             </optgroup>
-            <optgroup label="💅 Beauty & Wellness">
+            <optgroup label="Beauty & Wellness">
               <option>Hair Salon</option>
               <option>Nail Salon</option>
               <option>Barbershop</option>
@@ -552,7 +552,7 @@ function renderWebsiteBuilder(el) {
               <option>Makeup Artist</option>
               <option>Fitness & Personal Training</option>
             </optgroup>
-            <optgroup label="🏗️ Construction & Trades">
+            <optgroup label="Construction & Trades">
               <option>Construction & Building</option>
               <option>Plumbing Services</option>
               <option>Electrical Services</option>
@@ -560,21 +560,21 @@ function renderWebsiteBuilder(el) {
               <option>Cleaning Services</option>
               <option>Landscaping & Gardening</option>
             </optgroup>
-            <optgroup label="🚗 Transport & Logistics">
+            <optgroup label="Transport & Logistics">
               <option>Taxi / Transport Service</option>
               <option>Courier & Delivery</option>
               <option>Car Wash & Detailing</option>
               <option>Panel Beating & Auto Repair</option>
               <option>Towing Services</option>
             </optgroup>
-            <optgroup label="❤️ Health & Medical">
+            <optgroup label="Health & Medical">
               <option>Medical Practice / Clinic</option>
               <option>Pharmacy</option>
               <option>Physiotherapy</option>
               <option>Traditional Healer</option>
               <option>Home Care Services</option>
             </optgroup>
-            <optgroup label="📚 Education & Training">
+            <optgroup label="Education & Training">
               <option>Tutoring / Extra Lessons</option>
               <option>Daycare / Creche</option>
               <option>Skills Training Centre</option>
@@ -593,14 +593,14 @@ function renderWebsiteBuilder(el) {
               <option>Community Centre</option>
               <option>Charity / Foundation</option>
             </optgroup>
-            <optgroup label="🎨 Creative & Events">
+            <optgroup label="Creative & Events">
               <option>Photography & Videography</option>
               <option>Graphic Design</option>
               <option>Event Planning</option>
               <option>Music & Entertainment</option>
               <option>Art & Crafts</option>
             </optgroup>
-            <optgroup label="🌱 Agriculture">
+            <optgroup label="Agriculture">
               <option>Farming & Agriculture</option>
               <option>Poultry & Livestock</option>
               <option>Garden Supplies</option>
@@ -665,7 +665,7 @@ function renderWebsiteBuilder(el) {
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:linear-gradient(135deg,rgba(168,85,247,0.06),rgba(99,102,241,0.05));border:1px solid rgba(168,85,247,0.25);border-radius:12px;padding:16px">
           <input type="checkbox" id="wb-premium" onchange="updateWbPrice()" style="width:18px;height:18px;accent-color:#a855f7;cursor:pointer;margin-top:2px">
           <span style="flex:1">
-            <strong style="color:#fff;font-size:14px">⭐ Upgrade to Premium — R3,500 all-inclusive</strong><br>
+            <strong style="color:#fff;font-size:14px">Upgrade to Premium — R3,500 all-inclusive</strong><br>
             <span style="font-size:12px;color:var(--muted);line-height:1.7;display:block;margin-top:6px">
               Everything done for you: up to 5 pages, online payment setup (Paystack), custom favicon, .co.za domain (1st year free), business email setup, and 1 month priority support. No extra fees.
             </span>
@@ -734,7 +734,7 @@ function renderWebsiteBuilder(el) {
           <span style="font-size:13px;color:#a855f7;font-weight:600">+ Monthly Hosting</span>
           <span style="font-size:15px;font-weight:700;color:#a855f7">R55/month</span>
         </div>
-        <div style="margin-top:12px;font-size:11px;color:#64748b;line-height:1.6">💡 The once-off fee covers building your site. The R55/month keeps your website online, hosted, and maintained. Cancel anytime.</div>
+        <div style="margin-top:12px;font-size:11px;color:#64748b;line-height:1.6">The once-off fee covers building your site. The R55/month keeps your website online, hosted, and maintained. Cancel anytime.</div>
       </div>
 
       <!-- EXTRAS -->
@@ -758,7 +758,7 @@ function renderWebsiteBuilder(el) {
       </div>
 
       <button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:16px;padding:16px;margin-top:8px" onclick="submitWebsiteOrder()">
-        📤 Submit My Website Application
+        Submit My Website Application
       </button>
       <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px">
         Sky Blueprint will contact you within 24 hours to confirm. Website delivered within 72 hours guaranteed.
@@ -767,16 +767,16 @@ function renderWebsiteBuilder(el) {
 
     <div id="wb-success" style="display:none">
       <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:32px;text-align:center">
-        <div style="font-size:52px;margin-bottom:16px">🎉</div>
+        <div style="font-size:52px;margin-bottom:16px"></div>
         <h3 style="color:#10b981;font-size:22px;margin-bottom:10px">Application Submitted!</h3>
         <p style="color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.7">Your website application has been sent to Sky Blueprint. We will contact you within <strong style="color:#fff">24 hours</strong> to confirm all details and begin building your website.</p>
         <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:12px;padding:20px;margin-bottom:20px;text-align:left">
           <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px">What happens next:</div>
           <div style="display:flex;flex-direction:column;gap:10px">
-            <div style="font-size:13px;color:var(--muted)">📬 <strong style="color:#fff">Now</strong> — Application received by Sky Blueprint</div>
-            <div style="font-size:13px;color:var(--muted)">📞 <strong style="color:#fff">Within 24 hours</strong> — We call you to confirm all details</div>
-            <div style="font-size:13px;color:var(--muted)">🔨 <strong style="color:#fff">Hours 24–72</strong> — Your website is being designed and built</div>
-            <div style="font-size:13px;color:var(--muted)">🌐 <strong style="color:#fff">Hour 72</strong> — Website is live and delivered to you!</div>
+            <div style="font-size:13px;color:var(--muted)"><strong style="color:#fff">Now</strong> — Application received by Sky Blueprint</div>
+            <div style="font-size:13px;color:var(--muted)"><strong style="color:#fff">Within 24 hours</strong> — We call you to confirm all details</div>
+            <div style="font-size:13px;color:var(--muted)"><strong style="color:#fff">Hours 24–72</strong> — Your website is being designed and built</div>
+            <div style="font-size:13px;color:var(--muted)"><strong style="color:#fff">Hour 72</strong> — Website is live and delivered to you!</div>
           </div>
         </div>
         <div style="font-size:14px;color:var(--muted)">Contact us anytime: <strong style="color:#38bdf8">065 601 3544</strong></div>
@@ -925,17 +925,17 @@ function renderEmailCleaner(el) {
 
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
         <div class="email-provider-card" onclick="selectProvider('gmail',this)">
-          <div style="font-size:28px;margin-bottom:6px">📧</div>
+          <div style="font-size:28px;margin-bottom:6px"></div>
           <div style="font-size:13px;font-weight:700;color:#fff">Gmail</div>
           <div style="font-size:11px;color:var(--muted)">Google</div>
         </div>
         <div class="email-provider-card" onclick="selectProvider('outlook',this)">
-          <div style="font-size:28px;margin-bottom:6px">📬</div>
+          <div style="font-size:28px;margin-bottom:6px"></div>
           <div style="font-size:13px;font-weight:700;color:#fff">Outlook</div>
           <div style="font-size:11px;color:var(--muted)">Microsoft</div>
         </div>
         <div class="email-provider-card" onclick="selectProvider('yahoo',this)">
-          <div style="font-size:28px;margin-bottom:6px">📮</div>
+          <div style="font-size:28px;margin-bottom:6px"></div>
           <div style="font-size:13px;font-weight:700;color:#fff">Yahoo</div>
           <div style="font-size:11px;color:var(--muted)">Yahoo Mail</div>
         </div>
@@ -950,7 +950,7 @@ function renderEmailCleaner(el) {
           <label id="pass-label">Password / App Password</label>
           <div style="position:relative">
           <input type="password" id="ec-pass" placeholder="Your password" style="width:100%;box-sizing:border-box;padding-right:44px">
-          <button type="button" onclick="togglePass('ec-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:4px">👁️</button>
+          <button type="button" onclick="togglePass('ec-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:4px">️</button>
         </div>
           <div id="pass-hint" style="font-size:11px;color:#38bdf8;margin-top:6px;display:none"></div>
         </div>
@@ -968,7 +968,7 @@ function renderEmailCleaner(el) {
     <!-- SUMMARY TAB -->
     <div id="et-summary" style="display:none">
       <div style="text-align:center;padding:40px 20px;color:var(--muted)">
-        <div style="font-size:48px;margin-bottom:12px">📊</div>
+        <div style="font-size:48px;margin-bottom:12px"></div>
         <p>Connect your email first to see your Daily Summary</p>
       </div>
     </div>
@@ -976,7 +976,7 @@ function renderEmailCleaner(el) {
     <!-- BLOCKED TAB -->
     <div id="et-blocked" style="display:none">
       <div id="blocked-list"></div>
-      <button onclick="clearAllBlocked()" style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:10px;padding:12px;font-family:var(--font);cursor:pointer;font-size:13px;font-weight:600;margin-top:10px">🗑️ Unblock All Senders</button>
+      <button onclick="clearAllBlocked()" style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:10px;padding:12px;font-family:var(--font);cursor:pointer;font-size:13px;font-weight:600;margin-top:10px">Unblock All Senders</button>
     </div>
   </div>`;
 
@@ -1026,7 +1026,7 @@ function scanEmails() {
   // Show scanning animation
   document.getElementById('et-connect').innerHTML +=
     '<div id="ec-scanning" style="text-align:center;padding:30px;margin-top:16px">' +
-    '<div style="font-size:40px;margin-bottom:12px">🤖</div>' +
+    '<div style="font-size:40px;margin-bottom:12px"></div>' +
     '<div style="font-size:15px;font-weight:700;color:#38bdf8;margin-bottom:8px">AI Secretary is scanning your inbox...</div>' +
     '<div style="font-size:13px;color:var(--muted)">Sorting emails by priority — this takes about 30 seconds</div>' +
     '<div style="margin-top:16px;height:4px;background:rgba(56,189,248,0.1);border-radius:2px;overflow:hidden">' +
@@ -1122,8 +1122,8 @@ function showAIInbox(data, userEmail) {
 
   // Smart action buttons
   html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">' +
-    '<button onclick="deleteCategory(\'canwait\')" style="flex:1;min-width:120px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">🗑️ Delete Can Wait</button>' +
-    '<button onclick="deleteCategory(\'low\')" style="flex:1;min-width:120px;background:rgba(100,116,139,0.1);border:1px solid rgba(100,116,139,0.2);color:#94a3b8;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">🗑️ Delete Low Priority</button>' +
+    '<button onclick="deleteCategory(\'canwait\')" style="flex:1;min-width:120px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">Delete Can Wait</button>' +
+    '<button onclick="deleteCategory(\'low\')" style="flex:1;min-width:120px;background:rgba(100,116,139,0.1);border:1px solid rgba(100,116,139,0.2);color:#94a3b8;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">Delete Low Priority</button>' +
     '</div>';
 
   // Render each category
@@ -1211,7 +1211,7 @@ function buildDailySummary(cats, email) {
       '</div>';
   }
 
-  html += '<button onclick="emailTab(\'inbox\',document.querySelectorAll(\'.tab\')[1])" class="btn-primary" style="width:100%;box-sizing:border-box">📧 View Full Inbox</button>';
+  html += '<button onclick="emailTab(\'inbox\',document.querySelectorAll(\'.tab\')[1])" class="btn-primary" style="width:100%;box-sizing:border-box">View Full Inbox</button>';
 
   document.getElementById('et-summary').innerHTML = html;
 }
@@ -1288,7 +1288,7 @@ function loadBlockedList() {
   el.innerHTML = '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">Blocked Senders (' + blocked.length + ')</div>' +
     blocked.map(function(b, i) {
       return '<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:8px;padding:10px 14px;margin-bottom:8px">' +
-        '<span style="font-size:13px;color:#e2e8f0">🚫 ' + b + '</span>' +
+        '<span style="font-size:13px;color:#e2e8f0">' + b + '</span>' +
         '<button onclick="unblockSender(' + i + ')" style="background:none;border:1px solid rgba(255,255,255,0.1);color:#64748b;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-family:var(--font)">Unblock</button>' +
         '</div>';
     }).join('');
@@ -1342,14 +1342,14 @@ function connectEmail(provider) {
   var loginHTML = `
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:24px;margin-top:0">
       <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:40px;margin-bottom:8px">${provider==='gmail'?'📧':provider==='outlook'?'📬':'📮'}</div>
+        <div style="font-size:40px;margin-bottom:8px">${provider==='gmail'?'':provider==='outlook'?'':''}</div>
         <strong style="color:#fff;font-size:16px">Connect ${providerNames[provider]}</strong>
         <p style="color:var(--muted);font-size:13px;margin:4px 0 0">Enter your login details to connect</p>
       </div>
       <div class="form-group"><label>Email Address</label><input type="email" id="em-email" placeholder="your@${provider==='gmail'?'gmail.com':provider==='outlook'?'outlook.com':'yahoo.com'}"></div>
       <div class="form-group"><label>Password / App Password</label><input type="password" id="em-pass" placeholder="Enter your password"></div>
       <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:10px 14px;margin-bottom:16px">
-        <p style="font-size:11px;color:#f59e0b;margin:0">💡 For Gmail: use an App Password (Google Account → Security → App Passwords) for better security</p>
+        <p style="font-size:11px;color:#f59e0b;margin:0">For Gmail: use an App Password (Google Account → Security → App Passwords) for better security</p>
       </div>
       <button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="scanEmails('${provider}')">🔍 Scan My Inbox</button>
       <button onclick="emailTab('connect',document.querySelector('.tab'))" style="width:100%;background:none;border:none;color:var(--muted);margin-top:10px;cursor:pointer;font-family:var(--font);font-size:13px">← Back</button>
@@ -1366,7 +1366,7 @@ function connectEmail(provider) {
 function renderFindPhone(el) {
   el.innerHTML = `
   <div class="tool-screen" style="text-align:center;padding:40px 20px">
-    <div style="font-size:64px;margin-bottom:20px">🚧</div>
+    <div style="font-size:64px;margin-bottom:20px"></div>
     <h2 style="color:#fff;margin-bottom:12px">Find My Phone — Coming Soon</h2>
     <div style="display:inline-block;background:rgba(245,158,11,0.15);color:#f59e0b;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:24px">CURRENTLY UNAVAILABLE</div>
     <p style="color:var(--muted);font-size:14px;line-height:1.7;max-width:440px;margin:0 auto 24px">
@@ -1375,10 +1375,10 @@ function renderFindPhone(el) {
     <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:20px;max-width:440px;margin:0 auto 24px;text-align:left">
       <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px">What it will do when it launches:</div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="font-size:13px;color:var(--muted)">📍 Track your phone live on a South African map</div>
-        <div style="font-size:13px;color:var(--muted)">🔔 Make it ring loudly — even on silent</div>
-        <div style="font-size:13px;color:var(--muted)">🔒 Lock it remotely if lost or stolen</div>
-        <div style="font-size:13px;color:var(--muted)">🕐 See 7 days of location history</div>
+        <div style="font-size:13px;color:var(--muted)">Track your phone live on a South African map</div>
+        <div style="font-size:13px;color:var(--muted)">Make it ring loudly — even on silent</div>
+        <div style="font-size:13px;color:var(--muted)">Lock it remotely if lost or stolen</div>
+        <div style="font-size:13px;color:var(--muted)">See 7 days of location history</div>
       </div>
     </div>
     <p style="color:#64748b;font-size:13px;margin-bottom:24px">In the meantime, explore our other 7 tools — they are ready to use right now!</p>
@@ -1414,7 +1414,7 @@ function renderFindPhoneFull(el) {
 
     <div id="pt-reg">
       <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
-        <span style="font-size:24px">📱</span>
+        <span style="font-size:24px"></span>
         <div><strong style="color:#fff;display:block">Download Sky Blueprint App</strong><small style="color:var(--muted)">Install on your phone for live GPS tracking every 5 minutes</small></div>
         <button class="btn-primary" style="white-space:nowrap;flex-shrink:0;padding:8px 14px;font-size:12px" onclick="alert('App coming soon! We will email you the download link.')">Download</button>
       </div>
@@ -1430,7 +1430,7 @@ function renderFindPhoneFull(el) {
         <div class="form-group"><label>Device Color</label><input type="text" id="p-color" placeholder="Midnight Black"></div>
         <div class="form-group"><label>Purchase Date</label><input type="date" id="p-date"></div>
       </div>
-      <button class="btn-primary" style="width:100%" onclick="regDevice()">🔒 Register Device</button>
+      <button class="btn-primary" style="width:100%" onclick="regDevice()">Register Device</button>
       <div id="reg-msg" style="margin-top:14px"></div>
     </div>
 
@@ -1447,18 +1447,18 @@ function renderFindPhoneFull(el) {
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-        <button class="chip" onclick="simulateTrack()">📍 Locate My Device</button>
-        <button class="chip" onclick="getDirections()">🧭 Get Directions</button>
-        <button class="chip" onclick="streetView()">👁️ Street View</button>
-        <button class="chip" style="color:#f87171;border-color:rgba(239,68,68,0.3)" onclick="ringDevice()">🔔 Ring Device</button>
-        <button class="chip" style="color:#f87171;border-color:rgba(239,68,68,0.3)" onclick="lockDevice()">🔒 Lock Device</button>
-        <button class="chip" style="color:#ef4444;border-color:rgba(239,68,68,0.4)" onclick="wipeDevice()">🗑️ Remote Wipe</button>
+        <button class="chip" onclick="simulateTrack()">Locate My Device</button>
+        <button class="chip" onclick="getDirections()">Get Directions</button>
+        <button class="chip" onclick="streetView()">️ Street View</button>
+        <button class="chip" style="color:#f87171;border-color:rgba(239,68,68,0.3)" onclick="ringDevice()">Ring Device</button>
+        <button class="chip" style="color:#f87171;border-color:rgba(239,68,68,0.3)" onclick="lockDevice()">Lock Device</button>
+        <button class="chip" style="color:#ef4444;border-color:rgba(239,68,68,0.4)" onclick="wipeDevice()">Remote Wipe</button>
       </div>
       <div id="track-status"></div>
     </div>
 
     <div id="pt-history" style="display:none">
-      <h3 style="color:#fff;font-size:16px;margin-bottom:14px">📍 Location History — Last 7 Days</h3>
+      <h3 style="color:#fff;font-size:16px;margin-bottom:14px">Location History — Last 7 Days</h3>
       <div style="display:flex;flex-direction:column;gap:10px">
         ${[
           {time:'Today 14:32', loc:'Cape Town CBD, 8001', acc:'High accuracy', bat:'34%'},
@@ -1468,10 +1468,10 @@ function renderFindPhoneFull(el) {
           {time:'2 days ago 15:10', loc:'Mitchells Plain, Cape Town, 7785', acc:'High accuracy', bat:'91%'},
         ].map(h=>`
           <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px">
-            <span style="font-size:20px">📍</span>
+            <span style="font-size:20px"></span>
             <div style="flex:1">
               <strong style="color:#fff;font-size:13px;display:block">${h.loc}</strong>
-              <small style="color:var(--muted)">${h.time} · ${h.acc} · 🔋 ${h.bat}</small>
+              <small style="color:var(--muted)">${h.time} · ${h.acc} · ${h.bat}</small>
             </div>
             <button onclick="showLocOnMap('${h.loc}')" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);color:var(--sky);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11px;font-family:var(--font)">View</button>
           </div>`).join('')}
@@ -1509,7 +1509,7 @@ function simulateTrack() {
   s.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted)">🔍 Scanning GPS signal...</div>';
   setTimeout(function(){
     document.getElementById('track-iframe').src='https://www.google.com/maps?q=Cape+Town+City+Hall+South+Africa&output=embed';
-    s.innerHTML='<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px"><span style="font-size:24px">📍</span><div><strong style="color:#fff;display:block">Device located!</strong><small style="color:var(--muted)">Cape Town City Hall, Darling St, Cape Town CBD · 2 min ago · 🔋34%</small></div></div>';
+    s.innerHTML='<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px"><span style="font-size:24px"></span><div><strong style="color:#fff;display:block">Device located!</strong><small style="color:var(--muted)">Cape Town City Hall, Darling St, Cape Town CBD · 2 min ago · 34%</small></div></div>';
   },2500);
 }
 
@@ -1521,9 +1521,9 @@ function streetView() {
   document.getElementById('track-iframe').src='https://www.google.com/maps/embed?pb=!4v1!6m8!1m7!1sCAoSLEFGMVFpcE5HVkdKTFRUNVBhWTZ2NXZUMDV3!2m2!1d-33.9249!2d18.4241!3f0!4f0!5f0.7820865974627469';
 }
 
-function ringDevice()  { alert('🔔 Loud ringtone sent to your device! It will ring for 60 seconds even if on silent.'); }
-function lockDevice()  { if(confirm('Lock your device remotely? The screen will be locked with your PIN.')) alert('🔒 Device locked! Only your PIN can unlock it.'); }
-function wipeDevice()  { if(confirm('⚠️ WARNING: This will delete ALL data on your device permanently. Are you sure?')) { if(confirm('Last warning — this CANNOT be undone. Wipe device?')) alert('🗑️ Remote wipe initiated. All data will be erased within 5 minutes.'); } }
+function ringDevice()  { alert('Loud ringtone sent to your device! It will ring for 60 seconds even if on silent.'); }
+function lockDevice()  { if(confirm('Lock your device remotely? The screen will be locked with your PIN.')) alert('Device locked! Only your PIN can unlock it.'); }
+function wipeDevice()  { if(confirm('⚠️ WARNING: This will delete ALL data on your device permanently. Are you sure?')) { if(confirm('Last warning — this CANNOT be undone. Wipe device?')) alert('Remote wipe initiated. All data will be erased within 5 minutes.'); } }
 function showLocOnMap(loc) { document.getElementById('track-iframe').src='https://www.google.com/maps?q='+encodeURIComponent(loc)+'&output=embed'; phoneTab2('track',document.querySelectorAll('.tab')[1]); }
 
 
@@ -1536,7 +1536,7 @@ function renderAIMentor(el) {
     <h2>AI Business Mentor</h2>
     <p>Your 24/7 South African business coach. Ask anything about starting, growing or scaling your business.</p>
     <div class="chat-window" id="cw">
-      <div class="chat-bubble bot">👋 Hi! I'm your Sky Blueprint AI Business Mentor. I specialise in South African entrepreneurship — CIPC registration, SARS tax, SMME funding, BEE requirements, load shedding strategies and business growth. How can I help you today?</div>
+      <div class="chat-bubble bot">Hi! I'm your Sky Blueprint AI Business Mentor. I specialise in South African entrepreneurship — CIPC registration, SARS tax, SMME funding, BEE requirements, load shedding strategies and business growth. How can I help you today?</div>
     </div>
     <div class="chat-input-row">
       <input type="text" id="ci" placeholder="Ask me anything about your business..." onkeypress="if(event.key==='Enter')sendAI()">
@@ -1554,7 +1554,7 @@ async function sendAI() {
   if (!msg) return;
   inp.value = '';
   const cw = document.getElementById('cw');
-  cw.innerHTML += `<div class="chat-bubble user">${msg}</div><div class="chat-bubble bot" id="ai-typing">⏳ Thinking...</div>`;
+  cw.innerHTML += `<div class="chat-bubble user">${msg}</div><div class="chat-bubble bot" id="ai-typing">Thinking...</div>`;
   cw.scrollTop = cw.scrollHeight;
   aiHistory.push({role:'user',content:msg});
   try {
@@ -1604,7 +1604,7 @@ function renderCVBuilder(el) {
 
       <div class="cv-sec-title">Profile Photo (Optional)</div>
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
-        <div id="cv-photo-preview" style="width:72px;height:72px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">👤</div>
+        <div id="cv-photo-preview" style="width:72px;height:72px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0"></div>
         <div>
           <input type="file" id="cv-photo" accept="image/*" style="display:none" onchange="previewPhoto(this)">
           <button onclick="document.getElementById('cv-photo').click()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 16px;cursor:pointer;font-family:var(--font);font-size:13px">Upload Photo</button>
@@ -1664,7 +1664,7 @@ function renderCVBuilder(el) {
       <div class="cv-sec-title">Skills</div>
       <div class="form-group"><input type="text" id="cv-sk" placeholder="Microsoft Office, Customer Service, Driving Licence, Python..."></div>
 
-      <button class="btn-primary" style="width:100%;box-sizing:border-box;margin-top:8px" onclick="buildAndMatchCV()">🤖 Build CV & Find Matching Jobs</button>
+      <button class="btn-primary" style="width:100%;box-sizing:border-box;margin-top:8px" onclick="buildAndMatchCV()">Build CV & Find Matching Jobs</button>
       <div id="cv-msg" style="margin-top:14px"></div>
     </div>
 
@@ -1681,7 +1681,7 @@ function renderCVBuilder(el) {
     <div id="cvt-upload" style="display:none">
       <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Upload your existing CV — AI will read it, detect your level and find matching jobs.</p>
       <div style="border:2px dashed rgba(56,189,248,0.3);border-radius:14px;padding:32px;text-align:center;margin-bottom:20px">
-        <div style="font-size:40px;margin-bottom:12px">📄</div>
+        <div style="font-size:40px;margin-bottom:12px"></div>
         <p style="color:#fff;font-weight:600;margin-bottom:6px">Drop your CV here</p>
         <p style="color:var(--muted);font-size:13px;margin-bottom:16px">PDF, Word or Text file</p>
         <input type="file" id="cv-upload-file" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="uploadAndAnalyzeCV(this)">
@@ -1716,7 +1716,7 @@ function renderCoverLetterTab() {
     '<div class="cv-sec-title">Create Your Cover Letter</div>' +
     '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">Fill in your name and details in the "Build My CV" tab first. Then complete these fields and we create a professional cover letter that matches your CV.</p>' +
     '<div style="background:rgba(56,189,248,0.06);border-left:3px solid #38bdf8;border-radius:8px;padding:12px 14px;margin-bottom:16px">' +
-    '<div style="font-size:11px;font-weight:700;color:#38bdf8;margin-bottom:6px">💡 EXPERT TIPS (from 200+ HR managers):</div>' +
+    '<div style="font-size:11px;font-weight:700;color:#38bdf8;margin-bottom:6px">EXPERT TIPS (from 200+ HR managers):</div>' +
     '<div style="font-size:11px;color:var(--muted);line-height:1.6">• Tailor it to THIS job — generic letters get ignored<br>• Show what VALUE you bring, not just what you did<br>• Explain WHY this specific company<br>• Never lie — 86% of HR catch it</div>' +
     '</div>' +
     '<div class="form-group"><label>Company Name *</label><input type="text" id="cl-company" placeholder="e.g. Shoprite Holdings"></div>' +
@@ -1743,21 +1743,21 @@ function updateQualHint() {
   var val = document.getElementById('cv-qual-level').value;
   var hint = document.getElementById('qual-hint');
   var hints = {
-    grade9: '📌 Grade 9 qualifies you for basic labour, general worker and some learnership positions.',
-    grade10: '📌 Grade 10 qualifies you for general worker, domestic and basic trade assistant positions.',
-    grade11: '📌 Grade 11 qualifies you for junior clerk, retail assistant and basic admin positions.',
-    grade9: '📌 Grade 9 qualifies you for general worker, domestic worker and basic labour positions.',
-    grade10: '📌 Grade 10 qualifies you for general worker, retail packer and basic trade assistant positions.',
-    grade11: '📌 Grade 11 qualifies you for junior clerk, retail assistant and basic admin positions.',
-    matric: '📌 Matric (Grade 12) qualifies you for entry-level, learnership and junior positions.',
-    n4: '📌 N4 qualifies you for technical and vocational entry-level positions.',
-    n5: '📌 N5 qualifies you for skilled technical positions.',
-    n6: '📌 N6/Trade qualifies you for artisan, technician and trade positions.',
-    diploma: '📌 Diploma qualifies you for mid-level professional positions.',
-    degree: '📌 Degree qualifies you for professional and specialist positions.',
-    honours: '📌 Honours qualifies you for senior specialist and analyst positions.',
-    masters: '📌 Masters qualifies you for senior management and research positions.',
-    phd: '📌 PhD qualifies you for executive, research and academic positions.',
+    grade9: 'Grade 9 qualifies you for basic labour, general worker and some learnership positions.',
+    grade10: 'Grade 10 qualifies you for general worker, domestic and basic trade assistant positions.',
+    grade11: 'Grade 11 qualifies you for junior clerk, retail assistant and basic admin positions.',
+    grade9: 'Grade 9 qualifies you for general worker, domestic worker and basic labour positions.',
+    grade10: 'Grade 10 qualifies you for general worker, retail packer and basic trade assistant positions.',
+    grade11: 'Grade 11 qualifies you for junior clerk, retail assistant and basic admin positions.',
+    matric: 'Matric (Grade 12) qualifies you for entry-level, learnership and junior positions.',
+    n4: 'N4 qualifies you for technical and vocational entry-level positions.',
+    n5: 'N5 qualifies you for skilled technical positions.',
+    n6: 'N6/Trade qualifies you for artisan, technician and trade positions.',
+    diploma: 'Diploma qualifies you for mid-level professional positions.',
+    degree: 'Degree qualifies you for professional and specialist positions.',
+    honours: 'Honours qualifies you for senior specialist and analyst positions.',
+    masters: 'Masters qualifies you for senior management and research positions.',
+    phd: 'PhD qualifies you for executive, research and academic positions.',
   };
   if (hints[val]) {
     hint.textContent = hints[val];
@@ -1833,13 +1833,13 @@ function buildAndMatchCV() {
 
 // SIDEBAR
 '<div class="sidebar">' +
-(photo ? '<img src="'+photo+'" class="photo">' : '<div class="avatar">👤</div>') +
+(photo ? '<img src="'+photo+'" class="photo">' : '<div class="avatar"></div>') +
 '<div class="name">' + fn + ' ' + ln + '</div>' +
 '<div class="role">' + (jt || qualLabel) + '</div>' +
 '<div class="sb-title">Contact</div>' +
-(ph ? '<div class="sb-item">📞 ' + ph + '</div>' : '') +
-(em ? '<div class="sb-item">✉️ ' + em + '</div>' : '') +
-(ci ? '<div class="sb-item">📍 ' + ci + '</div>' : '') +
+(ph ? '<div class="sb-item">' + ph + '</div>' : '') +
+(em ? '<div class="sb-item">' + em + '</div>' : '') +
+(ci ? '<div class="sb-item">' + ci + '</div>' : '') +
 (skillArr.length ? '<div class="sb-title">Skills</div>' + skillArr.map(function(s){ return '<div class="skill">'+s+'</div>'; }).join('') : '') +
 '<div class="sb-title">References</div><div class="sb-item" style="font-style:italic">Available on request</div>' +
 '</div>' +
@@ -1861,7 +1861,7 @@ function buildAndMatchCV() {
 
 '</div>' +
 '<div class="no-print" style="text-align:center;padding:20px;background:#060914">' +
-'<button onclick="window.print()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">📥 Save as PDF</button>' +
+'<button onclick="window.print()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Save as PDF</button>' +
 '</div></body></html>';
 
   // CRITICAL: set the global so download/print/preview work
@@ -1877,8 +1877,8 @@ function buildAndMatchCV() {
     '<button onclick="downloadCVWord()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as Word (editable)</button>' +
     '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
     '</div>' +
-    '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">✍️ Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
-    '<p style="font-size:11px;color:#64748b;margin:0">📱 "Save as PDF" works on phone & PC — when the print screen opens, choose <strong>Save as PDF</strong>. Then share on WhatsApp or email.</p>' +
+    '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
+    '<p style="font-size:11px;color:#64748b;margin:0">"Save as PDF" works on phone & PC — when the print screen opens, choose <strong>Save as PDF</strong>. Then share on WhatsApp or email.</p>' +
     '</div>';
 
   // Store CV data for cover letter
@@ -2229,10 +2229,10 @@ function createCoverLetter() {
   // Show a small form to capture the job they are applying for (expert tip: tailor to specific role)
   document.getElementById('cv-msg').innerHTML =
     '<div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:14px;padding:20px">' +
-    '<strong style="color:#a855f7;display:block;margin-bottom:6px;font-size:16px">✍️ Create Your Cover Letter</strong>' +
+    '<strong style="color:#a855f7;display:block;margin-bottom:6px;font-size:16px">Create Your Cover Letter</strong>' +
     '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">A cover letter should be tailored to the exact job. Fill in these details and we build a professional one that matches your CV.</p>' +
     '<div style="background:rgba(56,189,248,0.06);border-left:3px solid #38bdf8;border-radius:8px;padding:12px 14px;margin-bottom:16px">' +
-    '<div style="font-size:11px;font-weight:700;color:#38bdf8;margin-bottom:6px">💡 EXPERT TIPS (from 200+ HR managers):</div>' +
+    '<div style="font-size:11px;font-weight:700;color:#38bdf8;margin-bottom:6px">EXPERT TIPS (from 200+ HR managers):</div>' +
     '<div style="font-size:11px;color:var(--muted);line-height:1.6">• Tailor it to THIS job — generic letters get ignored<br>• Show what VALUE you bring, not just what you did<br>• Explain WHY this specific company<br>• Never lie — 86% of HR catch it</div>' +
     '</div>' +
     '<div class="form-group"><label>Company Name *</label><input type="text" id="cl-company" placeholder="e.g. Shoprite Holdings"></div>' +
@@ -2329,7 +2329,7 @@ function generateCoverLetter() {
 '<div class="footer">Created with Sky Blueprint — Your Digital Life, Unified</div>' +
 '</div>' +
 '<div class="no-print" style="text-align:center;padding:20px;background:#f5f5f5">' +
-'<button onclick="window.print()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">📄 Save as PDF</button>' +
+'<button onclick="window.print()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Save as PDF</button>' +
 '</div></body></html>';
 
   window._clHTML = clHTML;
@@ -2357,11 +2357,11 @@ function generateCoverLetter() {
     '<strong style="color:var(--green);display:block;margin-bottom:8px;font-size:16px">✅ Cover Letter Ready!</strong>' +
     '<p style="font-size:12px;color:var(--muted);margin-bottom:14px">Tailored for <strong style="color:#fff">' + role + '</strong> at <strong style="color:#fff">' + company + '</strong></p>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-    '<button onclick="downloadCoverLetter()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📄 Save as PDF</button>' +
-    '<button onclick="previewCoverLetter()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
+    '<button onclick="downloadCoverLetter()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as PDF</button>' +
+    '<button onclick="previewCoverLetter()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
     '</div>' +
     '<div style="background:rgba(139,92,246,0.08);border-radius:8px;padding:12px;margin-top:12px">' +
-    '<p style="font-size:11px;color:#c4b5fd;margin:0;line-height:1.6">💡 <strong>Expert tip:</strong> Read your cover letter out loud before sending. Make sure it explains WHY you want this specific job — recruiters can tell when it is generic!</p>' +
+    '<p style="font-size:11px;color:#c4b5fd;margin:0;line-height:1.6"><strong>Expert tip:</strong> Read your cover letter out loud before sending. Make sure it explains WHY you want this specific job — recruiters can tell when it is generic!</p>' +
     '</div>' +
     '</div>';
 }
@@ -2460,7 +2460,7 @@ function showMatchingJobs(data, name, loc, jobTitle) {
   var jobTypes = {
     permanent: {
       label: 'Permanent / Full-Time Jobs',
-      icon: '💼',
+      icon: '',
       color: '#0077b5',
       desc: 'Stable permanent employment with benefits',
       links: [
@@ -2472,7 +2472,7 @@ function showMatchingJobs(data, name, loc, jobTitle) {
     },
     learnership: {
       label: 'Learnerships',
-      icon: '📚',
+      icon: '',
       color: '#10b981',
       desc: 'Earn while you learn — get paid + qualification',
       links: [
@@ -2484,7 +2484,7 @@ function showMatchingJobs(data, name, loc, jobTitle) {
     },
     internship: {
       label: 'Internships',
-      icon: '🎓',
+      icon: '',
       color: '#6366f1',
       desc: 'Gain experience and build your career',
       links: [
@@ -2496,7 +2496,7 @@ function showMatchingJobs(data, name, loc, jobTitle) {
     },
     contract: {
       label: 'Contract / Temporary Jobs',
-      icon: '📋',
+      icon: '',
       color: '#f59e0b',
       desc: 'Short-term contracts and temporary positions',
       links: [
@@ -2508,7 +2508,7 @@ function showMatchingJobs(data, name, loc, jobTitle) {
     },
     youth: {
       label: 'Youth & Entry-Level Jobs',
-      icon: '🌟',
+      icon: '',
       color: '#ec4899',
       desc: 'Jobs for young people and first-time job seekers',
       links: [
@@ -2562,10 +2562,10 @@ function showMatchingJobs(data, name, loc, jobTitle) {
     '<button onclick="downloadCVWord()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as Word (editable)</button>' +
     '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
     '</div>' +
-    '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">✍️ Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
-    '<p style="font-size:11px;color:#64748b;margin-bottom:14px">📱 "Save as PDF" works on phone & PC. Then share on WhatsApp or email when applying.</p>' +
+    '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
+    '<p style="font-size:11px;color:#64748b;margin-bottom:14px">"Save as PDF" works on phone & PC. Then share on WhatsApp or email when applying.</p>' +
     '<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:12px;margin-bottom:16px">' +
-    '<strong style="color:#fff;display:block;margin-bottom:4px">🎯 Your Level: ' + (data.levelLabel||'') + '</strong>' +
+    '<strong style="color:#fff;display:block;margin-bottom:4px">Your Level: ' + (data.levelLabel||'') + '</strong>' +
     '<p style="color:var(--muted);font-size:13px;margin:0">' + levelAdvice + '</p>' +
     '</div>' +
     '<p style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px">Choose the type of job you are looking for:</p>' +
@@ -2598,7 +2598,7 @@ function uploadAndAnalyzeCV(input) {
   if (!input.files || !input.files[0]) return;
   var file = input.files[0];
   var res = document.getElementById('upload-result');
-  res.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">📄 Reading your CV...</div>';
+  res.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Reading your CV...</div>';
 
   var reader = new FileReader();
   reader.onload = async function(e) {
@@ -2679,7 +2679,7 @@ function renderCustomerList(list) {
 
   if (!list || !list.length) {
     wrap.innerHTML = '<div style="text-align:center;padding:40px 20px;background:rgba(255,255,255,0.03);border-radius:14px;border:1px dashed rgba(255,255,255,0.1)">' +
-      '<div style="font-size:44px;margin-bottom:12px">👥</div>' +
+      '<div style="font-size:44px;margin-bottom:12px"></div>' +
       '<p style="color:#fff;font-weight:600;margin-bottom:6px">No customers yet</p>' +
       '<p style="color:var(--muted);font-size:13px">Tap "Add New Customer" to start building your customer list.</p>' +
       '</div>';
@@ -2692,10 +2692,10 @@ function renderCustomerList(list) {
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
         '<div style="flex:1;min-width:0">' +
         '<div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px">' + escapeHtml(c.name) + '</div>' +
-        (c.phone ? '<div style="font-size:13px;color:#38bdf8;margin-bottom:2px">📞 ' + escapeHtml(c.phone) + '</div>' : '') +
-        (c.email ? '<div style="font-size:12px;color:var(--muted);margin-bottom:2px;word-break:break-all">✉️ ' + escapeHtml(c.email) + '</div>' : '') +
-        (c.lastPurchase ? '<div style="font-size:12px;color:#10b981;margin-top:4px">🛒 ' + escapeHtml(c.lastPurchase) + '</div>' : '') +
-        (c.notes ? '<div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px">📝 ' + escapeHtml(c.notes) + '</div>' : '') +
+        (c.phone ? '<div style="font-size:13px;color:#38bdf8;margin-bottom:2px">' + escapeHtml(c.phone) + '</div>' : '') +
+        (c.email ? '<div style="font-size:12px;color:var(--muted);margin-bottom:2px;word-break:break-all">' + escapeHtml(c.email) + '</div>' : '') +
+        (c.lastPurchase ? '<div style="font-size:12px;color:#10b981;margin-top:4px">' + escapeHtml(c.lastPurchase) + '</div>' : '') +
+        (c.notes ? '<div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px">' + escapeHtml(c.notes) + '</div>' : '') +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:6px">' +
         (c.phone ? '<a href="https://wa.me/' + c.phone.replace(/[^0-9]/g,'').replace(/^0/,'27') + '" target="_blank" style="background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.3);color:#25d366;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;text-decoration:none;text-align:center;white-space:nowrap">WhatsApp</a>' : '') +
@@ -2785,48 +2785,98 @@ function renderImageEditor(el) {
   el.innerHTML =
     '<div class="tool-screen">' +
     '<h2>Image Editor</h2>' +
-    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Edit photos and images — draw, paint, erase, and touch up.</p>' +
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Draw, paint, white-out, erase, add text and shapes. A full editor in your browser.</p>' +
     '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Everything happens on your device. Your images stay private.</p>' +
     '<div id="ie-start">' +
     '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:32px;text-align:center">' +
     '<p style="color:#fff;font-weight:600;margin-bottom:6px">Open an image to edit</p>' +
-    '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">JPG, PNG or any image</p>' +
+    '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">JPG, PNG or any image — or start with a blank canvas</p>' +
     '<input type="file" id="ie-file" accept="image/*" onchange="ieLoadImage(this)" style="display:none">' +
-    '<button class="btn-primary" onclick="document.getElementById(\'ie-file\').click()">Choose Image</button>' +
+    '<button class="btn-primary" onclick="document.getElementById(\'ie-file\').click()" style="margin-bottom:10px">Choose Image</button><br>' +
+    '<button onclick="ieBlankCanvas()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Start Blank Canvas</button>' +
     '</div></div>' +
+
     '<div id="ie-workspace" style="display:none">' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px">' +
-        '<button onclick="ieSetTool(\'brush\')" id="ie-tool-brush" class="ie-tool ie-active" style="' + ieBtnStyle() + '">Brush</button>' +
-        '<button onclick="ieSetTool(\'white\')" id="ie-tool-white" class="ie-tool" style="' + ieBtnStyle() + '">White Paint</button>' +
-        '<button onclick="ieSetTool(\'erase\')" id="ie-tool-erase" class="ie-tool" style="' + ieBtnStyle() + '">Eraser</button>' +
-        '<div style="display:flex;align-items:center;gap:6px;margin-left:8px">' +
-          '<span style="font-size:12px;color:var(--muted)">Color</span>' +
-          '<input type="color" id="ie-color" value="#000000" style="width:36px;height:32px;border:none;border-radius:6px;background:none;cursor:pointer">' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;gap:6px">' +
-          '<span style="font-size:12px;color:var(--muted)">Size</span>' +
-          '<input type="range" id="ie-size" min="2" max="60" value="12" style="width:90px">' +
-        '</div>' +
+
+      // Toolbar row 1 - tools
+      '<div class="ie-bar">' +
+        '<button onclick="ieSetTool(\'brush\')" id="ie-tool-brush" class="ie-toolbtn ie-active">Brush</button>' +
+        '<button onclick="ieSetTool(\'white\')" id="ie-tool-white" class="ie-toolbtn">White Paint</button>' +
+        '<button onclick="ieSetTool(\'erase\')" id="ie-tool-erase" class="ie-toolbtn">Eraser</button>' +
+        '<button onclick="ieSetTool(\'line\')" id="ie-tool-line" class="ie-toolbtn">Line</button>' +
+        '<button onclick="ieSetTool(\'rect\')" id="ie-tool-rect" class="ie-toolbtn">Box</button>' +
+        '<button onclick="ieSetTool(\'fill\')" id="ie-tool-fill" class="ie-toolbtn">Fill</button>' +
+        '<button onclick="ieAddText()" class="ie-toolbtn">Add Text</button>' +
       '</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' +
-        '<button onclick="ieUndo()" style="' + ieBtnStyle() + '">Undo</button>' +
-        '<button onclick="ieClear()" style="' + ieBtnStyle() + '">Reset</button>' +
-        '<button onclick="ieDownload()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Download Image</button>' +
-        '<button onclick="ieReset()" style="' + ieBtnStyle() + '">New Image</button>' +
+
+      // Colour palette
+      '<div class="ie-bar" style="align-items:center">' +
+        '<span style="font-size:12px;color:var(--muted);margin-right:2px">Colour</span>' +
+        '<div id="ie-palette" style="display:flex;gap:5px;flex-wrap:wrap"></div>' +
+        '<input type="color" id="ie-color" value="#000000" onchange="ieSetColor(this.value)" style="width:34px;height:30px;border:none;border-radius:6px;background:none;cursor:pointer">' +
       '</div>' +
-      '<div style="overflow:auto;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:#1a1a1a;text-align:center;padding:10px">' +
-        '<canvas id="ie-canvas" style="max-width:100%;touch-action:none;cursor:crosshair;border-radius:6px"></canvas>' +
+
+      // Size + opacity
+      '<div class="ie-bar" style="align-items:center">' +
+        '<span style="font-size:12px;color:var(--muted)">Size</span>' +
+        '<input type="range" id="ie-size" min="1" max="80" value="10" style="width:120px">' +
+        '<span id="ie-size-val" style="font-size:12px;color:#e2e8f0;min-width:26px">10</span>' +
+        '<span style="font-size:12px;color:var(--muted);margin-left:10px">Opacity</span>' +
+        '<input type="range" id="ie-opacity" min="10" max="100" value="100" style="width:100px">' +
       '</div>' +
-      '<p style="font-size:11px;color:#64748b;margin-top:10px">Tip: use White Paint to cover things (like correction fluid), the Eraser to rub areas back to transparent, or the Brush with any color to draw.</p>' +
+
+      // Actions
+      '<div class="ie-bar">' +
+        '<button onclick="ieUndo()" class="ie-toolbtn">Undo</button>' +
+        '<button onclick="ieClear()" class="ie-toolbtn">Reset</button>' +
+        '<button onclick="ieDownload()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Download PNG</button>' +
+        '<button onclick="ieReset()" class="ie-toolbtn">New Image</button>' +
+      '</div>' +
+
+      '<div style="overflow:auto;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:repeating-conic-gradient(#2a2a2a 0% 25%, #222 0% 50%) 50% / 24px 24px;text-align:center;padding:10px;margin-top:6px">' +
+        '<canvas id="ie-canvas" style="max-width:100%;touch-action:none;cursor:crosshair;border-radius:4px"></canvas>' +
+      '</div>' +
+      '<p style="font-size:11px;color:#64748b;margin-top:10px">White Paint covers like correction fluid. Eraser rubs back to transparent. Fill fills the whole canvas. Tap Add Text to place words.</p>' +
     '</div>' +
     '</div>';
+
+  ieBuildPalette();
+  var sizeEl = document.getElementById('ie-size');
+  if (sizeEl) sizeEl.oninput = function(){ document.getElementById('ie-size-val').textContent = this.value; };
+}
+
+var IE_COLORS = ['#000000','#ffffff','#ef4444','#f59e0b','#eab308','#22c55e','#10b981','#06b6d4','#3b82f6','#6366f1','#8b5cf6','#ec4899','#78350f','#64748b'];
+
+function ieBuildPalette() {
+  var pal = document.getElementById('ie-palette');
+  if (!pal) return;
+  pal.innerHTML = IE_COLORS.map(function(c){
+    return '<button onclick="ieSetColor(\'' + c + '\')" title="' + c + '" style="width:24px;height:24px;border-radius:5px;border:2px solid rgba(255,255,255,0.15);background:' + c + ';cursor:pointer;padding:0"></button>';
+  }).join('');
+}
+
+function ieSetColor(c) {
+  ieState.color = c;
+  var picker = document.getElementById('ie-color');
+  if (picker) picker.value = c;
+  // switch to brush when picking a colour (unless on a shape tool)
+  if (ieState.tool === 'erase' || ieState.tool === 'white') ieSetTool('brush');
 }
 
 function ieBtnStyle() {
   return 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)';
 }
 
-var ieState = { tool:'brush', drawing:false, ctx:null, canvas:null, history:[], lastX:0, lastY:0 };
+var ieState = { tool:'brush', color:'#000000', drawing:false, ctx:null, canvas:null, history:[], lastX:0, lastY:0, startX:0, startY:0, snapshot:null };
+
+function ieBlankCanvas() {
+  var canvas = document.getElementById('ie-canvas');
+  canvas.width = 900; canvas.height = 1200;
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ieInit(canvas, ctx);
+}
 
 function ieLoadImage(input) {
   var file = input.files[0];
@@ -2836,8 +2886,7 @@ function ieLoadImage(input) {
     var img = new Image();
     img.onload = function() {
       var canvas = document.getElementById('ie-canvas');
-      // Cap dimensions so huge images stay manageable
-      var maxDim = 1400;
+      var maxDim = 1600;
       var w = img.width, h = img.height;
       if (w > maxDim || h > maxDim) {
         if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
@@ -2846,31 +2895,66 @@ function ieLoadImage(input) {
       canvas.width = w; canvas.height = h;
       var ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      ieState.canvas = canvas;
-      ieState.ctx = ctx;
-      ieState.history = [];
-      ieSaveHistory();
-      document.getElementById('ie-start').style.display = 'none';
-      document.getElementById('ie-workspace').style.display = 'block';
-      ieBindEvents();
+      ieInit(canvas, ctx);
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
+function ieInit(canvas, ctx) {
+  ieState.canvas = canvas;
+  ieState.ctx = ctx;
+  ieState.history = [];
+  ieSaveHistory();
+  document.getElementById('ie-start').style.display = 'none';
+  document.getElementById('ie-workspace').style.display = 'block';
+  ieBindEvents();
+}
+
 function ieSetTool(tool) {
   ieState.tool = tool;
-  ['brush','white','erase'].forEach(function(t){
+  ['brush','white','erase','line','rect','fill'].forEach(function(t){
     var b = document.getElementById('ie-tool-' + t);
-    if (b) { b.style.background = (t === tool) ? 'linear-gradient(135deg,#38bdf8,#6366f1)' : 'rgba(255,255,255,0.06)'; b.style.color = '#fff'; }
+    if (b) {
+      if (t === tool) { b.style.background = 'linear-gradient(135deg,#38bdf8,#6366f1)'; b.style.color = '#fff'; b.style.borderColor = 'transparent'; }
+      else { b.style.background = 'rgba(255,255,255,0.06)'; b.style.color = '#e2e8f0'; b.style.borderColor = 'rgba(255,255,255,0.12)'; }
+    }
   });
+  if (tool === 'fill') ieFillCanvas();
+}
+
+function ieFillCanvas() {
+  if (!ieState.ctx) return;
+  var op = (parseInt(document.getElementById('ie-opacity').value) || 100) / 100;
+  ieState.ctx.globalAlpha = op;
+  ieState.ctx.fillStyle = ieState.color;
+  ieState.ctx.fillRect(0, 0, ieState.canvas.width, ieState.canvas.height);
+  ieState.ctx.globalAlpha = 1;
+  ieSaveHistory();
+  ieSetTool('brush');
+}
+
+function ieAddText() {
+  if (!ieState.ctx) { alert('Open an image first.'); return; }
+  var txt = prompt('Type the text to add:');
+  if (!txt) return;
+  var size = (parseInt(document.getElementById('ie-size').value) || 10) * 4;
+  var ctx = ieState.ctx;
+  ctx.globalAlpha = (parseInt(document.getElementById('ie-opacity').value) || 100) / 100;
+  ctx.fillStyle = ieState.color;
+  ctx.font = 'bold ' + size + 'px Arial';
+  ctx.textBaseline = 'top';
+  ctx.fillText(txt, 30, 30);
+  ctx.globalAlpha = 1;
+  ieSaveHistory();
+  alert('Text added at the top-left. Use the Brush/White Paint to cover, or Undo to remove.');
 }
 
 function ieSaveHistory() {
   if (!ieState.ctx) return;
   try {
-    if (ieState.history.length > 15) ieState.history.shift();
+    if (ieState.history.length > 12) ieState.history.shift();
     ieState.history.push(ieState.ctx.getImageData(0, 0, ieState.canvas.width, ieState.canvas.height));
   } catch(e) {}
 }
@@ -2907,53 +2991,64 @@ function ieGetPos(e) {
 
 function ieBindEvents() {
   var canvas = ieState.canvas;
-
   function start(e) {
     e.preventDefault();
     ieState.drawing = true;
     var p = ieGetPos(e);
     ieState.lastX = p.x; ieState.lastY = p.y;
-    ieDraw(e);
+    ieState.startX = p.x; ieState.startY = p.y;
+    if (ieState.tool === 'line' || ieState.tool === 'rect') {
+      ieState.snapshot = ieState.ctx.getImageData(0, 0, canvas.width, canvas.height);
+    } else {
+      ieDraw(e);
+    }
   }
-  function move(e) { if (ieState.drawing) { e.preventDefault(); ieDraw(e); } }
-  function end() { if (ieState.drawing) { ieState.drawing = false; ieSaveHistory(); } }
+  function move(e) {
+    if (!ieState.drawing) return;
+    e.preventDefault();
+    if (ieState.tool === 'line' || ieState.tool === 'rect') ieDrawShape(e);
+    else ieDraw(e);
+  }
+  function end() { if (ieState.drawing) { ieState.drawing = false; ieState.snapshot = null; ieSaveHistory(); } }
+  canvas.onmousedown = start; canvas.onmousemove = move; canvas.onmouseup = end; canvas.onmouseleave = end;
+  canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
+}
 
-  canvas.onmousedown = start;
-  canvas.onmousemove = move;
-  canvas.onmouseup = end;
-  canvas.onmouseleave = end;
-  canvas.ontouchstart = start;
-  canvas.ontouchmove = move;
-  canvas.ontouchend = end;
+function ieApplyStroke(ctx) {
+  var size = parseInt(document.getElementById('ie-size').value) || 10;
+  var op = (parseInt(document.getElementById('ie-opacity').value) || 100) / 100;
+  ctx.lineWidth = size; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.globalAlpha = op;
+  if (ieState.tool === 'erase') { ctx.globalCompositeOperation = 'destination-out'; ctx.strokeStyle = 'rgba(0,0,0,1)'; }
+  else if (ieState.tool === 'white') { ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = '#ffffff'; }
+  else { ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = ieState.color; }
 }
 
 function ieDraw(e) {
   var ctx = ieState.ctx;
   var p = ieGetPos(e);
-  var size = parseInt(document.getElementById('ie-size').value) || 12;
-
-  ctx.lineWidth = size;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  if (ieState.tool === 'erase') {
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.strokeStyle = 'rgba(0,0,0,1)';
-  } else if (ieState.tool === 'white') {
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = '#ffffff';
-  } else {
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = document.getElementById('ie-color').value;
-  }
-
+  ieApplyStroke(ctx);
   ctx.beginPath();
   ctx.moveTo(ieState.lastX, ieState.lastY);
   ctx.lineTo(p.x, p.y);
   ctx.stroke();
-
-  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   ieState.lastX = p.x; ieState.lastY = p.y;
+}
+
+function ieDrawShape(e) {
+  var ctx = ieState.ctx;
+  var p = ieGetPos(e);
+  ctx.putImageData(ieState.snapshot, 0, 0);
+  ieApplyStroke(ctx);
+  if (ieState.tool === 'line') {
+    ctx.beginPath();
+    ctx.moveTo(ieState.startX, ieState.startY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  } else if (ieState.tool === 'rect') {
+    ctx.strokeRect(ieState.startX, ieState.startY, p.x - ieState.startX, p.y - ieState.startY);
+  }
+  ctx.globalAlpha = 1;
 }
 
 function ieDownload() {
@@ -3218,7 +3313,7 @@ function renderPDFTools(el) {
     '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload a .csv or .xlsx file and we turn it into a clean, printable PDF table.</p>' +
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
     '<input type="file" id="csv-file" accept=".csv,.xlsx,.xls" onchange="handleCSVFile(this)" style="display:none">' +
-    '<div style="font-size:40px;margin-bottom:10px">📄</div>' +
+    '<div style="font-size:40px;margin-bottom:10px"></div>' +
     '<button class="btn-primary" onclick="document.getElementById(\'csv-file\').click()">Choose CSV / Excel File</button>' +
     '<p id="csv-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
     '</div>' +
@@ -3231,7 +3326,7 @@ function renderPDFTools(el) {
     '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload one or more photos (JPG/PNG) and we combine them into a single PDF.</p>' +
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
     '<input type="file" id="img-file" accept="image/*" multiple onchange="handleImageFiles(this)" style="display:none">' +
-    '<div style="font-size:40px;margin-bottom:10px">🖼️</div>' +
+    '<div style="font-size:40px;margin-bottom:10px"></div>' +
     '<button class="btn-primary" onclick="document.getElementById(\'img-file\').click()">Choose Images</button>' +
     '<p id="img-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
     '</div>' +
@@ -3254,7 +3349,7 @@ function renderPDFTools(el) {
     '</div>' +
 
     '<div style="background:rgba(139,92,246,0.06);border-radius:12px;padding:14px;margin-top:20px">' +
-    '<p style="font-size:12px;color:#c4b5fd;margin:0;line-height:1.6">🔒 <strong>100% Private:</strong> All conversions happen on your device. Your files are never uploaded to any server.</p>' +
+    '<p style="font-size:12px;color:#c4b5fd;margin:0;line-height:1.6"><strong>100% Private:</strong> All conversions happen on your device. Your files are never uploaded to any server.</p>' +
     '</div>' +
     '</div>';
 }
@@ -3526,7 +3621,7 @@ function showCSVReady(filename) {
   document.getElementById('csv-result').innerHTML =
     '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:16px;text-align:center">' +
     '<strong style="color:#10b981;display:block;margin-bottom:10px">✅ File loaded! ' + (_csvData ? _csvData.length : 0) + ' rows ready.</strong>' +
-    '<button class="btn-primary" onclick="convertCSVtoPDF(\'' + filename.replace(/\.[^.]+$/,'') + '\')">📄 Download as PDF</button>' +
+    '<button class="btn-primary" onclick="convertCSVtoPDF(\'' + filename.replace(/\.[^.]+$/,'') + '\')">Download as PDF</button>' +
     '</div>';
 }
 
@@ -3548,7 +3643,7 @@ function handleImageFiles(input) {
   document.getElementById('img-filename').textContent = '✓ ' + _imageFiles.length + ' image(s) selected';
   document.getElementById('img-result').innerHTML =
     '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:16px;text-align:center">' +
-    '<button class="btn-primary" onclick="convertImagesToPDF()">📄 Combine into PDF</button>' +
+    '<button class="btn-primary" onclick="convertImagesToPDF()">Combine into PDF</button>' +
     '</div>';
 }
 
@@ -3627,7 +3722,7 @@ function renderTemplates(el) {
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">' +
       '<span style="font-size:22px;font-weight:800;color:#10b981">R' + t.price + '</span>' +
       '<div style="display:flex;gap:6px">' +
-      (t.img ? '<button onclick="previewTemplate(\'' + t.img + '\',\'' + t.name + '\')" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' : '') +
+      (t.img ? '<button onclick="previewTemplate(\'' + t.img + '\',\'' + t.name + '\')" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' : '') +
       '<button onclick="buyTemplate(\'' + t.id + '\',\'' + t.name + '\',' + t.price + ')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Buy Now</button>' +
       '</div></div></div>';
   }).join('');
@@ -3652,7 +3747,7 @@ function renderTemplates(el) {
     '<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 14px;margin-bottom:20px;text-align:center"><span style="font-size:12px;color:#10b981;font-weight:600">✅ No subscription needed — just buy the template you want and keep it forever!</span></div>' +
 
     '<div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:14px;margin-bottom:20px">' +
-    '<div style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">💚 BEST VALUE — BUNDLES</div>' +
+    '<div style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">BEST VALUE — BUNDLES</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">' + bundleCards + '</div>' +
     '</div>' +
 
@@ -3660,7 +3755,7 @@ function renderTemplates(el) {
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">' + cards + '</div>' +
 
     '<div style="background:rgba(56,189,248,0.06);border-radius:12px;padding:16px;margin-top:20px">' +
-    '<p style="font-size:12px;color:var(--muted);margin:0;line-height:1.6">💡 <strong style="color:#fff">How it works:</strong> Click Buy, pay securely with Paystack, and we email your template file to you within a few hours. Keep it forever and use it as many times as you like.</p>' +
+    '<p style="font-size:12px;color:var(--muted);margin:0;line-height:1.6"><strong style="color:#fff">How it works:</strong> Click Buy, pay securely with Paystack, and we email your template file to you within a few hours. Keep it forever and use it as many times as you like.</p>' +
     '</div>' +
     '</div>';
 }
@@ -3766,8 +3861,8 @@ function deliverTemplate(id, name, email, reference) {
   }).catch(function(){});
 
   var msg = files.length > 1
-    ? '🎉 Payment successful! Your ' + files.length + ' files are downloading now. Check your Downloads folder!'
-    : '🎉 Payment successful! "' + name + '" is downloading now. Check your Downloads folder!';
+    ? 'Payment successful! Your ' + files.length + ' files are downloading now. Check your Downloads folder!'
+    : 'Payment successful! "' + name + '" is downloading now. Check your Downloads folder!';
   alert(msg + '\n\nReference: ' + reference + '\n\nIf the download did not start, email us at ' + OWNER_EMAIL + ' with your reference.');
 }
 
@@ -3916,7 +4011,7 @@ function showLearnershipResult(qualifies, reasons, data) {
   if (!qualifies && opportunities.length === 0) {
     // Does not qualify at all
     html = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:14px;padding:24px;text-align:center">' +
-      '<div style="font-size:48px;margin-bottom:12px">😔</div>' +
+      '<div style="font-size:48px;margin-bottom:12px"></div>' +
       '<h3 style="color:#f87171;font-size:18px;margin-bottom:10px">You Do Not Meet the Requirements Yet</h3>' +
       reasons.map(function(r){ return '<p style="color:var(--muted);font-size:13px;margin-bottom:8px">' + r + '</p>'; }).join('') +
       '<p style="color:#38bdf8;font-size:13px;margin-top:16px">Tip: Keep checking back. New opportunities open every week, and your qualifications may match future ones.</p>' +
@@ -3925,7 +4020,7 @@ function showLearnershipResult(qualifies, reasons, data) {
     // Qualifies - show opportunities + notes
     html = '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:20px;margin-bottom:16px">' +
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">' +
-      '<span style="font-size:32px">🎉</span>' +
+      '<span style="font-size:32px"></span>' +
       '<div><h3 style="color:#10b981;font-size:18px;margin:0">Good News, ' + data.name.split(' ')[0] + '!</h3>' +
       '<p style="color:var(--muted);font-size:13px;margin:2px 0 0">You qualify for ' + opportunities.length + ' opportunity source' + (opportunities.length>1?'s':'') + ' in ' + data.field + '</p></div>' +
       '</div>';
@@ -3938,7 +4033,7 @@ function showLearnershipResult(qualifies, reasons, data) {
     html += '</div>';
 
     // List opportunities
-    html += '<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:12px">📋 Where to Apply (verified SA sites):</div>';
+    html += '<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:12px">Where to Apply (verified SA sites):</div>';
     html += opportunities.map(function(opp) {
       return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:10px">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
@@ -3953,7 +4048,7 @@ function showLearnershipResult(qualifies, reasons, data) {
 
     // Email the opportunities
     html += '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-top:14px;font-size:14px" onclick="emailLearnerships()">' +
-      '📧 Email These Opportunities to Me' +
+      'Email These Opportunities to Me' +
       '</button>';
 
     // Store for emailing
@@ -3981,7 +4076,7 @@ function getMatchingOpportunities(data) {
 
   // StudentRoom - learnerships and internships listings
   opps.push({
-    name: 'StudentRoom', icon: '🎓', dataFree: false,
+    name: 'StudentRoom', icon: '', dataFree: false,
     desc: 'Lists current SA learnerships and internships from companies and TVET colleges with closing dates and requirements.',
     url: 'https://www.studentroom.co.za/category/internships/'
   });
@@ -3989,7 +4084,7 @@ function getMatchingOpportunities(data) {
   // Pnet - if matric or higher
   if (data.qual !== 'below-matric') {
     opps.push({
-      name: 'Pnet', icon: '💼', dataFree: false,
+      name: 'Pnet', icon: '', dataFree: false,
       desc: 'Major SA job site with hundreds of learnership and internship listings. Filter by your field and province.',
       url: 'https://www.pnet.co.za/jobs/' + (data.type === 'internship' ? 'internship' : 'learnership')
     });
@@ -3998,7 +4093,7 @@ function getMatchingOpportunities(data) {
   // Graduates24 - for diploma/degree
   if (data.qual === 'diploma' || data.qual === 'degree' || data.qual === 'honours') {
     opps.push({
-      name: 'Graduates24', icon: '🎯', dataFree: false,
+      name: 'Graduates24', icon: '', dataFree: false,
       desc: 'Internships, graduate programmes and bursaries for SA graduates. Banking, finance, IT and engineering programmes.',
       url: 'https://www.graduates24.com/internshipprogrammes'
     });
@@ -4006,7 +4101,7 @@ function getMatchingOpportunities(data) {
 
   // Internships-SA
   opps.push({
-    name: 'Internships-SA', icon: '📚', dataFree: false,
+    name: 'Internships-SA', icon: '', dataFree: false,
     desc: 'Dedicated SA internship and learnership board updated regularly across all fields.',
     url: 'https://www.internships-sa.co.za/'
   });
@@ -4038,7 +4133,7 @@ function emailLearnerships() {
       opportunities: oppList
     })
   }).then(function(r){ return r.json(); }).then(function(){
-    alert('📧 Done! The opportunities and apply links have been sent to ' + data.email + '. Check your inbox (and spam folder).');
+    alert('Done! The opportunities and apply links have been sent to ' + data.email + '. Check your inbox (and spam folder).');
   }).catch(function(){
     alert('Could not send email right now, but you can click the apply links above directly.');
   });
@@ -4057,15 +4152,15 @@ function renderReminders(el) {
     <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Your personal assistant that reminds you while you focus on what matters.</p>
 
     <div id="notif-permission" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:14px;margin-bottom:16px">
-      <div style="font-size:13px;color:#fff;font-weight:600;margin-bottom:8px">🔔 Enable notifications to get reminders</div>
+      <div style="font-size:13px;color:#fff;font-weight:600;margin-bottom:8px">Enable notifications to get reminders</div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Allow Sky Blueprint to chime and notify you when a task is due — even when this tab is in the background.</p>
       <button class="btn-primary" style="font-size:13px;padding:10px 18px" onclick="enableNotifications()">Turn On Reminders</button>
     </div>
 
     <div class="tab-bar">
       <div class="tab active" onclick="reminderTab('add',this)">➕ Add New</div>
-      <div class="tab" onclick="reminderTab('today',this)">📅 Today</div>
-      <div class="tab" onclick="reminderTab('all',this)">📋 All</div>
+      <div class="tab" onclick="reminderTab('today',this)">Today</div>
+      <div class="tab" onclick="reminderTab('all',this)">All</div>
     </div>
 
     <!-- ADD TAB -->
@@ -4075,13 +4170,13 @@ function renderReminders(el) {
       </div>
       <div class="form-group"><label>Category</label>
         <select id="rem-cat">
-          <option value="meeting">💼 Meeting / Work</option>
+          <option value="meeting">Meeting / Work</option>
           <option value="task">✅ Task / To-Do</option>
-          <option value="habit">🔄 Daily Habit</option>
-          <option value="family">👨‍👩‍👧 Family / Personal</option>
-          <option value="plan">📌 Plan / Goal</option>
-          <option value="payment">💰 Payment / Bill</option>
-          <option value="health">❤️ Health / Appointment</option>
+          <option value="habit">Daily Habit</option>
+          <option value="family"> Family / Personal</option>
+          <option value="plan">Plan / Goal</option>
+          <option value="payment">Payment / Bill</option>
+          <option value="health">Health / Appointment</option>
         </select>
       </div>
       <div class="form-row">
@@ -4100,7 +4195,7 @@ function renderReminders(el) {
         <textarea id="rem-notes" rows="2" placeholder="e.g. Bring the financial report, location: Sandton office"></textarea>
       </div>
       <button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:14px" onclick="addReminder()">
-        🔔 Set This Reminder
+        Set This Reminder
       </button>
     </div>
 
@@ -4172,7 +4267,7 @@ function addReminder() {
     enableNotifications();
   }
 
-  alert('🔔 Reminder set!\n\n"' + title + '"\non ' + formatReminderDate(date, time) + (repeat !== 'none' ? '\nRepeats: ' + repeat : ''));
+  alert('Reminder set!\n\n"' + title + '"\non ' + formatReminderDate(date, time) + (repeat !== 'none' ? '\nRepeats: ' + repeat : ''));
 
   // Clear form
   document.getElementById('rem-title').value = '';
@@ -4185,13 +4280,13 @@ function addReminder() {
 }
 
 var CAT_INFO = {
-  meeting: { icon:'💼', label:'Meeting', color:'#38bdf8' },
+  meeting: { icon:'', label:'Meeting', color:'#38bdf8' },
   task:    { icon:'✅', label:'Task', color:'#10b981' },
-  habit:   { icon:'🔄', label:'Habit', color:'#a855f7' },
-  family:  { icon:'👨‍👩‍👧', label:'Family', color:'#ec4899' },
-  plan:    { icon:'📌', label:'Plan', color:'#f59e0b' },
-  payment: { icon:'💰', label:'Payment', color:'#22c55e' },
-  health:  { icon:'❤️', label:'Health', color:'#ef4444' }
+  habit:   { icon:'', label:'Habit', color:'#a855f7' },
+  family:  { icon:'', label:'Family', color:'#ec4899' },
+  plan:    { icon:'', label:'Plan', color:'#f59e0b' },
+  payment: { icon:'', label:'Payment', color:'#22c55e' },
+  health:  { icon:'', label:'Health', color:'#ef4444' }
 };
 
 function formatReminderDate(date, time) {
@@ -4211,7 +4306,7 @@ function renderTodayReminders() {
   }).sort(function(a,b){ return a.time.localeCompare(b.time); });
 
   if (reminders.length === 0) {
-    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px">📅</div><p>No reminders for today.<br>Tap "Add New" to set one.</p></div>';
+    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px"></div><p>No reminders for today.<br>Tap "Add New" to set one.</p></div>';
     return;
   }
 
@@ -4227,7 +4322,7 @@ function renderAllReminders() {
   });
 
   if (reminders.length === 0) {
-    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px">📋</div><p>No reminders yet.<br>Tap "Add New" to create your first one.</p></div>';
+    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted)"><div style="font-size:48px;margin-bottom:12px"></div><p>No reminders yet.<br>Tap "Add New" to create your first one.</p></div>';
     return;
   }
 
@@ -4237,7 +4332,7 @@ function renderAllReminders() {
 
 function renderReminderCard(r) {
   var ci = CAT_INFO[r.cat] || CAT_INFO.task;
-  var repeatBadge = r.repeat !== 'none' ? '<span style="font-size:10px;background:rgba(168,85,247,0.15);color:#a855f7;padding:2px 8px;border-radius:10px;margin-left:6px">🔄 ' + r.repeat + '</span>' : '';
+  var repeatBadge = r.repeat !== 'none' ? '<span style="font-size:10px;background:rgba(168,85,247,0.15);color:#a855f7;padding:2px 8px;border-radius:10px;margin-left:6px">' + r.repeat + '</span>' : '';
   return '<div id="rem-card-' + r.id + '" style="background:' + (r.done ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.04)') + ';border:1px solid ' + ci.color + '33;border-left:3px solid ' + ci.color + ';border-radius:10px;padding:14px;margin-bottom:10px;' + (r.done ? 'opacity:0.5' : '') + '">' +
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
     '<div style="flex:1;min-width:0">' +
@@ -4246,7 +4341,7 @@ function renderReminderCard(r) {
     '<span style="font-size:14px;font-weight:700;color:#fff;' + (r.done ? 'text-decoration:line-through' : '') + '">' + r.title + '</span>' +
     repeatBadge +
     '</div>' +
-    '<div style="font-size:12px;color:' + ci.color + ';font-weight:600;margin-bottom:2px">🕐 ' + formatReminderDate(r.date, r.time) + '</div>' +
+    '<div style="font-size:12px;color:' + ci.color + ';font-weight:600;margin-bottom:2px">' + formatReminderDate(r.date, r.time) + '</div>' +
     (r.notes ? '<div style="font-size:12px;color:var(--muted);margin-top:4px">' + r.notes + '</div>' : '') +
     '</div>' +
     '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">' +
@@ -4294,7 +4389,7 @@ function enableNotifications() {
     if (perm === 'granted') {
       var np = document.getElementById('notif-permission');
       if (np) np.style.display = 'none';
-      new Notification('🔔 Sky Blueprint Reminders On!', { body: 'Great! We will now remind you of your tasks and meetings.' });
+      new Notification('Sky Blueprint Reminders On!', { body: 'Great! We will now remind you of your tasks and meetings.' });
     } else {
       alert('Notifications were not enabled. You can turn them on later in your browser settings. Reminders will still chime when Sky Blueprint is open.');
     }
@@ -4335,7 +4430,7 @@ function fireReminder(r) {
 
   // Browser notification
   if ('Notification' in window && Notification.permission === 'granted') {
-    var n = new Notification('🔔 ' + r.title, { body: body, requireInteraction: true });
+    var n = new Notification('' + r.title, { body: body, requireInteraction: true });
   }
 
   // Chime sound
@@ -4377,11 +4472,11 @@ function showReminderPopup(r) {
   popup.innerHTML =
     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
     '<span style="font-size:28px">' + ci.icon + '</span>' +
-    '<div><div style="font-size:11px;color:' + ci.color + ';font-weight:700;text-transform:uppercase;letter-spacing:1px">🔔 Reminder — ' + ci.label + '</div>' +
+    '<div><div style="font-size:11px;color:' + ci.color + ';font-weight:700;text-transform:uppercase;letter-spacing:1px">Reminder — ' + ci.label + '</div>' +
     '<div style="font-size:17px;font-weight:800;color:#fff">' + r.title + '</div></div>' +
     '</div>' +
     (r.notes ? '<div style="font-size:13px;color:var(--muted);margin:8px 0">' + r.notes + '</div>' : '') +
-    '<div style="font-size:12px;color:' + ci.color + ';margin-bottom:14px">🕐 ' + formatReminderDate(r.date, r.time) + '</div>' +
+    '<div style="font-size:12px;color:' + ci.color + ';margin-bottom:14px">' + formatReminderDate(r.date, r.time) + '</div>' +
     '<button onclick="document.getElementById(\'reminder-popup\').remove()" style="width:100%;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Got it ✓</button>';
 
   document.body.appendChild(popup);
@@ -4583,7 +4678,7 @@ function renderReviews(reviews) {
     starsEl.textContent = '★★★★★';
     countEl.textContent = 'Be the first to review!';
     barsEl.innerHTML = '';
-    gridEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)">No reviews yet. Be the first to share your experience! 🌟</div>';
+    gridEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)">No reviews yet. Be the first to share your experience! </div>';
     return;
   }
 
@@ -4685,7 +4780,7 @@ function submitReview() {
     body: JSON.stringify(review)
   }).then(function(r){ return r.json(); }).then(function(){
     closeReviewForm();
-    alert('🌟 Thank you for your review! It has been posted.');
+    alert('Thank you for your review! It has been posted.');
     // Clear form
     document.getElementById('rm-name').value = '';
     document.getElementById('rm-city').value = '';
@@ -4834,7 +4929,7 @@ function submitReview() {
   }).catch(function(){});
 
   closeReviewForm();
-  alert('🌟 Thank you for your review, ' + name + '! Your feedback means a lot to us.');
+  alert('Thank you for your review, ' + name + '! Your feedback means a lot to us.');
 
   // Clear form
   document.getElementById('rm-name').value = '';
@@ -4851,7 +4946,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (saved) {
     try {
       currentUser = JSON.parse(saved);
-      document.getElementById('dash-greeting').textContent = 'Welcome back, ' + currentUser.fname + '! 👋';
+      document.getElementById('dash-greeting').textContent = 'Welcome back, ' + currentUser.fname + '! ';
     } catch(e) {}
   }
   // SECURITY: ask the server for the REAL plan. Overrides any tampered browser value.
@@ -4955,10 +5050,10 @@ function showJobResults(data, platform, q, l) {
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      ${platform!=='indeed'&&platform!=='pnet'&&platform!=='youth'?`<a href="${li}" target="_blank" style="flex:1;min-width:120px;background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.25);color:#6699ff;border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:600;text-decoration:none">🔗 LinkedIn Jobs</a>`:''}
+      ${platform!=='indeed'&&platform!=='pnet'&&platform!=='youth'?`<a href="${li}" target="_blank" style="flex:1;min-width:120px;background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.25);color:#6699ff;border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:600;text-decoration:none">LinkedIn Jobs</a>`:''}
       ${platform!=='linkedin'&&platform!=='pnet'&&platform!=='youth'?`<a href="${ind}" target="_blank" style="flex:1;min-width:120px;background:rgba(245,130,0,0.1);border:1px solid rgba(245,130,0,0.25);color:#ffa040;border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:600;text-decoration:none">🔍 Indeed Jobs</a>`:''}
-      ${platform==='both'||platform==='pnet'?`<a href="${pnet}" target="_blank" style="flex:1;min-width:120px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:600;text-decoration:none">💼 Pnet SA Jobs</a>`:''}
-      <a href="${youth}" target="_blank" style="flex:1;min-width:120px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#a78bfa;border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:600;text-decoration:none">🎯 YouthMobi</a>
+      ${platform==='both'||platform==='pnet'?`<a href="${pnet}" target="_blank" style="flex:1;min-width:120px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:var(--green);border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:600;text-decoration:none">Pnet SA Jobs</a>`:''}
+      <a href="${youth}" target="_blank" style="flex:1;min-width:120px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);color:#a78bfa;border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:600;text-decoration:none">YouthMobi</a>
     </div>
 
     <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Click any button above to see real live jobs matching your CV on that platform</p>
@@ -5000,7 +5095,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (saved) {
     try {
       currentUser = JSON.parse(saved);
-      document.getElementById('dash-greeting').textContent = 'Welcome back, ' + currentUser.fname + '! 👋';
+      document.getElementById('dash-greeting').textContent = 'Welcome back, ' + currentUser.fname + '! ';
     } catch(e) {}
   }
   // SECURITY: ask the server for the REAL plan. Overrides any tampered browser value.
@@ -5082,7 +5177,7 @@ function guideMsg(text, delay) {
       var typing = document.createElement('div');
       typing.className = 'gm-bot';
       typing.id = 'gm-typing-indicator';
-      typing.innerHTML = '<div class="gm-bot-icon">🤖</div><div class="gm-bot-bubble"><div class="gm-typing"><span></span><span></span><span></span></div></div>';
+      typing.innerHTML = '<div class="gm-bot-icon"></div><div class="gm-bot-bubble"><div class="gm-typing"><span></span><span></span><span></span></div></div>';
       msgs.appendChild(typing);
       msgs.scrollTop = msgs.scrollHeight;
       setTimeout(function() {
@@ -5090,7 +5185,7 @@ function guideMsg(text, delay) {
         if (t) t.remove();
         var bubble = document.createElement('div');
         bubble.className = 'gm-bot';
-        bubble.innerHTML = '<div class="gm-bot-icon">🤖</div><div class="gm-bot-bubble">' + text + '</div>';
+        bubble.innerHTML = '<div class="gm-bot-icon"></div><div class="gm-bot-bubble">' + text + '</div>';
         msgs.appendChild(bubble);
         msgs.scrollTop = msgs.scrollHeight;
         resolve();
@@ -5140,28 +5235,28 @@ function guideUserInput() {
 // ── WELCOME ──
 async function startGuide() {
   guideState = { step: 'welcome', tool: null, data: {} };
-  await guideMsg('👋 Hello! Welcome to <strong>Sky Blueprint</strong>!<br><br>I am <strong>Sky Guide</strong> — your personal assistant. I know every tool on this platform and I will walk you through anything step by step.<br><br>Can I help you today?');
+  await guideMsg('Hello! Welcome to <strong>Sky Blueprint</strong>!<br><br>I am <strong>Sky Guide</strong> — your personal assistant. I know every tool on this platform and I will walk you through anything step by step.<br><br>Can I help you today?');
   guideOptions([
     { label: '✅ Yes please help me!', action: showToolMenu },
-    { label: '🙋 What is Sky Blueprint?', action: explainPlatform },
-    { label: '💰 Tell me about pricing', action: explainPricing },
-    { label: '😊 No thanks, I know what to do', action: guideDismiss }
+    { label: 'What is Sky Blueprint?', action: explainPlatform },
+    { label: 'Tell me about pricing', action: explainPricing },
+    { label: 'No thanks, I know what to do', action: guideDismiss }
   ]);
 }
 
 async function explainPlatform() {
-  await guideMsg('Sky Blueprint is a South African digital platform with <strong>13 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
+  await guideMsg('Sky Blueprint is a South African digital platform with <strong>13 powerful tools</strong> in one place:<br><br><strong>Website Builder</strong> — build your business website<br><strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br><strong>CV Builder</strong> — build your CV and find matching jobs<br><strong>Learnerships & Internships</strong> — find opportunities you qualify for<br><strong>Find My Phone</strong> — track your phone if lost or stolen<br><strong>AI Business Mentor</strong> — get business advice 24/7<br><strong>Reminders & Tasks</strong> — never miss a meeting or task<br><strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
   guideOptions([
-    { label: '🚀 Let me start using the tools!', action: showToolMenu },
-    { label: '💰 Tell me about pricing', action: explainPricing },
+    { label: 'Let me start using the tools!', action: showToolMenu },
+    { label: 'Tell me about pricing', action: explainPricing },
   ]);
 }
 
 async function explainPricing() {
-  await guideMsg('Sky Blueprint has 3 simple plans:<br><br>🎁 <strong>Free Trial</strong> — 7 days full access, no credit card needed<br><br>📅 <strong>Monthly Plan — R55/month</strong><br>Pay every month via Paystack. Cancel anytime. Auto-debit from your card.<br><br>🗓️ <strong>3-Year Plan — R1,980 once-off</strong><br>Pay once, use for 3 full years. Save money long term!<br><br>📍 <strong>Find My Phone — R450 once-off</strong><br>One time activation fee to register and track your device.<br><br>💳 Payments are processed securely by <strong>Paystack</strong> — Visa, Mastercard, EFT, Ozow all accepted.');
+  await guideMsg('Sky Blueprint has 3 simple plans:<br><br><strong>Free Trial</strong> — 7 days full access, no credit card needed<br><br><strong>Monthly Plan — R55/month</strong><br>Pay every month via Paystack. Cancel anytime. Auto-debit from your card.<br><br><strong>3-Year Plan — R1,980 once-off</strong><br>Pay once, use for 3 full years. Save money long term!<br><br><strong>Find My Phone — R450 once-off</strong><br>One time activation fee to register and track your device.<br><br>Payments are processed securely by <strong>Paystack</strong> — Visa, Mastercard, EFT, Ozow all accepted.');
   guideOptions([
     { label: '✅ Start my free trial!', action: function() { showPage('signup'); toggleGuide(); } },
-    { label: '🔧 Show me the tools', action: showToolMenu },
+    { label: 'Show me the tools', action: showToolMenu },
   ]);
 }
 
@@ -5169,12 +5264,12 @@ async function explainPricing() {
 async function showToolMenu() {
   await guideMsg('Which tool do you need help with?');
   guideOptions([
-    { label: '🌐 Website Builder', action: function() { guideTool('website-builder'); } },
-    { label: '📧 Email Cleaner', action: function() { guideTool('email-cleaner'); } },
-    { label: '📍 Find My Phone', action: function() { guideTool('find-phone'); } },
-    { label: '🤖 AI Business Mentor', action: function() { guideTool('ai-mentor'); } },
-    { label: '📄 CV Builder & Jobs', action: function() { guideTool('cv-builder'); } },
-    { label: '🗺️ SA Map (Free)', action: function() { guideTool('sa-map'); } },
+    { label: 'Website Builder', action: function() { guideTool('website-builder'); } },
+    { label: 'Email Cleaner', action: function() { guideTool('email-cleaner'); } },
+    { label: 'Find My Phone', action: function() { guideTool('find-phone'); } },
+    { label: 'AI Business Mentor', action: function() { guideTool('ai-mentor'); } },
+    { label: 'CV Builder & Jobs', action: function() { guideTool('cv-builder'); } },
+    { label: 'SA Map (Free)', action: function() { guideTool('sa-map'); } },
     { label: '❓ I have another question', action: function() {
       guideMsg('Go ahead — type your question below and I will answer it!');
       guideState.step = 'freeask';
@@ -5211,9 +5306,9 @@ async function guideEmail() {
   requireAuth('email-cleaner');
   await guideMsg('The Email Cleaner connects to your REAL email account and uses AI to sort important emails from spam — then deletes the junk for you.<br><br>Which email provider do you use?');
   guideOptions([
-    { label: '📧 Gmail (Google)', action: guideEmailGmail },
-    { label: '📬 Outlook / Hotmail', action: guideEmailOutlook },
-    { label: '📮 Yahoo Mail', action: guideEmailYahoo },
+    { label: 'Gmail (Google)', action: guideEmailGmail },
+    { label: 'Outlook / Hotmail', action: guideEmailOutlook },
+    { label: 'Yahoo Mail', action: guideEmailYahoo },
   ]);
 }
 
@@ -5228,10 +5323,10 @@ async function guideEmailGmail() {
   await guideMsg('7️⃣ <strong>Come back to Sky Blueprint Email Cleaner</strong><br><br>Click <strong>Gmail</strong> → Enter your Gmail address → In the password box paste the <strong>16-character code</strong> Google gave you → Click <strong>Scan My Inbox</strong><br><br>Your real emails will load and AI will sort Important from Spam automatically! ✅');
   guideOptions([
     { label: '✅ It is working — emails loaded!', action: async function() {
-      await guideMsg('Excellent! 🎉 Your inbox is now connected!<br><br>You will see two sections:<br>✅ <strong>Important Emails</strong> — emails you need to keep<br>🚨 <strong>Spam Emails</strong> — junk mail you can delete<br><br>You can:<br>• Delete spam one by one using the <strong>Delete</strong> button<br>• Delete all spam at once using <strong>Delete All Spam</strong> button<br><br>This frees up storage on your device and keeps your inbox clean!');
+      await guideMsg('Excellent! Your inbox is now connected!<br><br>You will see two sections:<br>✅ <strong>Important Emails</strong> — emails you need to keep<br><strong>Spam Emails</strong> — junk mail you can delete<br><br>You can:<br>• Delete spam one by one using the <strong>Delete</strong> button<br>• Delete all spam at once using <strong>Delete All Spam</strong> button<br><br>This frees up storage on your device and keeps your inbox clean!');
       guideOptions([
         { label: '⬅️ Back to tools', action: showToolMenu },
-        { label: '👋 Thank you, I am done!', action: guideDismiss }
+        { label: 'Thank you, I am done!', action: guideDismiss }
       ]);
     }},
     { label: '❓ I cannot find App Passwords', action: async function() {
@@ -5269,12 +5364,12 @@ async function guidePhone() {
     { label: '✅ Yes, pay R450 and activate', action: async function() {
       await guideMsg('To pay and activate:<br><br>1️⃣ Click <strong>Pay R450 & Activate Now</strong> on the screen<br>2️⃣ Enter your Full Name, Email and Phone Number<br>3️⃣ Click <strong>Pay Securely with Paystack</strong><br>4️⃣ Complete payment with your card, EFT or Ozow<br>5️⃣ After payment you go to the <strong>Register Device</strong> screen');
       guideOptions([
-        { label: '📱 How to register my device?', action: guidePhoneRegister },
+        { label: 'How to register my device?', action: guidePhoneRegister },
         { label: '🔍 How to track my phone?', action: guidePhoneTrack },
       ]);
     }},
     { label: '❓ Tell me more first', action: async function() {
-      await guideMsg('Find My Phone works with the Sky Blueprint tracking app on your device.<br><br>📱 Once you register your device and download the app, it silently records your phone GPS location every few minutes.<br><br>🚨 If your phone is stolen — log into Sky Blueprint from any device → open Find My Phone → see the last known location on the SA map → ring it, lock it or wipe it remotely.<br><br>This has already helped many people recover their stolen phones in South Africa!');
+      await guideMsg('Find My Phone works with the Sky Blueprint tracking app on your device.<br><br>Once you register your device and download the app, it silently records your phone GPS location every few minutes.<br><br>If your phone is stolen — log into Sky Blueprint from any device → open Find My Phone → see the last known location on the SA map → ring it, lock it or wipe it remotely.<br><br>This has already helped many people recover their stolen phones in South Africa!');
       guideOptions([
         { label: '✅ Lets activate it!', action: function() { guideTool('find-phone'); }},
         { label: '⬅️ Back to tools', action: showToolMenu },
@@ -5292,7 +5387,7 @@ async function guidePhoneRegister() {
 }
 
 async function guidePhoneTrack() {
-  await guideMsg('To track your phone:<br><br>1️⃣ Click the <strong>Track Device</strong> tab<br>2️⃣ Click <strong>📍 Locate My Device</strong> button<br>3️⃣ The map will show your phone last known location<br>4️⃣ You can also:<br>&nbsp;&nbsp;🧭 Click <strong>Get Directions</strong> to get Google Maps directions to your phone<br>&nbsp;&nbsp;👁️ Click <strong>Street View</strong> to see the street your phone is on<br>&nbsp;&nbsp;🔔 Click <strong>Ring Device</strong> to make it ring loudly<br>&nbsp;&nbsp;🔒 Click <strong>Lock Device</strong> to lock the screen remotely<br>5️⃣ Click <strong>Location History</strong> tab to see where your phone has been for the last 7 days');
+  await guideMsg('To track your phone:<br><br>1️⃣ Click the <strong>Track Device</strong> tab<br>2️⃣ Click <strong>Locate My Device</strong> button<br>3️⃣ The map will show your phone last known location<br>4️⃣ You can also:<br>&nbsp;&nbsp;Click <strong>Get Directions</strong> to get Google Maps directions to your phone<br>&nbsp;&nbsp;️ Click <strong>Street View</strong> to see the street your phone is on<br>&nbsp;&nbsp;Click <strong>Ring Device</strong> to make it ring loudly<br>&nbsp;&nbsp;Click <strong>Lock Device</strong> to lock the screen remotely<br>5️⃣ Click <strong>Location History</strong> tab to see where your phone has been for the last 7 days');
   guideOptions([
     { label: '⬅️ Back to tools', action: showToolMenu },
   ]);
@@ -5304,17 +5399,17 @@ async function guideAI() {
   requireAuth('ai-mentor');
   await guideMsg('The AI Business Mentor is your <strong>24/7 South African business coach</strong>. It knows everything about:<br><br>✅ CIPC business registration (R175 fee at cipc.co.za)<br>✅ SARS tax and eFiling<br>✅ SMME funding (SEFA, IDC, NEF, Khula)<br>✅ BEE/BBBEE compliance<br>✅ Load shedding business strategies<br>✅ Marketing on social media<br>✅ Writing a business plan<br>✅ Starting any type of business in SA<br><br>Just type your question in the chat box at the bottom and press Send!<br><br>Here are some questions to get you started:');
   guideOptions([
-    { label: '💡 How do I register my business?', action: async function() {
+    { label: 'How do I register my business?', action: async function() {
       await guideMsg('Type that question in the AI chat box and press Send. The AI will explain exactly how to register at CIPC — the cost, the steps and how long it takes.<br><br>Tip: You can ask follow up questions too — like "What about tax?" or "Do I need BEE compliance?"');
     }},
-    { label: '💰 How do I get funding in SA?', action: async function() {
+    { label: 'How do I get funding in SA?', action: async function() {
       await guideMsg('Type that in the chat! The AI will tell you about SEFA, IDC, NEF, the DTI and other funding sources for small businesses in South Africa — including which ones you qualify for based on your business type.');
     }},
-    { label: '📊 How do I write a business plan?', action: async function() {
+    { label: 'How do I write a business plan?', action: async function() {
       await guideMsg('Ask the AI to write a business plan for you! Just type: "Help me write a business plan for [your business type]" and it will create a full professional plan for you.');
     }},
     { label: '✏️ I want to ask my own question', action: async function() {
-      await guideMsg('Go ahead! Type anything in the AI chat box below the chat window. The mentor knows everything about South African business. I am here if you need me! 😊');
+      await guideMsg('Go ahead! Type anything in the AI chat box below the chat window. The mentor knows everything about South African business. I am here if you need me! ');
       guideOptions([{ label: '⬅️ Back to tools', action: showToolMenu }]);
     }}
   ]);
@@ -5331,7 +5426,7 @@ async function guideCV() {
 
 // ── SA MAP ──
 async function guideMap() {
-  await guideMsg('Opening the SA Map — this is completely FREE for everyone, no login needed! 🗺️');
+  await guideMsg('Opening the SA Map — this is completely FREE for everyone, no login needed! ');
   openTool('sa-map');
   await guideMsg('The SA Map lets you explore anywhere in South Africa. Here is how to use it:<br><br>1️⃣ Type any <strong>city, suburb, street or address</strong> in the search box at the top<br>Example: "Cape Town CBD" or "Sandton Johannesburg" or "15 Long Street Cape Town"<br>2️⃣ Click <strong>Search</strong> or press Enter<br>3️⃣ The map zooms in to that exact location<br>4️⃣ Or just click one of the <strong>quick city buttons</strong> below the map — Cape Town, Johannesburg, Durban, Pretoria and more!<br><br>You can also use it to find directions, check an area before visiting, or track your registered phone location!');
   guideOptions([
@@ -5359,11 +5454,11 @@ function guideHandleInput(val) {
     guideState.step = 'wb-contact';
     guideMsg('Perfect description! ✅<br><br><strong>Step 3</strong> — Fill in your <strong>Phone Number</strong> and <strong>Email Address</strong><br><br><strong>Step 4</strong> — Choose your <strong>Business Type</strong> from the dropdown<br><br><strong>Step 5</strong> — Choose your favourite <strong>Colour Theme</strong><br><br><strong>Step 6</strong> — Click the big <strong>Generate My Website</strong> button!');
     guideOptions([
-      { label: '🚀 I clicked Generate!', action: async function() {
-        await guideMsg('🎉 Your website is generated! You will see the steps to publish it live on GitHub for free.<br><br>Your website will be live at:<br><strong>your-business-name.github.io</strong><br><br>Need help publishing it? Ask me!');
+      { label: 'I clicked Generate!', action: async function() {
+        await guideMsg('Your website is generated! You will see the steps to publish it live on GitHub for free.<br><br>Your website will be live at:<br><strong>your-business-name.github.io</strong><br><br>Need help publishing it? Ask me!');
         guideOptions([
           { label: '❓ How do I publish it?', action: async function() {
-            await guideMsg('To publish your website for free:<br><br>1️⃣ Go to <strong>github.com</strong> → create a free account<br>2️⃣ Click <strong>+</strong> → New repository → name it your business name<br>3️⃣ Set it to <strong>Public</strong> → Create<br>4️⃣ Click <strong>Add file → Upload files</strong> → upload your 3 files<br>5️⃣ Click <strong>Settings → Pages → main branch → Save</strong><br>6️⃣ Wait 3 minutes → your site is LIVE! 🚀');
+            await guideMsg('To publish your website for free:<br><br>1️⃣ Go to <strong>github.com</strong> → create a free account<br>2️⃣ Click <strong>+</strong> → New repository → name it your business name<br>3️⃣ Set it to <strong>Public</strong> → Create<br>4️⃣ Click <strong>Add file → Upload files</strong> → upload your 3 files<br>5️⃣ Click <strong>Settings → Pages → main branch → Save</strong><br>6️⃣ Wait 3 minutes → your site is LIVE! ');
           }},
           { label: '⬅️ Back to tools', action: showToolMenu }
         ]);
@@ -5375,7 +5470,7 @@ function guideHandleInput(val) {
   if (step === 'cv-firstname') {
     guideState.data.fname = val;
     guideState.step = 'cv-lastname';
-    guideMsg('Nice to meet you <strong>' + val + '</strong>! 👋<br><br><strong>Step 2</strong> — Enter your <strong>Last Name / Surname</strong>');
+    guideMsg('Nice to meet you <strong>' + val + '</strong>! <br><br><strong>Step 2</strong> — Enter your <strong>Last Name / Surname</strong>');
     document.getElementById('guide-input').placeholder = 'Type your surname...';
     return;
   }
@@ -5391,11 +5486,11 @@ function guideHandleInput(val) {
           { label: '✅ Done with experience', action: async function() {
             await guideMsg('<strong>Step 7</strong> — Add your <strong>Skills</strong> separated by commas.<br><br>Examples: Microsoft Office, Customer Service, Driving Licence, Python, Sales, Welding<br><br>Then click <strong>Build CV & Find Matching Jobs</strong>!');
             guideOptions([
-              { label: '🚀 I clicked Build CV!', action: async function() {
-                await guideMsg('🎉 Your CV is built!<br><br>The AI has detected your qualification level and is showing you only jobs you qualify for on:<br><br>💼 <strong>LinkedIn</strong><br>🔍 <strong>Indeed SA</strong><br>📋 <strong>Pnet SA</strong><br>🌟 <strong>YouthMobi</strong><br><br>Click any of those buttons to see real job listings that match your CV!<br><br>To save your CV — click <strong>Print / Save as PDF</strong> at the bottom.');
+              { label: 'I clicked Build CV!', action: async function() {
+                await guideMsg('Your CV is built!<br><br>The AI has detected your qualification level and is showing you only jobs you qualify for on:<br><br><strong>LinkedIn</strong><br>🔍 <strong>Indeed SA</strong><br><strong>Pnet SA</strong><br><strong>YouthMobi</strong><br><br>Click any of those buttons to see real job listings that match your CV!<br><br>To save your CV — click <strong>Print / Save as PDF</strong> at the bottom.');
                 guideOptions([
                   { label: '⬅️ Back to tools', action: showToolMenu },
-                  { label: '👋 I am done, thank you!', action: guideDismiss }
+                  { label: 'I am done, thank you!', action: guideDismiss }
                 ]);
               }}
             ]);
@@ -5416,7 +5511,7 @@ function guideHandleInput(val) {
 
 // ── AI FREE ANSWER ──
 async function guideAIAnswer(question) {
-  await guideMsg('Let me find the answer for you... 🤔');
+  await guideMsg('Let me find the answer for you... ');
   try {
     var res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -5445,9 +5540,9 @@ async function guideAIAnswer(question) {
 }
 
 async function guideDismiss() {
-  await guideMsg('No problem! I am always here whenever you need help. Just click the <strong>"Need help?"</strong> button at the bottom right of the screen anytime. Good luck! 🚀🇿🇦');
+  await guideMsg('No problem! I am always here whenever you need help. Just click the <strong>"Need help?"</strong> button at the bottom right of the screen anytime. Good luck! 🇿🇦');
   guideOptions([
-    { label: '👋 Thanks, bye!', action: function() { toggleGuide(); } }
+    { label: 'Thanks, bye!', action: function() { toggleGuide(); } }
   ]);
 }
 
