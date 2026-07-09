@@ -468,6 +468,7 @@ function openTool(name) {
     'pdf-tools': 'PDF Tools',
     'customers': 'Customer Manager',
     'compressor': 'File Compressor',
+    'imgeditor': 'Image Editor',
   };
   document.getElementById('tool-page-title').textContent = titles[name] || 'Tool';
   const body = document.getElementById('tool-page-body');
@@ -485,6 +486,7 @@ function openTool(name) {
     'pdf-tools': renderPDFTools,
     'customers': renderCustomerManager,
     'compressor': renderCompressor,
+    'imgeditor': renderImageEditor,
   };
   // SA Map and Templates Store are free to browse - skip subscription check
   if (name !== 'sa-map' && name !== 'templates' && isTrialExpired(currentUser)) {
@@ -522,27 +524,27 @@ function renderWebsiteBuilder(el) {
         <div class="form-group"><label>Business Type *</label>
           <select id="wb-cat">
             <option value="">Select your business type</option>
-            <optgroup label=" Retail & Commerce">
+            <optgroup label="🛍️ Retail & Commerce">
               <option>General Retail / Spaza Shop</option>
               <option>Clothing & Fashion Store</option>
               <option>Furniture & Home Decor</option>
               <option>Electronics & Gadgets</option>
               <option>Online Store / E-commerce</option>
             </optgroup>
-            <optgroup label=" Technology">
+            <optgroup label="💻 Technology">
               <option>IT Support & Repairs</option>
               <option>Software Development</option>
               <option>Cellphone Repairs</option>
               <option>CCTV & Security Systems</option>
             </optgroup>
-            <optgroup label=" Food & Hospitality">
+            <optgroup label="🍽️ Food & Hospitality">
               <option>Restaurant / Takeaway</option>
               <option>Catering Services</option>
               <option>Bakery / Confectionery</option>
               <option>Coffee Shop / Cafe</option>
               <option>Event Catering</option>
             </optgroup>
-            <optgroup label=" Beauty & Wellness">
+            <optgroup label="💅 Beauty & Wellness">
               <option>Hair Salon</option>
               <option>Nail Salon</option>
               <option>Barbershop</option>
@@ -550,7 +552,7 @@ function renderWebsiteBuilder(el) {
               <option>Makeup Artist</option>
               <option>Fitness & Personal Training</option>
             </optgroup>
-            <optgroup label=" Construction & Trades">
+            <optgroup label="🏗️ Construction & Trades">
               <option>Construction & Building</option>
               <option>Plumbing Services</option>
               <option>Electrical Services</option>
@@ -558,47 +560,47 @@ function renderWebsiteBuilder(el) {
               <option>Cleaning Services</option>
               <option>Landscaping & Gardening</option>
             </optgroup>
-            <optgroup label=" Transport & Logistics">
+            <optgroup label="🚗 Transport & Logistics">
               <option>Taxi / Transport Service</option>
               <option>Courier & Delivery</option>
               <option>Car Wash & Detailing</option>
               <option>Panel Beating & Auto Repair</option>
               <option>Towing Services</option>
             </optgroup>
-            <optgroup label=" Health & Medical">
+            <optgroup label="❤️ Health & Medical">
               <option>Medical Practice / Clinic</option>
               <option>Pharmacy</option>
               <option>Physiotherapy</option>
               <option>Traditional Healer</option>
               <option>Home Care Services</option>
             </optgroup>
-            <optgroup label=" Education & Training">
+            <optgroup label="📚 Education & Training">
               <option>Tutoring / Extra Lessons</option>
               <option>Daycare / Creche</option>
               <option>Skills Training Centre</option>
               <option>Driving School</option>
             </optgroup>
-            <optgroup label=" Professional Services">
+            <optgroup label="⚖️ Professional Services">
               <option>Law Firm / Legal Services</option>
               <option>Accounting & Tax</option>
               <option>Insurance Brokerage</option>
               <option>Property / Real Estate</option>
               <option>Consulting Services</option>
             </optgroup>
-            <optgroup label=" Community & NGO">
+            <optgroup label="⛪ Community & NGO">
               <option>Church / Ministry</option>
               <option>Non-Profit Organisation</option>
               <option>Community Centre</option>
               <option>Charity / Foundation</option>
             </optgroup>
-            <optgroup label=" Creative & Events">
+            <optgroup label="🎨 Creative & Events">
               <option>Photography & Videography</option>
               <option>Graphic Design</option>
               <option>Event Planning</option>
               <option>Music & Entertainment</option>
               <option>Art & Crafts</option>
             </optgroup>
-            <optgroup label=" Agriculture">
+            <optgroup label="🌱 Agriculture">
               <option>Farming & Agriculture</option>
               <option>Poultry & Livestock</option>
               <option>Garden Supplies</option>
@@ -663,7 +665,7 @@ function renderWebsiteBuilder(el) {
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:linear-gradient(135deg,rgba(168,85,247,0.06),rgba(99,102,241,0.05));border:1px solid rgba(168,85,247,0.25);border-radius:12px;padding:16px">
           <input type="checkbox" id="wb-premium" onchange="updateWbPrice()" style="width:18px;height:18px;accent-color:#a855f7;cursor:pointer;margin-top:2px">
           <span style="flex:1">
-            <strong style="color:#fff;font-size:14px">⭐ Upgrade to Premium — R5,000 all-inclusive</strong><br>
+            <strong style="color:#fff;font-size:14px">⭐ Upgrade to Premium — R3,500 all-inclusive</strong><br>
             <span style="font-size:12px;color:var(--muted);line-height:1.7;display:block;margin-top:6px">
               Everything done for you: up to 5 pages, online payment setup (Paystack), custom favicon, .co.za domain (1st year free), business email setup, and 1 month priority support. No extra fees.
             </span>
@@ -816,12 +818,12 @@ function updateWbPrice() {
     // Premium is R3,500 all-inclusive (domain + favicon included)
     extra = 0; faviconFee = 0;
     if (baseLabel) baseLabel.textContent = 'Premium Package (all-inclusive)';
-    if (basePrice) basePrice.textContent = 'R5,000';
+    if (basePrice) basePrice.textContent = 'R3,500';
     if (premRow) premRow.style.display = 'block';
     if (ownWrap) ownWrap.style.display = 'none';
     if (row) row.style.display = 'none';
     if (favRow) favRow.style.display = 'none';
-    if (total) total.textContent = 'R5,000';
+    if (total) total.textContent = 'R3,500';
     return;
   }
 
@@ -1871,8 +1873,9 @@ function buildAndMatchCV() {
     '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:18px">' +
     '<strong style="color:var(--green);display:block;margin-bottom:12px;font-size:16px">✅ CV Built for ' + fn + ' ' + ln + '!</strong>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
-    '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📄 Save as PDF</button>' +
-    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
+    '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as PDF</button>' +
+    '<button onclick="downloadCVWord()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as Word (editable)</button>' +
+    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
     '</div>' +
     '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">✍️ Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
     '<p style="font-size:11px;color:#64748b;margin:0">📱 "Save as PDF" works on phone & PC — when the print screen opens, choose <strong>Save as PDF</strong>. Then share on WhatsApp or email.</p>' +
@@ -1910,34 +1913,234 @@ function detectLevel(qual, exp) {
   }};
 }
 
-function downloadCV() {
-  // Download a REAL PDF file - works on both PC and phone
-  if (!window._cvHTML) { alert('Please build your CV first.'); return; }
+function downloadCVWord() {
+  if (!window._cvData) { alert('Please build your CV first.'); return; }
+  var d = window._cvData;
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  // Use html2pdf if available for a true PDF file
-  if (typeof html2pdf !== 'undefined') {
-    var wrapper = document.createElement('div');
-    wrapper.innerHTML = window._cvHTML;
-    // strip the print button from the PDF
-    var noprint = wrapper.querySelectorAll('.no-print');
-    noprint.forEach(function(n){ n.remove(); });
+  // Build a Word-compatible HTML document (opens & edits perfectly in MS Word, Google Docs, LibreOffice)
+  var html =
+    '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+    '<head><meta charset="utf-8"><title>CV</title>' +
+    '<style>' +
+    'body{font-family:Calibri,Arial,sans-serif;color:#1e293b;font-size:11pt;line-height:1.4}' +
+    'h1{font-size:22pt;color:#0f172a;margin:0 0 2pt 0}' +
+    '.role{font-size:12pt;color:#b45309;margin:0 0 10pt 0;font-weight:bold}' +
+    '.contact{font-size:10pt;color:#475569;margin-bottom:14pt}' +
+    'h2{font-size:13pt;color:#0f172a;border-bottom:1.5pt solid #d4af37;padding-bottom:2pt;margin:14pt 0 6pt 0}' +
+    'p{margin:0 0 8pt 0}' +
+    '.skill{display:inline-block;margin:0 4pt 4pt 0}' +
+    '</style></head><body>' +
+    '<h1>' + esc(d.fn) + ' ' + esc(d.ln) + '</h1>' +
+    (d.jt ? '<p class="role">' + esc(d.jt) + '</p>' : '') +
+    '<p class="contact">' + esc(d.em) + ' &nbsp;|&nbsp; ' + esc(d.ph) + (d.ci ? ' &nbsp;|&nbsp; ' + esc(d.ci) : '') + '</p>';
 
-    var opt = {
-      margin: 0,
-      filename: (window._cvName || 'My_CV') + '.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#060914' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    alert('Preparing your PDF... it will download in a moment.');
-    html2pdf().set(opt).from(wrapper).save().catch(function(){
-      // fallback to print method
-      downloadCVPrint();
-    });
-    return;
+  if (d.sum) html += '<h2>Professional Summary</h2><p>' + esc(d.sum) + '</p>';
+  if (d.qual) html += '<h2>Education & Qualifications</h2><p>' + esc(d.qual) + '</p>';
+  if (d.exp || d.co) {
+    html += '<h2>Work Experience</h2>';
+    if (d.co) html += '<p><b>' + esc(d.co) + '</b></p>';
+    if (d.exp) html += '<p>' + esc(String(d.exp)) + (String(d.exp).match(/year|month/i) ? '' : ' years') + ' experience</p>';
   }
-  // Fallback: browser print-to-PDF
-  downloadCVPrint();
+  if (d.sk) {
+    html += '<h2>Skills</h2><p>';
+    var skills = String(d.sk).split(/[,\n]/).filter(function(s){ return s.trim(); });
+    html += skills.map(function(s){ return '&#8226; ' + esc(s.trim()); }).join('&nbsp;&nbsp;&nbsp;');
+    html += '</p>';
+  }
+  html += '</body></html>';
+
+  var blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = (window._cvName || (d.fn + '_' + d.ln + '_CV')) + '.doc';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function downloadCV() {
+  // Generate a TRUE PDF (real text, exact colors, selectable) - not a screenshot
+  if (!window._cvData) { alert('Please build your CV first.'); return; }
+  var jsPDFLib = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFLib) {
+    // fallback to old html2pdf method if jsPDF missing
+    if (typeof html2pdf !== 'undefined' && window._cvHTML) { downloadCVLegacy(); return; }
+    downloadCVPrint(); return;
+  }
+
+  var d = window._cvData;
+  var doc = new jsPDFLib({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  var PAGE_W = 210, PAGE_H = 297, SIDE_W = 72;
+
+  // Colors: dark ink sidebar, gold accent, clean white main
+  var INK = [15, 23, 42];        // #0F172A
+  var GOLD = [212, 175, 55];     // gold accent
+  var LIGHT = [226, 232, 240];   // light text on dark
+  var MUTE = [148, 163, 184];    // muted
+  var DARK_TEXT = [30, 41, 59];  // main body text
+  var HEAD = [15, 23, 42];       // headings on white
+
+  // ===== SIDEBAR (dark) =====
+  doc.setFillColor(INK[0], INK[1], INK[2]);
+  doc.rect(0, 0, SIDE_W, PAGE_H, 'F');
+  // gold top accent line
+  doc.setFillColor(GOLD[0], GOLD[1], GOLD[2]);
+  doc.rect(0, 0, SIDE_W, 2.5, 'F');
+
+  var sx = 10, sy = 26, sw = SIDE_W - 20;
+
+  // Name
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(17);
+  var nameLines = doc.splitTextToSize((d.fn + ' ' + d.ln).trim(), sw);
+  doc.text(nameLines, sx, sy);
+  sy += nameLines.length * 7 + 2;
+
+  // Job title
+  doc.setTextColor(GOLD[0], GOLD[1], GOLD[2]);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10.5);
+  doc.text(d.jt || '', sx, sy);
+  sy += 12;
+
+  function sideHeading(label) {
+    doc.setTextColor(GOLD[0], GOLD[1], GOLD[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text(label.toUpperCase(), sx, sy);
+    sy += 2;
+    doc.setDrawColor(GOLD[0], GOLD[1], GOLD[2]);
+    doc.setLineWidth(0.4);
+    doc.line(sx, sy, sx + sw, sy);
+    sy += 6;
+  }
+  function sideText(text, size) {
+    doc.setTextColor(LIGHT[0], LIGHT[1], LIGHT[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(size || 8.5);
+    var lines = doc.splitTextToSize(text, sw);
+    doc.text(lines, sx, sy);
+    sy += lines.length * 4.2 + 2;
+  }
+
+  // CONTACT
+  sideHeading('Contact');
+  if (d.ph) sideText('Phone:  ' + d.ph);
+  if (d.em) sideText('Email:  ' + d.em);
+  if (d.ci) sideText('Location:  ' + d.ci);
+  sy += 6;
+
+  // SKILLS
+  var skills = (d.sk || '').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  if (skills.length) {
+    sideHeading('Skills');
+    skills.forEach(function(s) {
+      doc.setFillColor(GOLD[0], GOLD[1], GOLD[2]);
+      doc.circle(sx + 1.2, sy - 1.2, 0.8, 'F');
+      doc.setTextColor(LIGHT[0], LIGHT[1], LIGHT[2]);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      var lines = doc.splitTextToSize(s, sw - 5);
+      doc.text(lines, sx + 4, sy);
+      sy += lines.length * 4.2 + 1.5;
+    });
+    sy += 5;
+  }
+
+  // REFERENCES
+  sideHeading('References');
+  doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(8.5);
+  doc.text('Available on request', sx, sy);
+
+  // ===== MAIN AREA (white) =====
+  var mx = SIDE_W + 12, my = 26, mw = PAGE_W - mx - 12;
+
+  function mainHeading(label) {
+    doc.setTextColor(HEAD[0], HEAD[1], HEAD[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text(label.toUpperCase(), mx, my);
+    my += 2;
+    doc.setDrawColor(GOLD[0], GOLD[1], GOLD[2]);
+    doc.setLineWidth(0.5);
+    doc.line(mx, my, mx + mw, my);
+    my += 7;
+  }
+  function mainText(text, size, color) {
+    var c = color || DARK_TEXT;
+    doc.setTextColor(c[0], c[1], c[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(size || 9.5);
+    var lines = doc.splitTextToSize(text, mw);
+    doc.text(lines, mx, my);
+    my += lines.length * 4.6 + 2;
+  }
+
+  // PERSONAL PROFILE
+  if (d.sum) {
+    mainHeading('Personal Profile');
+    mainText(d.sum);
+    my += 6;
+  }
+
+  // EDUCATION
+  if (d.qual) {
+    mainHeading('Education');
+    doc.setTextColor(HEAD[0], HEAD[1], HEAD[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text(d.qual, mx, my);
+    my += 12;
+  }
+
+  // WORK EXPERIENCE
+  mainHeading('Work Experience');
+  if (d.jt) {
+    doc.setTextColor(HEAD[0], HEAD[1], HEAD[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text(d.jt, mx, my);
+    my += 5;
+  }
+  if (d.co) {
+    doc.setTextColor(GOLD[0], GOLD[1], GOLD[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(d.co, mx, my);
+    my += 5;
+  }
+  if (d.exp) {
+    mainText(d.exp + (String(d.exp).match(/year|month/i) ? '' : ' years') + ' experience', 8.5, MUTE);
+  }
+
+  // Footer branding
+  doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(7.5);
+  doc.text('Sky Blueprint — Your Digital Life, Unified', (SIDE_W + PAGE_W) / 2, PAGE_H - 10, { align: 'center' });
+
+  doc.save((window._cvName || 'My_CV') + '.pdf');
+}
+
+function downloadCVLegacy() {
+  var wrapper = document.createElement('div');
+  wrapper.innerHTML = window._cvHTML;
+  var noprint = wrapper.querySelectorAll('.no-print');
+  noprint.forEach(function(n){ n.remove(); });
+  var opt = {
+    margin: 0,
+    filename: (window._cvName || 'My_CV') + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#060914' },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(wrapper).save().catch(function(){ downloadCVPrint(); });
 }
 
 function downloadCVPrint() {
@@ -2131,6 +2334,21 @@ function generateCoverLetter() {
 
   window._clHTML = clHTML;
   window._clName = (d.fn + '_' + d.ln + '_CoverLetter').replace(/\s+/g,'_');
+  // Store raw text so we can build a TRUE text PDF (selectable, real fonts, exact colors)
+  window._clData = {
+    name: d.fn + ' ' + d.ln,
+    contact: [d.em, d.ph, d.ci].filter(Boolean).join('  |  '),
+    date: today,
+    company: company,
+    role: role,
+    paragraphs: [
+      greeting,
+      'I am writing to apply for the position of ' + role + ' at ' + company + '. ' + why,
+      summaryLine + ' ' + expSentence,
+      skillsSentence + ' I am a reliable, hardworking person who shows up consistently and takes pride in doing a job well. I am confident that I can make a positive contribution to ' + company + ' from day one.',
+      'I would welcome the opportunity to discuss how my skills and dedication align with your needs. Thank you for taking the time to consider my application. I look forward to hearing from you.'
+    ]
+  };
 
   // Show success with download options - into cl-result if it exists, else cv-msg
   var outEl = document.getElementById('cl-result') || document.getElementById('cv-msg');
@@ -2149,6 +2367,53 @@ function generateCoverLetter() {
 }
 
 function downloadCoverLetter() {
+  // TRUE PDF: real selectable text, exact solid colors - not a screenshot
+  var jsPDFLib = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (jsPDFLib && window._clData) {
+    var c = window._clData;
+    var doc = new jsPDFLib({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    var M = 22, W = 210 - M * 2, y = 24;
+    var INK = [13, 31, 60], GRAY = [85, 85, 85], BLUE = [56, 189, 248];
+
+    // Header: name + contact + blue rule
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(INK[0], INK[1], INK[2]);
+    doc.text(c.name, M, y); y += 7;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+    doc.text(c.contact, M, y); y += 5;
+    doc.setDrawColor(BLUE[0], BLUE[1], BLUE[2]); doc.setLineWidth(1);
+    doc.line(M, y, 210 - M, y); y += 10;
+
+    // Date + company block
+    doc.setFontSize(10); doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+    doc.text(c.date, M, y); y += 10;
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(INK[0], INK[1], INK[2]);
+    doc.text('The Hiring Team', M, y); y += 5;
+    doc.text(c.company, M, y); y += 10;
+
+    // Body paragraphs (real wrapped text)
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5); doc.setTextColor(26, 26, 46);
+    c.paragraphs.forEach(function(p) {
+      var lines = doc.splitTextToSize(p, W);
+      if (y + lines.length * 5.4 > 270) { doc.addPage(); y = 24; }
+      doc.text(lines, M, y, { lineHeightFactor: 1.5 });
+      y += lines.length * 5.4 + 5;
+    });
+
+    // Signature
+    if (y + 24 > 280) { doc.addPage(); y = 24; }
+    y += 4;
+    doc.text('Yours sincerely,', M, y); y += 8;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(INK[0], INK[1], INK[2]);
+    doc.text(c.name, M, y);
+
+    // Footer
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(BLUE[0], BLUE[1], BLUE[2]);
+    doc.text('Created with Sky Blueprint', 105, 290, { align: 'center' });
+
+    doc.save((window._clName || 'Cover_Letter') + '.pdf');
+    return;
+  }
+  // Fallbacks if jsPDF unavailable
   if (!window._clHTML) { alert('Please create your cover letter first.'); return; }
   if (typeof html2pdf !== 'undefined') {
     var wrapper = document.createElement('div');
@@ -2161,7 +2426,6 @@ function downloadCoverLetter() {
       html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    alert('Preparing your cover letter PDF... it will download in a moment.');
     html2pdf().set(opt).from(wrapper).save().catch(function(){ downloadCoverLetterPrint(); });
     return;
   }
@@ -2294,8 +2558,9 @@ function showMatchingJobs(data, name, loc, jobTitle) {
     '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:18px">' +
     '<strong style="color:var(--green);display:block;margin-bottom:12px;font-size:16px">✅ CV Built for ' + (name||'You') + '!</strong>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
-    '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">📄 Save as PDF</button>' +
-    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">👁 Preview</button>' +
+    '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as PDF</button>' +
+    '<button onclick="downloadCVWord()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as Word (editable)</button>' +
+    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
     '</div>' +
     '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">✍️ Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
     '<p style="font-size:11px;color:#64748b;margin-bottom:14px">📱 "Save as PDF" works on phone & PC. Then share on WhatsApp or email when applying.</p>' +
@@ -2514,6 +2779,192 @@ function deleteCustomer(id, name) {
   .then(function(r){ return r.json(); })
   .then(function(){ loadCustomers(); })
   .catch(function(){ alert('Could not delete. Try again.'); });
+}
+
+function renderImageEditor(el) {
+  el.innerHTML =
+    '<div class="tool-screen">' +
+    '<h2>Image Editor</h2>' +
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Edit photos and images — draw, paint, erase, and touch up.</p>' +
+    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Everything happens on your device. Your images stay private.</p>' +
+    '<div id="ie-start">' +
+    '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:32px;text-align:center">' +
+    '<p style="color:#fff;font-weight:600;margin-bottom:6px">Open an image to edit</p>' +
+    '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">JPG, PNG or any image</p>' +
+    '<input type="file" id="ie-file" accept="image/*" onchange="ieLoadImage(this)" style="display:none">' +
+    '<button class="btn-primary" onclick="document.getElementById(\'ie-file\').click()">Choose Image</button>' +
+    '</div></div>' +
+    '<div id="ie-workspace" style="display:none">' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px">' +
+        '<button onclick="ieSetTool(\'brush\')" id="ie-tool-brush" class="ie-tool ie-active" style="' + ieBtnStyle() + '">Brush</button>' +
+        '<button onclick="ieSetTool(\'white\')" id="ie-tool-white" class="ie-tool" style="' + ieBtnStyle() + '">White Paint</button>' +
+        '<button onclick="ieSetTool(\'erase\')" id="ie-tool-erase" class="ie-tool" style="' + ieBtnStyle() + '">Eraser</button>' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-left:8px">' +
+          '<span style="font-size:12px;color:var(--muted)">Color</span>' +
+          '<input type="color" id="ie-color" value="#000000" style="width:36px;height:32px;border:none;border-radius:6px;background:none;cursor:pointer">' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:6px">' +
+          '<span style="font-size:12px;color:var(--muted)">Size</span>' +
+          '<input type="range" id="ie-size" min="2" max="60" value="12" style="width:90px">' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' +
+        '<button onclick="ieUndo()" style="' + ieBtnStyle() + '">Undo</button>' +
+        '<button onclick="ieClear()" style="' + ieBtnStyle() + '">Reset</button>' +
+        '<button onclick="ieDownload()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Download Image</button>' +
+        '<button onclick="ieReset()" style="' + ieBtnStyle() + '">New Image</button>' +
+      '</div>' +
+      '<div style="overflow:auto;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:#1a1a1a;text-align:center;padding:10px">' +
+        '<canvas id="ie-canvas" style="max-width:100%;touch-action:none;cursor:crosshair;border-radius:6px"></canvas>' +
+      '</div>' +
+      '<p style="font-size:11px;color:#64748b;margin-top:10px">Tip: use White Paint to cover things (like correction fluid), the Eraser to rub areas back to transparent, or the Brush with any color to draw.</p>' +
+    '</div>' +
+    '</div>';
+}
+
+function ieBtnStyle() {
+  return 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)';
+}
+
+var ieState = { tool:'brush', drawing:false, ctx:null, canvas:null, history:[], lastX:0, lastY:0 };
+
+function ieLoadImage(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.getElementById('ie-canvas');
+      // Cap dimensions so huge images stay manageable
+      var maxDim = 1400;
+      var w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      ieState.canvas = canvas;
+      ieState.ctx = ctx;
+      ieState.history = [];
+      ieSaveHistory();
+      document.getElementById('ie-start').style.display = 'none';
+      document.getElementById('ie-workspace').style.display = 'block';
+      ieBindEvents();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function ieSetTool(tool) {
+  ieState.tool = tool;
+  ['brush','white','erase'].forEach(function(t){
+    var b = document.getElementById('ie-tool-' + t);
+    if (b) { b.style.background = (t === tool) ? 'linear-gradient(135deg,#38bdf8,#6366f1)' : 'rgba(255,255,255,0.06)'; b.style.color = '#fff'; }
+  });
+}
+
+function ieSaveHistory() {
+  if (!ieState.ctx) return;
+  try {
+    if (ieState.history.length > 15) ieState.history.shift();
+    ieState.history.push(ieState.ctx.getImageData(0, 0, ieState.canvas.width, ieState.canvas.height));
+  } catch(e) {}
+}
+
+function ieUndo() {
+  if (ieState.history.length > 1) {
+    ieState.history.pop();
+    ieState.ctx.putImageData(ieState.history[ieState.history.length - 1], 0, 0);
+  }
+}
+
+function ieClear() {
+  if (ieState.history.length > 0) {
+    ieState.ctx.putImageData(ieState.history[0], 0, 0);
+    ieState.history = [ieState.history[0]];
+  }
+}
+
+function ieReset() {
+  document.getElementById('ie-start').style.display = 'block';
+  document.getElementById('ie-workspace').style.display = 'none';
+  document.getElementById('ie-file').value = '';
+}
+
+function ieGetPos(e) {
+  var canvas = ieState.canvas;
+  var rect = canvas.getBoundingClientRect();
+  var scaleX = canvas.width / rect.width;
+  var scaleY = canvas.height / rect.height;
+  var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+}
+
+function ieBindEvents() {
+  var canvas = ieState.canvas;
+
+  function start(e) {
+    e.preventDefault();
+    ieState.drawing = true;
+    var p = ieGetPos(e);
+    ieState.lastX = p.x; ieState.lastY = p.y;
+    ieDraw(e);
+  }
+  function move(e) { if (ieState.drawing) { e.preventDefault(); ieDraw(e); } }
+  function end() { if (ieState.drawing) { ieState.drawing = false; ieSaveHistory(); } }
+
+  canvas.onmousedown = start;
+  canvas.onmousemove = move;
+  canvas.onmouseup = end;
+  canvas.onmouseleave = end;
+  canvas.ontouchstart = start;
+  canvas.ontouchmove = move;
+  canvas.ontouchend = end;
+}
+
+function ieDraw(e) {
+  var ctx = ieState.ctx;
+  var p = ieGetPos(e);
+  var size = parseInt(document.getElementById('ie-size').value) || 12;
+
+  ctx.lineWidth = size;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  if (ieState.tool === 'erase') {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.strokeStyle = 'rgba(0,0,0,1)';
+  } else if (ieState.tool === 'white') {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = '#ffffff';
+  } else {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = document.getElementById('ie-color').value;
+  }
+
+  ctx.beginPath();
+  ctx.moveTo(ieState.lastX, ieState.lastY);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+
+  ctx.globalCompositeOperation = 'source-over';
+  ieState.lastX = p.x; ieState.lastY = p.y;
+}
+
+function ieDownload() {
+  if (!ieState.canvas) return;
+  var url = ieState.canvas.toDataURL('image/png');
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'edited-image.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function renderCompressor(el) {
@@ -2758,6 +3209,7 @@ function renderPDFTools(el) {
     '<div class="tab active" onclick="pdfTab(\'csv\',this)">CSV / Excel to PDF</div>' +
     '<div class="tab" onclick="pdfTab(\'image\',this)">Images to PDF</div>' +
     '<div class="tab" onclick="pdfTab(\'text\',this)">Text to PDF</div>' +
+    '<div class="tab" onclick="pdfTab(\'wiper\',this)">Ink Wiper</div>' +
     '</div>' +
 
     // CSV/Excel to PDF
@@ -2795,19 +3247,251 @@ function renderPDFTools(el) {
     '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="textToPDF()">Convert to PDF</button>' +
     '</div>' +
 
+    '<div id="pdf-wiper" style="display:none">' +
+    '<div class="cv-sec-title">Ink Wiper</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Like Tipp-Ex for your documents: brush over pen ink, marks or unwanted writing on a scanned form or photo, and wipe it clean. Works with JPG, PNG and PDF.</p>' +
+    '<div id="wiper-area"></div>' +
+    '</div>' +
+
     '<div style="background:rgba(139,92,246,0.06);border-radius:12px;padding:14px;margin-top:20px">' +
     '<p style="font-size:12px;color:#c4b5fd;margin:0;line-height:1.6">🔒 <strong>100% Private:</strong> All conversions happen on your device. Your files are never uploaded to any server.</p>' +
     '</div>' +
     '</div>';
 }
 
+// ═══════════ INK WIPER TOOL ═══════════
+var _wiper = { canvas:null, ctx:null, brush:18, mode:'white', pickColor:'#ffffff', undoStack:[], pdfPages:[], currentPage:0, isPdf:false, fileName:'document' };
+
+function initWiper() {
+  var area = document.getElementById('wiper-area');
+  if (!area) return;
+  // Terms must be accepted once before use
+  if (!safeStorage.getItem('sb_wiper_terms')) {
+    area.innerHTML =
+      '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:18px">' +
+      '<strong style="color:#f59e0b;display:block;margin-bottom:10px;font-size:14px">Terms of Use — please read before using the Ink Wiper</strong>' +
+      '<div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:14px">' +
+      'This tool is for <strong style="color:#fff">lawful editing of your own documents only</strong> — for example, cleaning marks off a scanned form so you can reuse it, or removing notes from your own paperwork.<br><br>' +
+      '<strong style="color:#f87171">You may NOT use this tool to alter official, signed, or legal documents with intent to deceive.</strong> Altering documents such as IDs, certificates, contracts, bank statements, proof of payments or signed agreements to mislead anyone is <strong style="color:#f87171">fraud and a criminal offence</strong> under South African law.<br><br>' +
+      'By accepting, you confirm that: (1) you will only edit documents you have the right to edit, (2) you accept <strong style="color:#fff">full and sole legal responsibility</strong> for anything you create with this tool, and (3) Sky Blueprint and its owner are <strong style="color:#fff">not liable in any way</strong> for how you use it.' +
+      '</div>' +
+      '<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:14px">' +
+      '<input type="checkbox" id="wiper-agree" style="width:18px;height:18px;margin-top:1px;accent-color:#f59e0b;cursor:pointer">' +
+      '<span style="font-size:12px;color:#fff">I have read and accept these terms. I take full responsibility for my use of this tool.</span>' +
+      '</label>' +
+      '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="acceptWiperTerms()">Accept & Continue</button>' +
+      '</div>';
+    return;
+  }
+  renderWiperUpload();
+}
+
+function acceptWiperTerms() {
+  var cb = document.getElementById('wiper-agree');
+  if (!cb || !cb.checked) { alert('Please tick the box to confirm you accept the terms.'); return; }
+  safeStorage.setItem('sb_wiper_terms', JSON.stringify({ accepted: true, date: new Date().toISOString() }));
+  renderWiperUpload();
+}
+
+function renderWiperUpload() {
+  var area = document.getElementById('wiper-area');
+  area.innerHTML =
+    '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
+    '<p style="color:#fff;font-weight:600;margin-bottom:6px">Choose a file to clean</p>' +
+    '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">JPG, PNG or PDF (up to 20 pages). Everything happens on your device — nothing is uploaded.</p>' +
+    '<input type="file" id="wiper-input" accept="image/jpeg,image/png,application/pdf" onchange="loadWiperFile()" style="display:none">' +
+    '<button class="btn-primary" onclick="document.getElementById(\'wiper-input\').click()">Choose File</button>' +
+    '</div>' +
+    '<div id="wiper-editor"></div>';
+}
+
+function loadWiperFile() {
+  var input = document.getElementById('wiper-input');
+  var file = input.files[0];
+  if (!file) return;
+  _wiper.fileName = (file.name || 'document').replace(/\.[^.]+$/, '');
+  _wiper.undoStack = []; _wiper.pdfPages = []; _wiper.currentPage = 0;
+
+  if (file.type === 'application/pdf') {
+    _wiper.isPdf = true;
+    if (typeof pdfjsLib === 'undefined') { alert('PDF support is still loading. Please try again in a few seconds.'); return; }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      pdfjsLib.getDocument({ data: e.target.result }).promise.then(function(pdf) {
+        var numPages = Math.min(pdf.numPages, 20);
+        var loaded = 0;
+        _wiper.pdfPages = new Array(numPages);
+        document.getElementById('wiper-editor').innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Loading PDF pages...</p>';
+        for (var i = 1; i <= numPages; i++) {
+          (function(pageNum) {
+            pdf.getPage(pageNum).then(function(page) {
+              var viewport = page.getViewport({ scale: 2 });
+              var c = document.createElement('canvas');
+              c.width = viewport.width; c.height = viewport.height;
+              page.render({ canvasContext: c.getContext('2d'), viewport: viewport }).promise.then(function() {
+                _wiper.pdfPages[pageNum - 1] = c;
+                loaded++;
+                if (loaded === numPages) openWiperEditor(_wiper.pdfPages[0]);
+              });
+            });
+          })(i);
+        }
+      }).catch(function(){ alert('Could not read this PDF. It may be protected or corrupted.'); });
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    _wiper.isPdf = false;
+    var reader2 = new FileReader();
+    reader2.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var maxDim = 2400, w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) { if (w > h) { h = Math.round(h*maxDim/w); w = maxDim; } else { w = Math.round(w*maxDim/h); h = maxDim; } }
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        openWiperEditor(c);
+      };
+      img.onerror = function(){ alert('Could not read this image.'); };
+      img.src = e.target.result;
+    };
+    reader2.readAsDataURL(file);
+  }
+}
+
+function openWiperEditor(sourceCanvas) {
+  var editor = document.getElementById('wiper-editor');
+  var pageSelector = '';
+  if (_wiper.isPdf && _wiper.pdfPages.length > 1) {
+    pageSelector = '<div class="form-group"><label>Page</label><select id="wiper-page" onchange="switchWiperPage()" style="width:100%;box-sizing:border-box">';
+    for (var i = 0; i < _wiper.pdfPages.length; i++) pageSelector += '<option value="' + i + '">Page ' + (i+1) + '</option>';
+    pageSelector += '</select></div>';
+  }
+
+  editor.innerHTML =
+    pageSelector +
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end">' +
+    '<div style="flex:1;min-width:140px"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Wiper size: <span id="wiper-size-val">18</span></label>' +
+    '<input type="range" min="6" max="60" value="18" oninput="_wiper.brush=parseInt(this.value);document.getElementById(\'wiper-size-val\').textContent=this.value" style="width:100%"></div>' +
+    '<div style="flex:1;min-width:140px"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Wipe with</label>' +
+    '<select id="wiper-mode" onchange="_wiper.mode=this.value" style="width:100%;box-sizing:border-box"><option value="white">White (like Tipp-Ex)</option><option value="pick">Match background (tap image first to pick)</option></select></div>' +
+    '<button onclick="wiperUndo()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">Undo</button>' +
+    '</div>' +
+    '<p style="font-size:11px;color:var(--muted);margin-bottom:8px">Drag your finger or mouse over the ink you want to remove. Zoom your browser for precision.</p>' +
+    '<div style="overflow:auto;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:#333;max-height:65vh;touch-action:none">' +
+    '<canvas id="wiper-canvas" style="display:block;max-width:100%;height:auto;cursor:crosshair"></canvas>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">' +
+    (_wiper.isPdf
+      ? '<button class="btn-primary" style="flex:1;min-width:150px" onclick="downloadWiperPDF()">Download Cleaned PDF</button>'
+      : '<button class="btn-primary" style="flex:1;min-width:150px" onclick="downloadWiperImage(\'png\')">Download PNG</button>' +
+        '<button class="btn-primary" style="flex:1;min-width:150px" onclick="downloadWiperImage(\'jpg\')">Download JPG</button>') +
+    '<button onclick="renderWiperUpload()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">New File</button>' +
+    '</div>';
+
+  var canvas = document.getElementById('wiper-canvas');
+  canvas.width = sourceCanvas.width; canvas.height = sourceCanvas.height;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(sourceCanvas, 0, 0);
+  _wiper.canvas = canvas; _wiper.ctx = ctx;
+  _wiper.undoStack = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
+
+  var drawing = false;
+  function canvasPos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    var cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    return { x: cx * canvas.width / rect.width, y: cy * canvas.height / rect.height };
+  }
+  function wipe(pos) {
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, _wiper.brush, 0, Math.PI * 2);
+    ctx.fillStyle = _wiper.mode === 'white' ? '#ffffff' : _wiper.pickColor;
+    ctx.fill();
+  }
+  function start(e) {
+    e.preventDefault();
+    var pos = canvasPos(e);
+    if (_wiper.mode === 'pick' && !drawing && e.shiftKey !== true) {
+      // First tap in pick mode samples the background color at that point
+      var p = ctx.getImageData(Math.max(0,Math.round(pos.x)), Math.max(0,Math.round(pos.y)), 1, 1).data;
+      _wiper.pickColor = 'rgb(' + p[0] + ',' + p[1] + ',' + p[2] + ')';
+    }
+    // save undo snapshot (cap at 12)
+    if (_wiper.undoStack.length >= 12) _wiper.undoStack.shift();
+    _wiper.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    drawing = true;
+    wipe(pos);
+  }
+  function move(e) { if (!drawing) return; e.preventDefault(); wipe(canvasPos(e)); }
+  function end() { drawing = false; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  canvas.addEventListener('touchend', end);
+}
+
+function switchWiperPage() {
+  // save current page edits back into the page store, then load selected page
+  var sel = document.getElementById('wiper-page');
+  var newPage = parseInt(sel.value);
+  if (_wiper.canvas && _wiper.pdfPages[_wiper.currentPage]) {
+    var store = _wiper.pdfPages[_wiper.currentPage];
+    store.getContext('2d').drawImage(_wiper.canvas, 0, 0);
+  }
+  _wiper.currentPage = newPage;
+  openWiperEditor(_wiper.pdfPages[newPage]);
+  document.getElementById('wiper-page').value = newPage;
+}
+
+function wiperUndo() {
+  if (_wiper.undoStack.length > 1) {
+    _wiper.undoStack.pop();
+    _wiper.ctx.putImageData(_wiper.undoStack[_wiper.undoStack.length - 1], 0, 0);
+  }
+}
+
+function downloadWiperImage(fmt) {
+  var mime = fmt === 'jpg' ? 'image/jpeg' : 'image/png';
+  var a = document.createElement('a');
+  a.href = _wiper.canvas.toDataURL(mime, 0.92);
+  a.download = _wiper.fileName + '-cleaned.' + fmt;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+function downloadWiperPDF() {
+  // save current page edits first
+  if (_wiper.canvas && _wiper.pdfPages[_wiper.currentPage]) {
+    _wiper.pdfPages[_wiper.currentPage].getContext('2d').drawImage(_wiper.canvas, 0, 0);
+  }
+  var jsPDFLib = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if (!jsPDFLib) { alert('PDF library not loaded. Please refresh and try again.'); return; }
+  var doc = null;
+  _wiper.pdfPages.forEach(function(pageCanvas, i) {
+    var isLandscape = pageCanvas.width > pageCanvas.height;
+    var orientation = isLandscape ? 'landscape' : 'portrait';
+    if (i === 0) doc = new jsPDFLib({ unit: 'mm', format: 'a4', orientation: orientation });
+    else doc.addPage('a4', orientation);
+    var pw = isLandscape ? 297 : 210, ph = isLandscape ? 210 : 297;
+    var ratio = Math.min(pw / pageCanvas.width, ph / pageCanvas.height);
+    var w = pageCanvas.width * ratio, h = pageCanvas.height * ratio;
+    doc.addImage(pageCanvas.toDataURL('image/jpeg', 0.9), 'JPEG', (pw - w) / 2, (ph - h) / 2, w, h);
+  });
+  doc.save(_wiper.fileName + '-cleaned.pdf');
+}
+
 function pdfTab(t, el) {
   document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
   el.classList.add('active');
-  ['csv','image','text'].forEach(function(id){
+  ['csv','image','text','wiper'].forEach(function(id){
     var e = document.getElementById('pdf-' + id);
     if (e) e.style.display = id===t?'block':'none';
   });
+  if (t === 'wiper') initWiper();
 }
 
 var _csvData = null;
@@ -4466,7 +5150,7 @@ async function startGuide() {
 }
 
 async function explainPlatform() {
-  await guideMsg('Sky Blueprint is a South African digital platform with <strong>12 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
+  await guideMsg('Sky Blueprint is a South African digital platform with <strong>13 powerful tools</strong> in one place:<br><br>🌐 <strong>Website Builder</strong> — build your business website<br>📧 <strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br>📄 <strong>CV Builder</strong> — build your CV and find matching jobs<br>🎓 <strong>Learnerships & Internships</strong> — find opportunities you qualify for<br>📍 <strong>Find My Phone</strong> — track your phone if lost or stolen<br>🤖 <strong>AI Business Mentor</strong> — get business advice 24/7<br>🔔 <strong>Reminders & Tasks</strong> — never miss a meeting or task<br>🗺️ <strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
   guideOptions([
     { label: '🚀 Let me start using the tools!', action: showToolMenu },
     { label: '💰 Tell me about pricing', action: explainPricing },
