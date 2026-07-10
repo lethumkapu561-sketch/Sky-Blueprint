@@ -2895,9 +2895,14 @@ function renderImageEditor(el) {
         '<option value="Verdana, sans-serif">Verdana</option>' +
         '<option value="Impact, sans-serif">Impact</option>' +
         '</select>' +
+        '<span style="font-size:12px;color:var(--muted);margin-left:6px">Text size</span>' +
+        '<button onclick="ieTextSize(-2)" class="ie-toolbtn" style="padding:6px 12px;font-weight:800" title="Smaller">A−</button>' +
+        '<span id="ie-textsize-val" style="font-size:12px;color:#e2e8f0;min-width:30px;text-align:center">34</span>' +
+        '<button onclick="ieTextSize(2)" class="ie-toolbtn" style="padding:6px 12px;font-weight:800" title="Bigger">A+</button>' +
         '<button onclick="ieToggleBold()" id="ie-bold-btn" class="ie-toolbtn" style="padding:6px 12px;font-weight:800">B</button>' +
         '<button onclick="ieToggleItalic()" id="ie-italic-btn" class="ie-toolbtn" style="padding:6px 12px;font-style:italic">i</button>' +
         '<button onclick="ieDeleteActiveText()" class="ie-toolbtn" style="padding:6px 12px;color:#f87171">Delete Text</button>' +
+        '<span style="font-size:11px;color:#64748b;flex-basis:100%">Tip: scroll your mouse wheel over the text to resize it</span>' +
       '</div>' +
 
       '<div class="ie-bar">' +
@@ -3057,7 +3062,7 @@ function ieAddText() {
   ieSetTool('select');
   var stage = document.getElementById('ie-stage');
   var layer = document.getElementById('ie-text-layer');
-  var size = (parseInt(document.getElementById('ie-size').value) || 8) * 3 + 10;
+  var size = 28; // comfortable default; resize with A-/A+ or mouse wheel
 
   var box = document.createElement('div');
   box.className = 'ie-textbox';
@@ -3073,6 +3078,15 @@ function ieAddText() {
 }
 
 function ieMakeDraggable(box, textObj) {
+  // Mouse wheel over the text = resize it (scroll up bigger, down smaller)
+  box.addEventListener('wheel', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    ieSelectText(textObj);
+    var delta = e.deltaY < 0 ? 2 : -2;
+    ieTextSize(delta);
+  }, { passive: false });
+
   var dragging = false, ox = 0, oy = 0;
   function down(e) {
     if (e.target === box && box.isContentEditable && document.activeElement === box && e.type === 'mousedown') {
@@ -3114,6 +3128,17 @@ function ieSelectText(textObj) {
   document.getElementById('ie-text-controls').style.display = 'flex';
   var fontSel = document.getElementById('ie-font');
   if (fontSel) fontSel.value = textObj.font;
+  var sv = document.getElementById('ie-textsize-val');
+  if (sv) sv.textContent = Math.round(textObj.size);
+}
+
+function ieTextSize(delta) {
+  if (!ieState.activeText) return;
+  var t = ieState.activeText;
+  t.size = Math.max(8, Math.min(200, (t.size || 28) + delta));
+  t.el.style.fontSize = t.size + 'px';
+  var sv = document.getElementById('ie-textsize-val');
+  if (sv) sv.textContent = Math.round(t.size);
 }
 
 function ieUpdateActiveText() {
