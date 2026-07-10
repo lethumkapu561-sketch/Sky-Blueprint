@@ -320,7 +320,7 @@ function showAccount() {
   if (u.plan === 'trial' || !u.plan) {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Upgrade now to keep all your tools after your trial ends.</p>' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:10px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">Pay Once — R1,980 for 3 Years</button>';
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>';
   } else if (u.plan === 'monthly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Your monthly plan is active. R55 is debited on your subscription date each month.</p>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
@@ -447,11 +447,36 @@ function showTrialExpired() {
       '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all premium Sky Blueprint tools for just <strong style="color:#38bdf8">R55/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
       '<div style="max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:10px">' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">Pay Once — R1,980 for 3 Years</button>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px;margin-top:6px" onclick="openTool(\'sa-map\')">Use SA Map (Free)</button>' +
       '</div></div>';
     showPage('tool');
   }
+}
+
+// Called at the FINAL action (download/submit). Returns true if the user may proceed,
+// or shows a subscribe popup and returns false if they need to pay first.
+function requirePaidAction(actionLabel) {
+  if (!isTrialExpired(currentUser)) return true; // owner or paid - allow
+
+  // Show a friendly subscribe popup
+  var existing = document.getElementById('pay-action-modal');
+  if (existing) existing.remove();
+  var modal = document.createElement('div');
+  modal.id = 'pay-action-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.onclick = function(){ modal.remove(); };
+  modal.innerHTML =
+    '<div style="background:#0f1629;border:1px solid rgba(56,189,248,0.2);border-radius:20px;padding:28px;max-width:400px;width:100%;text-align:center" onclick="event.stopPropagation()">' +
+    '<h3 style="color:#fff;font-size:19px;margin-bottom:10px">Subscribe to ' + (actionLabel || 'continue') + '</h3>' +
+    '<p style="color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6">You can build and preview for free. To ' + (actionLabel || 'use this') + ', subscribe to Sky Blueprint — just <strong style="color:#38bdf8">R55/month</strong>, cancel anytime.</p>' +
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
+    '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
+    '<button style="width:100%;box-sizing:border-box;background:transparent;border:none;color:var(--muted);padding:8px;font-family:var(--font);cursor:pointer;font-size:13px" onclick="document.getElementById(\'pay-action-modal\').remove()">Maybe later</button>' +
+    '</div></div>';
+  document.body.appendChild(modal);
+  return false;
 }
 
 function openTool(name) {
@@ -488,8 +513,11 @@ function openTool(name) {
     'compressor': renderCompressor,
     'imgeditor': renderImageEditor,
   };
-  // SA Map and Templates Store are free to browse - skip subscription check
-  if (name !== 'sa-map' && name !== 'templates' && isTrialExpired(currentUser)) {
+  // NEW MODEL: Most tools open freely so people can preview and enter details.
+  // Payment is required at the final ACTION (download/submit) via requirePaidAction().
+  // ONLY the AI tools that cost money per use are locked before opening.
+  var payFirstTools = ['email-cleaner', 'ai-mentor'];
+  if (payFirstTools.indexOf(name) > -1 && isTrialExpired(currentUser)) {
     showTrialExpired();
     return;
   }
@@ -840,6 +868,7 @@ function updateWbPrice() {
 }
 
 function submitWebsiteOrder() {
+  if (!requirePaidAction('submit your website order')) return;
   var isPremium = (document.getElementById('wb-premium') || {checked:false}).checked;
   var name   = (document.getElementById('wb-name')  ||{value:''}).value.trim();
   var phone  = (document.getElementById('wb-phone') ||{value:''}).value.trim();
@@ -921,21 +950,27 @@ function renderEmailCleaner(el) {
 
     <!-- CONNECT TAB -->
     <div id="et-connect">
-      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Connect your email — AI will scan, sort and summarise your inbox automatically.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:18px">
+        <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:12px;font-weight:700;color:#ef4444">Urgent</div><div style="font-size:10px;color:var(--muted)">act now</div></div>
+        <div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:12px;font-weight:700;color:#f59e0b">Important</div><div style="font-size:10px;color:var(--muted)">today</div></div>
+        <div style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:12px;font-weight:700;color:#10b981">Can Wait</div><div style="font-size:10px;color:var(--muted)">this week</div></div>
+        <div style="background:rgba(100,116,139,0.07);border:1px solid rgba(100,116,139,0.25);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:12px;font-weight:700;color:#94a3b8">Low</div><div style="font-size:10px;color:var(--muted)">ignore</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Connect your email — your AI secretary reads, sorts and summarises your whole inbox into these four piles automatically.</p>
 
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
         <div class="email-provider-card" onclick="selectProvider('gmail',this)">
-          <div style="font-size:28px;margin-bottom:6px"></div>
+          <div style="margin-bottom:8px"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ea4335" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></div>
           <div style="font-size:13px;font-weight:700;color:#fff">Gmail</div>
           <div style="font-size:11px;color:var(--muted)">Google</div>
         </div>
         <div class="email-provider-card" onclick="selectProvider('outlook',this)">
-          <div style="font-size:28px;margin-bottom:6px"></div>
+          <div style="margin-bottom:8px"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0078d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></div>
           <div style="font-size:13px;font-weight:700;color:#fff">Outlook</div>
           <div style="font-size:11px;color:var(--muted)">Microsoft</div>
         </div>
         <div class="email-provider-card" onclick="selectProvider('yahoo',this)">
-          <div style="font-size:28px;margin-bottom:6px"></div>
+          <div style="margin-bottom:8px"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#7e22ce" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></div>
           <div style="font-size:13px;font-weight:700;color:#fff">Yahoo</div>
           <div style="font-size:11px;color:var(--muted)">Yahoo Mail</div>
         </div>
@@ -950,12 +985,12 @@ function renderEmailCleaner(el) {
           <label id="pass-label">Password / App Password</label>
           <div style="position:relative">
           <input type="password" id="ec-pass" placeholder="Your password" style="width:100%;box-sizing:border-box;padding-right:44px">
-          <button type="button" onclick="togglePass('ec-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:4px">️</button>
+          <button type="button" onclick="togglePass('ec-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
           <div id="pass-hint" style="font-size:11px;color:#38bdf8;margin-top:6px;display:none"></div>
         </div>
         <button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="scanEmails()">
-          🔍 Scan My Inbox with AI
+          Scan My Inbox with AI
         </button>
       </div>
 
@@ -968,7 +1003,7 @@ function renderEmailCleaner(el) {
     <!-- SUMMARY TAB -->
     <div id="et-summary" style="display:none">
       <div style="text-align:center;padding:40px 20px;color:var(--muted)">
-        <div style="font-size:48px;margin-bottom:12px"></div>
+        <div style="margin-bottom:14px"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg></div>
         <p>Connect your email first to see your Daily Summary</p>
       </div>
     </div>
@@ -1023,15 +1058,32 @@ function scanEmails() {
   var errDiv = document.getElementById('ec-error');
   errDiv.style.display = 'none';
 
-  // Show scanning animation
+  // Show engaging scanning animation with live status steps
   document.getElementById('et-connect').innerHTML +=
-    '<div id="ec-scanning" style="text-align:center;padding:30px;margin-top:16px">' +
-    '<div style="font-size:40px;margin-bottom:12px"></div>' +
-    '<div style="font-size:15px;font-weight:700;color:#38bdf8;margin-bottom:8px">AI Secretary is scanning your inbox...</div>' +
-    '<div style="font-size:13px;color:var(--muted)">Sorting emails by priority — this takes about 30 seconds</div>' +
-    '<div style="margin-top:16px;height:4px;background:rgba(56,189,248,0.1);border-radius:2px;overflow:hidden">' +
-    '<div style="height:100%;background:linear-gradient(90deg,#38bdf8,#6366f1);border-radius:2px;animation:progress 30s linear forwards"></div>' +
+    '<div id="ec-scanning" style="text-align:center;padding:30px 20px;margin-top:16px;background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.15);border-radius:16px">' +
+    '<div style="display:inline-block;width:44px;height:44px;border:3px solid rgba(56,189,248,0.15);border-top-color:#38bdf8;border-radius:50%;animation:spin 0.9s linear infinite;margin-bottom:16px"></div>' +
+    '<div id="ec-scan-step" style="font-size:15px;font-weight:700;color:#38bdf8;margin-bottom:8px;min-height:22px">Connecting securely to your inbox...</div>' +
+    '<div style="font-size:12px;color:var(--muted)">Your password is used only for this scan — never stored.</div>' +
+    '<div style="margin-top:16px;height:5px;background:rgba(56,189,248,0.1);border-radius:3px;overflow:hidden">' +
+    '<div style="height:100%;background:linear-gradient(90deg,#38bdf8,#6366f1);border-radius:3px;animation:progress 30s linear forwards"></div>' +
     '</div></div>';
+
+  // Rotate through live status messages so it feels alive
+  var scanSteps = [
+    'Connecting securely to your inbox...',
+    'Reading your latest emails...',
+    'AI is sorting by priority...',
+    'Flagging urgent messages...',
+    'Detecting spam and noise...',
+    'Preparing your daily summary...'
+  ];
+  var stepIdx = 0;
+  window._scanStepTimer = setInterval(function(){
+    stepIdx = (stepIdx + 1) % scanSteps.length;
+    var el2 = document.getElementById('ec-scan-step');
+    if (el2) el2.textContent = scanSteps[stepIdx];
+    else clearInterval(window._scanStepTimer);
+  }, 4500);
 
   window._emailSession = { provider: provider, email: email, password: pass };
 
@@ -1042,6 +1094,7 @@ function scanEmails() {
   })
   .then(function(r){ return r.json(); })
   .then(function(data) {
+    if (window._scanStepTimer) clearInterval(window._scanStepTimer);
     var scan = document.getElementById('ec-scanning');
     if (scan) scan.remove();
     if (data.success) {
@@ -1051,6 +1104,7 @@ function scanEmails() {
     }
   })
   .catch(function(err) {
+    if (window._scanStepTimer) clearInterval(window._scanStepTimer);
     var scan = document.getElementById('ec-scanning');
     if (scan) scan.remove();
     showEmailError('Connection failed. Please check your internet connection and try again.');
@@ -1914,6 +1968,7 @@ function detectLevel(qual, exp) {
 }
 
 function downloadCVWord() {
+  if (!requirePaidAction('download your CV')) return;
   if (!window._cvData) { alert('Please build your CV first.'); return; }
   var d = window._cvData;
   function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -1962,6 +2017,7 @@ function downloadCVWord() {
 }
 
 function downloadCV() {
+  if (!requirePaidAction('download your CV')) return;
   // Generate a TRUE PDF (real text, exact colors, selectable) - not a screenshot
   if (!window._cvData) { alert('Please build your CV first.'); return; }
   var jsPDFLib = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
@@ -2784,82 +2840,123 @@ function deleteCustomer(id, name) {
 function renderImageEditor(el) {
   el.innerHTML =
     '<div class="tool-screen">' +
-    '<h2>Image Editor</h2>' +
-    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Draw, paint, white-out, erase, add text and shapes. A full editor in your browser.</p>' +
-    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Everything happens on your device. Your images stay private.</p>' +
+    '<h2>Image &amp; Document Editor</h2>' +
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Add movable text, draw, paint, white-out, erase, add shapes. Works on photos and document scans.</p>' +
+    '<p style="font-size:12px;color:#38bdf8;margin-bottom:18px;font-style:italic">Everything happens on your device. Your files stay private.</p>' +
     '<div id="ie-start">' +
-    '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:32px;text-align:center">' +
-    '<p style="color:#fff;font-weight:600;margin-bottom:6px">Open an image to edit</p>' +
-    '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">JPG, PNG or any image — or start with a blank canvas</p>' +
+    '<div id="ie-drop" style="background:rgba(255,255,255,0.03);border:2px dashed rgba(56,189,248,0.35);border-radius:16px;padding:40px 20px;text-align:center;transition:all 0.2s">' +
+    '<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+    '<p style="color:#fff;font-weight:600;margin-bottom:6px;font-size:15px">Drop an image here, or click to choose</p>' +
+    '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">JPG, PNG, or a photo/scan of a document</p>' +
     '<input type="file" id="ie-file" accept="image/*" onchange="ieLoadImage(this)" style="display:none">' +
     '<button class="btn-primary" onclick="document.getElementById(\'ie-file\').click()" style="margin-bottom:10px">Choose Image</button><br>' +
-    '<button onclick="ieBlankCanvas()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Start Blank Canvas</button>' +
+    '<button onclick="ieBlankCanvas()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Start Blank Page</button>' +
     '</div></div>' +
 
     '<div id="ie-workspace" style="display:none">' +
-
-      // Toolbar row 1 - tools
       '<div class="ie-bar">' +
-        '<button onclick="ieSetTool(\'brush\')" id="ie-tool-brush" class="ie-toolbtn ie-active">Brush</button>' +
-        '<button onclick="ieSetTool(\'white\')" id="ie-tool-white" class="ie-toolbtn">White Paint</button>' +
+        '<button onclick="ieSetTool(\'select\')" id="ie-tool-select" class="ie-toolbtn ie-active">Move / Select</button>' +
+        '<button onclick="ieAddText()" class="ie-toolbtn">Add Text</button>' +
+        '<button onclick="ieSetTool(\'brush\')" id="ie-tool-brush" class="ie-toolbtn">Brush</button>' +
+        '<button onclick="ieSetTool(\'white\')" id="ie-tool-white" class="ie-toolbtn">White Out</button>' +
         '<button onclick="ieSetTool(\'erase\')" id="ie-tool-erase" class="ie-toolbtn">Eraser</button>' +
         '<button onclick="ieSetTool(\'line\')" id="ie-tool-line" class="ie-toolbtn">Line</button>' +
-        '<button onclick="ieSetTool(\'rect\')" id="ie-tool-rect" class="ie-toolbtn">Box</button>' +
+        '<button onclick="ieSetTool(\'rect\')" id="ie-tool-rect" class="ie-toolbtn">Rectangle</button>' +
+        '<button onclick="ieSetTool(\'circle\')" id="ie-tool-circle" class="ie-toolbtn">Circle</button>' +
         '<button onclick="ieSetTool(\'fill\')" id="ie-tool-fill" class="ie-toolbtn">Fill</button>' +
-        '<button onclick="ieAddText()" class="ie-toolbtn">Add Text</button>' +
       '</div>' +
 
-      // Colour palette
       '<div class="ie-bar" style="align-items:center">' +
         '<span style="font-size:12px;color:var(--muted);margin-right:2px">Colour</span>' +
-        '<div id="ie-palette" style="display:flex;gap:5px;flex-wrap:wrap"></div>' +
-        '<input type="color" id="ie-color" value="#000000" onchange="ieSetColor(this.value)" style="width:34px;height:30px;border:none;border-radius:6px;background:none;cursor:pointer">' +
+        '<div id="ie-palette" style="display:flex;gap:4px;flex-wrap:wrap;max-width:100%"></div>' +
+        '<input type="color" id="ie-color" value="#000000" onchange="ieSetColor(this.value)" style="width:34px;height:30px;border:none;border-radius:6px;background:none;cursor:pointer" title="Any colour you want">' +
       '</div>' +
 
-      // Size + opacity
       '<div class="ie-bar" style="align-items:center">' +
         '<span style="font-size:12px;color:var(--muted)">Size</span>' +
-        '<input type="range" id="ie-size" min="1" max="80" value="10" style="width:120px">' +
-        '<span id="ie-size-val" style="font-size:12px;color:#e2e8f0;min-width:26px">10</span>' +
-        '<span style="font-size:12px;color:var(--muted);margin-left:10px">Opacity</span>' +
-        '<input type="range" id="ie-opacity" min="10" max="100" value="100" style="width:100px">' +
+        '<input type="range" id="ie-size" min="1" max="80" value="8" style="width:110px">' +
+        '<span id="ie-size-val" style="font-size:12px;color:#e2e8f0;min-width:24px">8</span>' +
+        '<span style="font-size:12px;color:var(--muted);margin-left:8px">Opacity</span>' +
+        '<input type="range" id="ie-opacity" min="10" max="100" value="100" style="width:90px">' +
+        '<span style="font-size:12px;color:var(--muted);margin-left:8px">Eraser</span>' +
+        '<select id="ie-erase-mode" style="font-size:12px;padding:4px;border-radius:6px;background:#0f1629;color:#e2e8f0;border:1px solid rgba(255,255,255,0.15)">' +
+        '<option value="transparent">See-through</option>' +
+        '<option value="match">Match background</option>' +
+        '</select>' +
       '</div>' +
 
-      // Actions
+      '<div id="ie-text-controls" class="ie-bar" style="display:none;align-items:center">' +
+        '<span style="font-size:12px;color:var(--muted)">Font</span>' +
+        '<select id="ie-font" onchange="ieUpdateActiveText()" style="font-size:12px;padding:5px;border-radius:6px;background:#0f1629;color:#e2e8f0;border:1px solid rgba(255,255,255,0.15)">' +
+        '<option value="Arial, sans-serif">Arial</option>' +
+        '<option value="Georgia, serif">Georgia</option>' +
+        '<option value="Times New Roman, serif">Times</option>' +
+        '<option value="Courier New, monospace">Courier</option>' +
+        '<option value="Verdana, sans-serif">Verdana</option>' +
+        '<option value="Impact, sans-serif">Impact</option>' +
+        '</select>' +
+        '<button onclick="ieToggleBold()" id="ie-bold-btn" class="ie-toolbtn" style="padding:6px 12px;font-weight:800">B</button>' +
+        '<button onclick="ieToggleItalic()" id="ie-italic-btn" class="ie-toolbtn" style="padding:6px 12px;font-style:italic">i</button>' +
+        '<button onclick="ieDeleteActiveText()" class="ie-toolbtn" style="padding:6px 12px;color:#f87171">Delete Text</button>' +
+      '</div>' +
+
       '<div class="ie-bar">' +
         '<button onclick="ieUndo()" class="ie-toolbtn">Undo</button>' +
         '<button onclick="ieClear()" class="ie-toolbtn">Reset</button>' +
-        '<button onclick="ieDownload()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Download PNG</button>' +
+        '<button onclick="ieDownload()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Download</button>' +
         '<button onclick="ieReset()" class="ie-toolbtn">New Image</button>' +
       '</div>' +
 
-      '<div style="overflow:auto;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:repeating-conic-gradient(#2a2a2a 0% 25%, #222 0% 50%) 50% / 24px 24px;text-align:center;padding:10px;margin-top:6px">' +
-        '<canvas id="ie-canvas" style="max-width:100%;touch-action:none;cursor:crosshair;border-radius:4px"></canvas>' +
+      '<div id="ie-stage" style="position:relative;display:inline-block;overflow:auto;max-width:100%;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:repeating-conic-gradient(#2a2a2a 0% 25%, #222 0% 50%) 50% / 24px 24px;margin-top:6px">' +
+        '<canvas id="ie-canvas" style="display:block;max-width:100%;touch-action:none"></canvas>' +
+        '<div id="ie-text-layer" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></div>' +
       '</div>' +
-      '<p style="font-size:11px;color:#64748b;margin-top:10px">White Paint covers like correction fluid. Eraser rubs back to transparent. Fill fills the whole canvas. Tap Add Text to place words.</p>' +
+      '<p style="font-size:11px;color:#64748b;margin-top:10px">Add Text places a movable box — drag it anywhere, then style it. White Out covers like tippex. Eraser can be see-through or match the background colour. Download flattens everything into one image.</p>' +
     '</div>' +
     '</div>';
 
   ieBuildPalette();
   var sizeEl = document.getElementById('ie-size');
   if (sizeEl) sizeEl.oninput = function(){ document.getElementById('ie-size-val').textContent = this.value; };
+  ieSetupDrop();
 }
 
-var IE_COLORS = ['#000000','#ffffff','#ef4444','#f59e0b','#eab308','#22c55e','#10b981','#06b6d4','#3b82f6','#6366f1','#8b5cf6','#ec4899','#78350f','#64748b'];
+// Full global colour set + all common ones
+var IE_COLORS = ['#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#ffffff',
+  '#ff0000','#e11d48','#dc2626','#ea580c','#f59e0b','#eab308','#facc15',
+  '#84cc16','#22c55e','#16a34a','#059669','#10b981','#14b8a6','#06b6d4',
+  '#0ea5e9','#3b82f6','#2563eb','#4f46e5','#6366f1','#7c3aed','#8b5cf6',
+  '#a855f7','#c026d3','#d946ef','#ec4899','#f43f5e','#78350f','#92400e','#1e3a8a'];
 
 function ieBuildPalette() {
   var pal = document.getElementById('ie-palette');
   if (!pal) return;
   pal.innerHTML = IE_COLORS.map(function(c){
-    return '<button onclick="ieSetColor(\'' + c + '\')" title="' + c + '" style="width:24px;height:24px;border-radius:5px;border:2px solid rgba(255,255,255,0.15);background:' + c + ';cursor:pointer;padding:0"></button>';
+    return '<button onclick="ieSetColor(\'' + c + '\')" title="' + c + '" style="width:20px;height:20px;border-radius:4px;border:1.5px solid rgba(255,255,255,0.15);background:' + c + ';cursor:pointer;padding:0"></button>';
   }).join('');
+}
+
+function ieSetupDrop() {
+  var drop = document.getElementById('ie-drop');
+  if (!drop) return;
+  drop.ondragover = function(e){ e.preventDefault(); drop.style.background = 'rgba(56,189,248,0.12)'; drop.style.borderColor = '#38bdf8'; };
+  drop.ondragleave = function(e){ e.preventDefault(); drop.style.background = 'rgba(255,255,255,0.03)'; drop.style.borderColor = 'rgba(56,189,248,0.35)'; };
+  drop.ondrop = function(e){
+    e.preventDefault();
+    drop.style.background = 'rgba(255,255,255,0.03)';
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      var input = document.getElementById('ie-file');
+      input.files = e.dataTransfer.files;
+      ieLoadImage(input);
+    }
+  };
 }
 
 function ieSetColor(c) {
   ieState.color = c;
   var picker = document.getElementById('ie-color');
   if (picker) picker.value = c;
-  // switch to brush when picking a colour (unless on a shape tool)
+  if (ieState.activeText) { ieState.activeText.el.style.color = c; ieState.activeText.color = c; }
   if (ieState.tool === 'erase' || ieState.tool === 'white') ieSetTool('brush');
 }
 
@@ -2867,7 +2964,7 @@ function ieBtnStyle() {
   return 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#e2e8f0;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)';
 }
 
-var ieState = { tool:'brush', color:'#000000', drawing:false, ctx:null, canvas:null, history:[], lastX:0, lastY:0, startX:0, startY:0, snapshot:null };
+var ieState = { tool:'select', color:'#000000', drawing:false, ctx:null, canvas:null, history:[], lastX:0, lastY:0, startX:0, startY:0, snapshot:null, texts:[], activeText:null, bgColor:'#ffffff' };
 
 function ieBlankCanvas() {
   var canvas = document.getElementById('ie-canvas');
@@ -2875,6 +2972,7 @@ function ieBlankCanvas() {
   var ctx = canvas.getContext('2d');
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ieState.bgColor = '#ffffff';
   ieInit(canvas, ctx);
 }
 
@@ -2895,6 +2993,11 @@ function ieLoadImage(input) {
       canvas.width = w; canvas.height = h;
       var ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
+      // sample top-left pixel as background colour guess for the eraser
+      try {
+        var px = ctx.getImageData(2, 2, 1, 1).data;
+        ieState.bgColor = 'rgb(' + px[0] + ',' + px[1] + ',' + px[2] + ')';
+      } catch(err) { ieState.bgColor = '#ffffff'; }
       ieInit(canvas, ctx);
     };
     img.src = e.target.result;
@@ -2906,21 +3009,31 @@ function ieInit(canvas, ctx) {
   ieState.canvas = canvas;
   ieState.ctx = ctx;
   ieState.history = [];
+  ieState.texts = [];
+  ieState.activeText = null;
+  var layer = document.getElementById('ie-text-layer');
+  if (layer) layer.innerHTML = '';
   ieSaveHistory();
   document.getElementById('ie-start').style.display = 'none';
   document.getElementById('ie-workspace').style.display = 'block';
   ieBindEvents();
+  ieSetTool('select');
 }
 
 function ieSetTool(tool) {
   ieState.tool = tool;
-  ['brush','white','erase','line','rect','fill'].forEach(function(t){
+  ['select','brush','white','erase','line','rect','circle','fill'].forEach(function(t){
     var b = document.getElementById('ie-tool-' + t);
     if (b) {
       if (t === tool) { b.style.background = 'linear-gradient(135deg,#38bdf8,#6366f1)'; b.style.color = '#fff'; b.style.borderColor = 'transparent'; }
       else { b.style.background = 'rgba(255,255,255,0.06)'; b.style.color = '#e2e8f0'; b.style.borderColor = 'rgba(255,255,255,0.12)'; }
     }
   });
+  var canvas = ieState.canvas;
+  if (canvas) canvas.style.cursor = (tool === 'select') ? 'default' : 'crosshair';
+  // text layer only receives clicks in select mode
+  var layer = document.getElementById('ie-text-layer');
+  if (layer) layer.style.pointerEvents = (tool === 'select') ? 'none' : 'none';
   if (tool === 'fill') ieFillCanvas();
 }
 
@@ -2931,24 +3044,106 @@ function ieFillCanvas() {
   ieState.ctx.fillStyle = ieState.color;
   ieState.ctx.fillRect(0, 0, ieState.canvas.width, ieState.canvas.height);
   ieState.ctx.globalAlpha = 1;
+  ieState.bgColor = ieState.color;
   ieSaveHistory();
-  ieSetTool('brush');
+  ieSetTool('select');
 }
 
+// ---- Movable text boxes (like I Love PDF) ----
 function ieAddText() {
   if (!ieState.ctx) { alert('Open an image first.'); return; }
-  var txt = prompt('Type the text to add:');
+  var txt = prompt('Type your text:');
   if (!txt) return;
-  var size = (parseInt(document.getElementById('ie-size').value) || 10) * 4;
-  var ctx = ieState.ctx;
-  ctx.globalAlpha = (parseInt(document.getElementById('ie-opacity').value) || 100) / 100;
-  ctx.fillStyle = ieState.color;
-  ctx.font = 'bold ' + size + 'px Arial';
-  ctx.textBaseline = 'top';
-  ctx.fillText(txt, 30, 30);
-  ctx.globalAlpha = 1;
-  ieSaveHistory();
-  alert('Text added at the top-left. Use the Brush/White Paint to cover, or Undo to remove.');
+  ieSetTool('select');
+  var stage = document.getElementById('ie-stage');
+  var layer = document.getElementById('ie-text-layer');
+  var size = (parseInt(document.getElementById('ie-size').value) || 8) * 3 + 10;
+
+  var box = document.createElement('div');
+  box.className = 'ie-textbox';
+  box.contentEditable = 'true';
+  box.textContent = txt;
+  box.style.cssText = 'position:absolute;left:30px;top:30px;color:' + ieState.color + ';font-size:' + size + 'px;font-family:Arial,sans-serif;cursor:move;pointer-events:auto;padding:2px 4px;border:1px dashed rgba(56,189,248,0.7);white-space:nowrap;min-width:20px;user-select:text';
+
+  var textObj = { el:box, color:ieState.color, font:'Arial, sans-serif', size:size, bold:false, italic:false };
+  layer.appendChild(box);
+  ieState.texts.push(textObj);
+  ieMakeDraggable(box, textObj);
+  ieSelectText(textObj);
+}
+
+function ieMakeDraggable(box, textObj) {
+  var dragging = false, ox = 0, oy = 0;
+  function down(e) {
+    if (e.target === box && box.isContentEditable && document.activeElement === box && e.type === 'mousedown') {
+      // allow text editing clicks
+    }
+    ieSelectText(textObj);
+    dragging = true;
+    var pt = e.touches ? e.touches[0] : e;
+    var rect = box.getBoundingClientRect();
+    ox = pt.clientX - rect.left;
+    oy = pt.clientY - rect.top;
+    e.stopPropagation();
+  }
+  function move(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    var pt = e.touches ? e.touches[0] : e;
+    var stage = document.getElementById('ie-stage');
+    var srect = stage.getBoundingClientRect();
+    var x = pt.clientX - srect.left - ox + stage.scrollLeft;
+    var y = pt.clientY - srect.top - oy + stage.scrollTop;
+    box.style.left = Math.max(0, x) + 'px';
+    box.style.top = Math.max(0, y) + 'px';
+  }
+  function up() { dragging = false; }
+  // Drag with a small handle behaviour: hold and move
+  box.addEventListener('mousedown', down);
+  box.addEventListener('touchstart', down);
+  document.addEventListener('mousemove', move);
+  document.addEventListener('touchmove', move, { passive:false });
+  document.addEventListener('mouseup', up);
+  document.addEventListener('touchend', up);
+}
+
+function ieSelectText(textObj) {
+  ieState.activeText = textObj;
+  ieState.texts.forEach(function(t){ t.el.style.borderColor = 'rgba(56,189,248,0.3)'; });
+  textObj.el.style.borderColor = 'rgba(56,189,248,0.9)';
+  document.getElementById('ie-text-controls').style.display = 'flex';
+  var fontSel = document.getElementById('ie-font');
+  if (fontSel) fontSel.value = textObj.font;
+}
+
+function ieUpdateActiveText() {
+  if (!ieState.activeText) return;
+  var font = document.getElementById('ie-font').value;
+  ieState.activeText.font = font;
+  ieState.activeText.el.style.fontFamily = font;
+}
+
+function ieToggleBold() {
+  if (!ieState.activeText) return;
+  ieState.activeText.bold = !ieState.activeText.bold;
+  ieState.activeText.el.style.fontWeight = ieState.activeText.bold ? '800' : 'normal';
+  document.getElementById('ie-bold-btn').style.background = ieState.activeText.bold ? 'linear-gradient(135deg,#38bdf8,#6366f1)' : 'rgba(255,255,255,0.06)';
+}
+
+function ieToggleItalic() {
+  if (!ieState.activeText) return;
+  ieState.activeText.italic = !ieState.activeText.italic;
+  ieState.activeText.el.style.fontStyle = ieState.activeText.italic ? 'italic' : 'normal';
+  document.getElementById('ie-italic-btn').style.background = ieState.activeText.italic ? 'linear-gradient(135deg,#38bdf8,#6366f1)' : 'rgba(255,255,255,0.06)';
+}
+
+function ieDeleteActiveText() {
+  if (!ieState.activeText) return;
+  var idx = ieState.texts.indexOf(ieState.activeText);
+  if (idx > -1) ieState.texts.splice(idx, 1);
+  ieState.activeText.el.remove();
+  ieState.activeText = null;
+  document.getElementById('ie-text-controls').style.display = 'none';
 }
 
 function ieSaveHistory() {
@@ -2971,12 +3166,19 @@ function ieClear() {
     ieState.ctx.putImageData(ieState.history[0], 0, 0);
     ieState.history = [ieState.history[0]];
   }
+  document.getElementById('ie-text-layer').innerHTML = '';
+  ieState.texts = [];
+  ieState.activeText = null;
+  document.getElementById('ie-text-controls').style.display = 'none';
 }
 
 function ieReset() {
   document.getElementById('ie-start').style.display = 'block';
   document.getElementById('ie-workspace').style.display = 'none';
   document.getElementById('ie-file').value = '';
+  document.getElementById('ie-text-layer').innerHTML = '';
+  ieState.texts = [];
+  ieState.activeText = null;
 }
 
 function ieGetPos(e) {
@@ -2992,12 +3194,13 @@ function ieGetPos(e) {
 function ieBindEvents() {
   var canvas = ieState.canvas;
   function start(e) {
+    if (ieState.tool === 'select') return; // select mode = text dragging only
     e.preventDefault();
     ieState.drawing = true;
     var p = ieGetPos(e);
     ieState.lastX = p.x; ieState.lastY = p.y;
     ieState.startX = p.x; ieState.startY = p.y;
-    if (ieState.tool === 'line' || ieState.tool === 'rect') {
+    if (ieState.tool === 'line' || ieState.tool === 'rect' || ieState.tool === 'circle') {
       ieState.snapshot = ieState.ctx.getImageData(0, 0, canvas.width, canvas.height);
     } else {
       ieDraw(e);
@@ -3006,7 +3209,7 @@ function ieBindEvents() {
   function move(e) {
     if (!ieState.drawing) return;
     e.preventDefault();
-    if (ieState.tool === 'line' || ieState.tool === 'rect') ieDrawShape(e);
+    if (ieState.tool === 'line' || ieState.tool === 'rect' || ieState.tool === 'circle') ieDrawShape(e);
     else ieDraw(e);
   }
   function end() { if (ieState.drawing) { ieState.drawing = false; ieState.snapshot = null; ieSaveHistory(); } }
@@ -3015,12 +3218,24 @@ function ieBindEvents() {
 }
 
 function ieApplyStroke(ctx) {
-  var size = parseInt(document.getElementById('ie-size').value) || 10;
+  var size = parseInt(document.getElementById('ie-size').value) || 8;
   var op = (parseInt(document.getElementById('ie-opacity').value) || 100) / 100;
   ctx.lineWidth = size; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.globalAlpha = op;
-  if (ieState.tool === 'erase') { ctx.globalCompositeOperation = 'destination-out'; ctx.strokeStyle = 'rgba(0,0,0,1)'; }
-  else if (ieState.tool === 'white') { ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = '#ffffff'; }
-  else { ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = ieState.color; }
+  if (ieState.tool === 'erase') {
+    var mode = document.getElementById('ie-erase-mode').value;
+    if (mode === 'match') {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = ieState.bgColor;
+      ctx.fillStyle = ieState.bgColor;
+    } else {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
+    }
+  } else if (ieState.tool === 'white') {
+    ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = '#ffffff'; ctx.fillStyle = '#ffffff';
+  } else {
+    ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = ieState.color; ctx.fillStyle = ieState.color;
+  }
 }
 
 function ieDraw(e) {
@@ -3041,26 +3256,52 @@ function ieDrawShape(e) {
   ctx.putImageData(ieState.snapshot, 0, 0);
   ieApplyStroke(ctx);
   if (ieState.tool === 'line') {
-    ctx.beginPath();
-    ctx.moveTo(ieState.startX, ieState.startY);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ieState.startX, ieState.startY); ctx.lineTo(p.x, p.y); ctx.stroke();
   } else if (ieState.tool === 'rect') {
     ctx.strokeRect(ieState.startX, ieState.startY, p.x - ieState.startX, p.y - ieState.startY);
+  } else if (ieState.tool === 'circle') {
+    var rx = Math.abs(p.x - ieState.startX) / 2, ry = Math.abs(p.y - ieState.startY) / 2;
+    var cx = (p.x + ieState.startX) / 2, cy = (p.y + ieState.startY) / 2;
+    ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
   }
   ctx.globalAlpha = 1;
 }
 
 function ieDownload() {
+  if (!requirePaidAction('download your image')) return;
   if (!ieState.canvas) return;
-  var url = ieState.canvas.toDataURL('image/png');
+  // Flatten text boxes onto the canvas
+  var canvas = ieState.canvas;
+  var ctx = ieState.ctx;
+  var stage = document.getElementById('ie-stage');
+  var srect = document.getElementById('ie-canvas').getBoundingClientRect();
+  var scaleX = canvas.width / srect.width;
+  var scaleY = canvas.height / srect.height;
+
+  ieState.texts.forEach(function(t){
+    var brect = t.el.getBoundingClientRect();
+    var x = (brect.left - srect.left) * scaleX;
+    var y = (brect.top - srect.top) * scaleY;
+    var fontSize = parseFloat(t.el.style.fontSize) * scaleY;
+    var weight = t.bold ? 'bold ' : '';
+    var italic = t.italic ? 'italic ' : '';
+    ctx.fillStyle = t.color;
+    ctx.font = italic + weight + fontSize + 'px ' + t.font;
+    ctx.textBaseline = 'top';
+    ctx.fillText(t.el.textContent, x + 4 * scaleX, y + 2 * scaleY);
+  });
+
+  var url = canvas.toDataURL('image/png');
   var a = document.createElement('a');
   a.href = url;
   a.download = 'edited-image.png';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  // Re-save so text isn't doubled if they keep editing
+  ieSaveHistory();
 }
+
 
 function renderCompressor(el) {
   el.innerHTML =
@@ -3133,6 +3374,7 @@ function fmtSize(bytes) {
 }
 
 function handleImageCompress() {
+  if (!requirePaidAction('compress and download')) return;
   var input = document.getElementById('comp-img-input');
   var file = input.files[0];
   if (!file) return;
@@ -3178,6 +3420,7 @@ function handleImageCompress() {
 }
 
 function handleAudioCompress() {
+  if (!requirePaidAction('compress and download')) return;
   var input = document.getElementById('comp-audio-input');
   var file = input.files[0];
   if (!file) return;
@@ -3243,6 +3486,7 @@ function audioBufferToWav(buffer) {
 }
 
 function handleVideoCompress() {
+  if (!requirePaidAction('compress and download')) return;
   var input = document.getElementById('comp-video-input');
   var file = input.files[0];
   if (!file) return;
@@ -3626,6 +3870,7 @@ function showCSVReady(filename) {
 }
 
 function convertCSVtoPDF(name) {
+  if (!requirePaidAction('convert to PDF')) return;
   if (!_csvData || !_csvData.length) { alert('Please upload a file first.'); return; }
   var jsPDF = window.jspdf.jsPDF;
   var doc = new jsPDF();
@@ -3648,6 +3893,7 @@ function handleImageFiles(input) {
 }
 
 function convertImagesToPDF() {
+  if (!requirePaidAction('convert to PDF')) return;
   if (!_imageFiles.length) { alert('Please choose images first.'); return; }
   var jsPDF = window.jspdf.jsPDF;
   var doc = new jsPDF();
@@ -3677,6 +3923,7 @@ function convertImagesToPDF() {
 }
 
 function textToPDF() {
+  if (!requirePaidAction('convert to PDF')) return;
   var title = (document.getElementById('txt-title') || {value:''}).value.trim() || 'Document';
   var body = (document.getElementById('txt-body') || {value:''}).value.trim();
   if (!body) { alert('Please type some text first.'); return; }
