@@ -3013,6 +3013,24 @@ function ieLoadImage(input) {
 function ieInit(canvas, ctx) {
   ieState.canvas = canvas;
   ieState.ctx = ctx;
+  // BULLETPROOF wheel-resize: catch the wheel anywhere over a text box,
+  // stop the page from scrolling, and resize the text instead.
+  if (!window._ieWheelBound) {
+    window._ieWheelBound = true;
+    document.addEventListener('wheel', function(e){
+      var boxEl = e.target && e.target.closest ? e.target.closest('.ie-textbox') : null;
+      if (!boxEl) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var tObj = null;
+      for (var i = 0; i < ieState.texts.length; i++) {
+        if (ieState.texts[i].el === boxEl) { tObj = ieState.texts[i]; break; }
+      }
+      if (!tObj) return;
+      ieSelectText(tObj);
+      ieTextSize(e.deltaY < 0 ? 2 : -2);
+    }, { passive: false, capture: true });
+  }
   ieState.history = [];
   ieState.texts = [];
   ieState.activeText = null;
