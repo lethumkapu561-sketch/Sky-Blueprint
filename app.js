@@ -2910,6 +2910,7 @@ function renderImageEditor(el) {
 
       '<div class="ie-bar">' +
         '<button onclick="ieRotateCanvas()" class="ie-toolbtn">Rotate Image 90°</button>' +
+        '<button onclick="ieCleanScan()" class="ie-toolbtn" style="background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.35);color:#38bdf8">Clean Up Scan</button>' +
         '<button onclick="ieUndo()" class="ie-toolbtn">Undo</button>' +
         '<button onclick="ieClear()" class="ie-toolbtn">Reset</button>' +
         '<button onclick="ieDownload()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Download</button>' +
@@ -3193,6 +3194,93 @@ function ieDeleteActiveText() {
   ieState.activeText.el.remove();
   ieState.activeText = null;
   document.getElementById('ie-text-controls').style.display = 'none';
+}
+
+function ieCleanScan() {
+  if (!ieState.canvas || !ieState.ctx) { alert('Open an image first.'); return; }
+  var canvas = ieState.canvas, ctx = ieState.ctx;
+  var w = canvas.width, h = canvas.height;
+  var imgData;
+  try { imgData = ctx.getImageData(0, 0, w, h); }
+  catch(e) { alert('Could not read this image to clean it.'); return; }
+  var d = imgData.data;
+
+  // Pass 1: collect luminance values to find percentiles (paper vs ink).
+  var lumArr = new Float32Array(d.length / 4);
+  var li = 0;
+  for (var i = 0; i < d.length; i += 4) {
+    lumArr[li++] = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+  }
+  // Sort a sampled copy to get percentiles cheaply on big images
+  var sample = [];
+  var step = Math.max(1, Math.floor(lumArr.length / 20000));
+  for (var k = 0; k < lumArr.length; k += step) sample.push(lumArr[k]);
+  sample.sort(function(a, b){ return a - b; });
+  function pct(p){ return sample[Math.min(sample.length - 1, Math.floor(p * sample.length))]; }
+  var p20 = pct(0.20), p60 = pct(0.60);
+
+  // Paper is the bright majority; push it to white. Ink is the dark fifth.
+  var whitePoint = p60 * 0.92;
+  var blackPoint = p20;
+  var range = Math.max(1, whitePoint - blackPoint);
+
+  // Pass 2: whiten background (even under uneven lighting), deepen text.
+  for (var j = 0; j < d.length; j += 4) {
+    var lum = d[j] * 0.299 + d[j+1] * 0.587 + d[j+2] * 0.114;
+    var out;
+    if (lum >= whitePoint) {
+      out = 255;
+    } else if (lum <= blackPoint) {
+      out = 0;
+    } else {
+      var norm = (lum - blackPoint) / range;
+      norm = Math.pow(norm, 1.5);
+      out = Math.round(norm * 255);
+    }
+    d[j] = out; d[j+1] = out; d[j+2] = out;
+  }
+  ctx.putImageData(imgData, 0, 0);
+
+  // Light sharpen pass for text edges using a convolution
+  ieSharpen(ctx, w, h);
+
+  ieSaveHistory();
+  var res = document.getElementById('ie-scan-note');
+  if (!res) {
+    res = document.createElement('p');
+    res.id = 'ie-scan-note';
+    res.style.cssText = 'font-size:12px;color:#10b981;margin-top:8px';
+    var ws = document.getElementById('ie-workspace');
+    if (ws) ws.appendChild(res);
+  }
+  res.textContent = 'Scan cleaned — background whitened, text sharpened. Tap again for a stronger effect, or Undo to revert.';
+}
+
+function ieSharpen(ctx, w, h) {
+  try {
+    var src = ctx.getImageData(0, 0, w, h);
+    var out = ctx.createImageData(w, h);
+    var s = src.data, o = out.data;
+    // Mild sharpen kernel
+    var k = [0, -0.4, 0, -0.4, 2.6, -0.4, 0, -0.4, 0];
+    for (var y = 1; y < h - 1; y++) {
+      for (var x = 1; x < w - 1; x++) {
+        for (var c = 0; c < 3; c++) {
+          var idx = (y * w + x) * 4 + c;
+          var acc = 0, ki = 0;
+          for (var dy = -1; dy <= 1; dy++) {
+            for (var dx = -1; dx <= 1; dx++) {
+              acc += s[((y+dy) * w + (x+dx)) * 4 + c] * k[ki++];
+            }
+          }
+          o[idx] = acc < 0 ? 0 : (acc > 255 ? 255 : acc);
+        }
+        o[(y * w + x) * 4 + 3] = 255;
+      }
+    }
+    // copy edges unchanged
+    ctx.putImageData(out, 0, 0);
+  } catch(e) { /* sharpen is optional; ignore if it fails */ }
 }
 
 function ieRotateCanvas() {
@@ -3632,7 +3720,7 @@ function renderPDFTools(el) {
     '<div class="tab active" onclick="pdfTab(\'csv\',this)">CSV / Excel to PDF</div>' +
     '<div class="tab" onclick="pdfTab(\'image\',this)">Images to PDF</div>' +
     '<div class="tab" onclick="pdfTab(\'text\',this)">Text to PDF</div>' +
-    '<div class="tab" onclick="pdfTab(\'wiper\',this)">Ink Wiper</div>' +
+    '<div class="tab" onclick="pdfTab(\'book\',this)">eBook Manuscript</div>' +
     '</div>' +
 
     // CSV/Excel to PDF
@@ -3662,18 +3750,30 @@ function renderPDFTools(el) {
     '</div>' +
 
     // Text to PDF
+    '<div id="pdf-book" style="display:none">' +
+    '<div class="cv-sec-title">eBook / Print Manuscript Formatter</div>' +
+    '<p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Turn your writing into a print-ready book PDF for Amazon KDP and other platforms — title page, copyright page, chapters, page numbers and correct book size, all done for you.</p>' +
+    '<div class="form-group"><label>Book title</label><input type="text" id="bk-title" placeholder="e.g. Start Your Business in South Africa"></div>' +
+    '<div class="form-group"><label>Subtitle (optional)</label><input type="text" id="bk-subtitle" placeholder="e.g. A practical guide for first-time entrepreneurs"></div>' +
+    '<div class="form-group"><label>Author name</label><input type="text" id="bk-author" placeholder="e.g. Wongalethu Mkapu"></div>' +
+    '<div class="form-group"><label>Book size (trim)</label><select id="bk-trim" style="width:100%;box-sizing:border-box">' +
+    '<option value="6x9" selected>6" × 9" — most popular on Amazon KDP</option>' +
+    '<option value="5x8">5" × 8" — compact paperback</option>' +
+    '<option value="a5">A5 — common in South Africa</option>' +
+    '</select></div>' +
+    '<div class="form-group"><label>Your manuscript</label>' +
+    '<p style="font-size:11px;color:#38bdf8;margin-bottom:6px">Start each chapter on a line beginning with # — for example:<br><span style="color:var(--muted)"># Chapter 1: The Idea</span></p>' +
+    '<textarea id="bk-text" rows="12" placeholder="# Chapter 1: The Idea\nIt all started when...\n\n# Chapter 2: The First Sale\nThe next morning..." style="width:100%;box-sizing:border-box"></textarea></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="formatManuscript()">Create My Book PDF</button>' +
+    '<div id="bk-result" style="margin-top:12px"></div>' +
+    '</div>' +
+
     '<div id="pdf-text" style="display:none">' +
     '<div class="cv-sec-title">Convert Text to PDF</div>' +
     '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Type or paste your text and download it as a clean PDF document.</p>' +
     '<div class="form-group"><label>Document Title</label><input type="text" id="txt-title" placeholder="e.g. My Notes"></div>' +
     '<div class="form-group"><label>Your Text</label><textarea id="txt-body" rows="10" placeholder="Type or paste your text here..."></textarea></div>' +
     '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="textToPDF()">Convert to PDF</button>' +
-    '</div>' +
-
-    '<div id="pdf-wiper" style="display:none">' +
-    '<div class="cv-sec-title">Ink Wiper</div>' +
-    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Like Tipp-Ex for your documents: brush over pen ink, marks or unwanted writing on a scanned form or photo, and wipe it clean. Works with JPG, PNG and PDF.</p>' +
-    '<div id="wiper-area"></div>' +
     '</div>' +
 
     '<div style="background:rgba(139,92,246,0.06);border-radius:12px;padding:14px;margin-top:20px">' +
@@ -3683,238 +3783,143 @@ function renderPDFTools(el) {
 }
 
 // ═══════════ INK WIPER TOOL ═══════════
-var _wiper = { canvas:null, ctx:null, brush:18, mode:'white', pickColor:'#ffffff', undoStack:[], pdfPages:[], currentPage:0, isPdf:false, fileName:'document' };
+function formatManuscript() {
+  if (!requirePaidAction('format your manuscript')) return;
+  var title = (document.getElementById('bk-title').value || '').trim();
+  var subtitle = (document.getElementById('bk-subtitle').value || '').trim();
+  var author = (document.getElementById('bk-author').value || '').trim();
+  var trim = document.getElementById('bk-trim').value;
+  var text = (document.getElementById('bk-text').value || '').trim();
+  var result = document.getElementById('bk-result');
 
-function initWiper() {
-  var area = document.getElementById('wiper-area');
-  if (!area) return;
-  // Terms must be accepted once before use
-  if (!safeStorage.getItem('sb_wiper_terms')) {
-    area.innerHTML =
-      '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:18px">' +
-      '<strong style="color:#f59e0b;display:block;margin-bottom:10px;font-size:14px">Terms of Use — please read before using the Ink Wiper</strong>' +
-      '<div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:14px">' +
-      'This tool is for <strong style="color:#fff">lawful editing of your own documents only</strong> — for example, cleaning marks off a scanned form so you can reuse it, or removing notes from your own paperwork.<br><br>' +
-      '<strong style="color:#f87171">You may NOT use this tool to alter official, signed, or legal documents with intent to deceive.</strong> Altering documents such as IDs, certificates, contracts, bank statements, proof of payments or signed agreements to mislead anyone is <strong style="color:#f87171">fraud and a criminal offence</strong> under South African law.<br><br>' +
-      'By accepting, you confirm that: (1) you will only edit documents you have the right to edit, (2) you accept <strong style="color:#fff">full and sole legal responsibility</strong> for anything you create with this tool, and (3) Sky Blueprint and its owner are <strong style="color:#fff">not liable in any way</strong> for how you use it.' +
-      '</div>' +
-      '<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:14px">' +
-      '<input type="checkbox" id="wiper-agree" style="width:18px;height:18px;margin-top:1px;accent-color:#f59e0b;cursor:pointer">' +
-      '<span style="font-size:12px;color:#fff">I have read and accept these terms. I take full responsibility for my use of this tool.</span>' +
-      '</label>' +
-      '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="acceptWiperTerms()">Accept & Continue</button>' +
-      '</div>';
+  if (!title || !author || !text) {
+    result.innerHTML = '<p style="color:#f87171;font-size:13px;text-align:center">Please fill in the title, author and your manuscript text.</p>';
     return;
   }
-  renderWiperUpload();
-}
-
-function acceptWiperTerms() {
-  var cb = document.getElementById('wiper-agree');
-  if (!cb || !cb.checked) { alert('Please tick the box to confirm you accept the terms.'); return; }
-  safeStorage.setItem('sb_wiper_terms', JSON.stringify({ accepted: true, date: new Date().toISOString() }));
-  renderWiperUpload();
-}
-
-function renderWiperUpload() {
-  var area = document.getElementById('wiper-area');
-  area.innerHTML =
-    '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
-    '<p style="color:#fff;font-weight:600;margin-bottom:6px">Choose a file to clean</p>' +
-    '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">JPG, PNG or PDF (up to 20 pages). Everything happens on your device — nothing is uploaded.</p>' +
-    '<input type="file" id="wiper-input" accept="image/jpeg,image/png,application/pdf" onchange="loadWiperFile()" style="display:none">' +
-    '<button class="btn-primary" onclick="document.getElementById(\'wiper-input\').click()">Choose File</button>' +
-    '</div>' +
-    '<div id="wiper-editor"></div>';
-}
-
-function loadWiperFile() {
-  var input = document.getElementById('wiper-input');
-  var file = input.files[0];
-  if (!file) return;
-  _wiper.fileName = (file.name || 'document').replace(/\.[^.]+$/, '');
-  _wiper.undoStack = []; _wiper.pdfPages = []; _wiper.currentPage = 0;
-
-  if (file.type === 'application/pdf') {
-    _wiper.isPdf = true;
-    if (typeof pdfjsLib === 'undefined') { alert('PDF support is still loading. Please try again in a few seconds.'); return; }
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      pdfjsLib.getDocument({ data: e.target.result }).promise.then(function(pdf) {
-        var numPages = Math.min(pdf.numPages, 20);
-        var loaded = 0;
-        _wiper.pdfPages = new Array(numPages);
-        document.getElementById('wiper-editor').innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Loading PDF pages...</p>';
-        for (var i = 1; i <= numPages; i++) {
-          (function(pageNum) {
-            pdf.getPage(pageNum).then(function(page) {
-              var viewport = page.getViewport({ scale: 2 });
-              var c = document.createElement('canvas');
-              c.width = viewport.width; c.height = viewport.height;
-              page.render({ canvasContext: c.getContext('2d'), viewport: viewport }).promise.then(function() {
-                _wiper.pdfPages[pageNum - 1] = c;
-                loaded++;
-                if (loaded === numPages) openWiperEditor(_wiper.pdfPages[0]);
-              });
-            });
-          })(i);
-        }
-      }).catch(function(){ alert('Could not read this PDF. It may be protected or corrupted.'); });
-    };
-    reader.readAsArrayBuffer(file);
-  } else {
-    _wiper.isPdf = false;
-    var reader2 = new FileReader();
-    reader2.onload = function(e) {
-      var img = new Image();
-      img.onload = function() {
-        var maxDim = 2400, w = img.width, h = img.height;
-        if (w > maxDim || h > maxDim) { if (w > h) { h = Math.round(h*maxDim/w); w = maxDim; } else { w = Math.round(w*maxDim/h); h = maxDim; } }
-        var c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        openWiperEditor(c);
-      };
-      img.onerror = function(){ alert('Could not read this image.'); };
-      img.src = e.target.result;
-    };
-    reader2.readAsDataURL(file);
-  }
-}
-
-function openWiperEditor(sourceCanvas) {
-  var editor = document.getElementById('wiper-editor');
-  var pageSelector = '';
-  if (_wiper.isPdf && _wiper.pdfPages.length > 1) {
-    pageSelector = '<div class="form-group"><label>Page</label><select id="wiper-page" onchange="switchWiperPage()" style="width:100%;box-sizing:border-box">';
-    for (var i = 0; i < _wiper.pdfPages.length; i++) pageSelector += '<option value="' + i + '">Page ' + (i+1) + '</option>';
-    pageSelector += '</select></div>';
-  }
-
-  editor.innerHTML =
-    pageSelector +
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end">' +
-    '<div style="flex:1;min-width:140px"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Wiper size: <span id="wiper-size-val">18</span></label>' +
-    '<input type="range" min="6" max="60" value="18" oninput="_wiper.brush=parseInt(this.value);document.getElementById(\'wiper-size-val\').textContent=this.value" style="width:100%"></div>' +
-    '<div style="flex:1;min-width:140px"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Wipe with</label>' +
-    '<select id="wiper-mode" onchange="_wiper.mode=this.value" style="width:100%;box-sizing:border-box"><option value="white">White (like Tipp-Ex)</option><option value="pick">Match background (tap image first to pick)</option></select></div>' +
-    '<button onclick="wiperUndo()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">Undo</button>' +
-    '</div>' +
-    '<p style="font-size:11px;color:var(--muted);margin-bottom:8px">Drag your finger or mouse over the ink you want to remove. Zoom your browser for precision.</p>' +
-    '<div style="overflow:auto;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:#333;max-height:65vh;touch-action:none">' +
-    '<canvas id="wiper-canvas" style="display:block;max-width:100%;height:auto;cursor:crosshair"></canvas>' +
-    '</div>' +
-    '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">' +
-    (_wiper.isPdf
-      ? '<button class="btn-primary" style="flex:1;min-width:150px" onclick="downloadWiperPDF()">Download Cleaned PDF</button>'
-      : '<button class="btn-primary" style="flex:1;min-width:150px" onclick="downloadWiperImage(\'png\')">Download PNG</button>' +
-        '<button class="btn-primary" style="flex:1;min-width:150px" onclick="downloadWiperImage(\'jpg\')">Download JPG</button>') +
-    '<button onclick="renderWiperUpload()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">New File</button>' +
-    '</div>';
-
-  var canvas = document.getElementById('wiper-canvas');
-  canvas.width = sourceCanvas.width; canvas.height = sourceCanvas.height;
-  var ctx = canvas.getContext('2d');
-  ctx.drawImage(sourceCanvas, 0, 0);
-  _wiper.canvas = canvas; _wiper.ctx = ctx;
-  _wiper.undoStack = [ctx.getImageData(0, 0, canvas.width, canvas.height)];
-
-  var drawing = false;
-  function canvasPos(e) {
-    var rect = canvas.getBoundingClientRect();
-    var cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-    var cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-    return { x: cx * canvas.width / rect.width, y: cy * canvas.height / rect.height };
-  }
-  function wipe(pos) {
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, _wiper.brush, 0, Math.PI * 2);
-    ctx.fillStyle = _wiper.mode === 'white' ? '#ffffff' : _wiper.pickColor;
-    ctx.fill();
-  }
-  function start(e) {
-    e.preventDefault();
-    var pos = canvasPos(e);
-    if (_wiper.mode === 'pick' && !drawing && e.shiftKey !== true) {
-      // First tap in pick mode samples the background color at that point
-      var p = ctx.getImageData(Math.max(0,Math.round(pos.x)), Math.max(0,Math.round(pos.y)), 1, 1).data;
-      _wiper.pickColor = 'rgb(' + p[0] + ',' + p[1] + ',' + p[2] + ')';
-    }
-    // save undo snapshot (cap at 12)
-    if (_wiper.undoStack.length >= 12) _wiper.undoStack.shift();
-    _wiper.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-    drawing = true;
-    wipe(pos);
-  }
-  function move(e) { if (!drawing) return; e.preventDefault(); wipe(canvasPos(e)); }
-  function end() { drawing = false; }
-
-  canvas.addEventListener('mousedown', start);
-  canvas.addEventListener('mousemove', move);
-  window.addEventListener('mouseup', end);
-  canvas.addEventListener('touchstart', start, { passive: false });
-  canvas.addEventListener('touchmove', move, { passive: false });
-  canvas.addEventListener('touchend', end);
-}
-
-function switchWiperPage() {
-  // save current page edits back into the page store, then load selected page
-  var sel = document.getElementById('wiper-page');
-  var newPage = parseInt(sel.value);
-  if (_wiper.canvas && _wiper.pdfPages[_wiper.currentPage]) {
-    var store = _wiper.pdfPages[_wiper.currentPage];
-    store.getContext('2d').drawImage(_wiper.canvas, 0, 0);
-  }
-  _wiper.currentPage = newPage;
-  openWiperEditor(_wiper.pdfPages[newPage]);
-  document.getElementById('wiper-page').value = newPage;
-}
-
-function wiperUndo() {
-  if (_wiper.undoStack.length > 1) {
-    _wiper.undoStack.pop();
-    _wiper.ctx.putImageData(_wiper.undoStack[_wiper.undoStack.length - 1], 0, 0);
-  }
-}
-
-function downloadWiperImage(fmt) {
-  var mime = fmt === 'jpg' ? 'image/jpeg' : 'image/png';
-  var a = document.createElement('a');
-  a.href = _wiper.canvas.toDataURL(mime, 0.92);
-  a.download = _wiper.fileName + '-cleaned.' + fmt;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-}
-
-function downloadWiperPDF() {
-  // save current page edits first
-  if (_wiper.canvas && _wiper.pdfPages[_wiper.currentPage]) {
-    _wiper.pdfPages[_wiper.currentPage].getContext('2d').drawImage(_wiper.canvas, 0, 0);
-  }
   var jsPDFLib = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
-  if (!jsPDFLib) { alert('PDF library not loaded. Please refresh and try again.'); return; }
-  var doc = null;
-  _wiper.pdfPages.forEach(function(pageCanvas, i) {
-    var isLandscape = pageCanvas.width > pageCanvas.height;
-    var orientation = isLandscape ? 'landscape' : 'portrait';
-    if (i === 0) doc = new jsPDFLib({ unit: 'mm', format: 'a4', orientation: orientation });
-    else doc.addPage('a4', orientation);
-    var pw = isLandscape ? 297 : 210, ph = isLandscape ? 210 : 297;
-    var ratio = Math.min(pw / pageCanvas.width, ph / pageCanvas.height);
-    var w = pageCanvas.width * ratio, h = pageCanvas.height * ratio;
-    doc.addImage(pageCanvas.toDataURL('image/jpeg', 0.9), 'JPEG', (pw - w) / 2, (ph - h) / 2, w, h);
+  if (!jsPDFLib) { result.innerHTML = '<p style="color:#f87171;font-size:13px;text-align:center">PDF engine is still loading — try again in a few seconds.</p>'; return; }
+
+  // Page sizes in inches
+  var sizes = { '6x9': [6, 9], '5x8': [5, 8], 'a5': [5.83, 8.27] };
+  var pw = sizes[trim][0], ph = sizes[trim][1];
+  // KDP-style margins: bigger inner (gutter) margin for binding
+  var mTop = 0.75, mBottom = 0.75, mOuter = 0.6, mInner = 0.85;
+
+  var doc = new jsPDFLib({ unit: 'in', format: [pw, ph] });
+
+  // ---- Title page ----
+  doc.setFont('times', 'bold');
+  doc.setFontSize(26);
+  var titleLines = doc.splitTextToSize(title, pw - 1.6);
+  var ty = ph * 0.32;
+  titleLines.forEach(function(ln){ doc.text(ln, pw / 2, ty, { align: 'center' }); ty += 0.42; });
+  if (subtitle) {
+    doc.setFont('times', 'italic');
+    doc.setFontSize(13);
+    var subLines = doc.splitTextToSize(subtitle, pw - 1.8);
+    ty += 0.15;
+    subLines.forEach(function(ln){ doc.text(ln, pw / 2, ty, { align: 'center' }); ty += 0.24; });
+  }
+  doc.setFont('times', 'normal');
+  doc.setFontSize(14);
+  doc.text(author, pw / 2, ph * 0.72, { align: 'center' });
+
+  // ---- Copyright page ----
+  doc.addPage();
+  doc.setFont('times', 'normal');
+  doc.setFontSize(9);
+  var year = new Date().getFullYear();
+  var cpy = ['Copyright © ' + year + ' ' + author,
+             'All rights reserved.',
+             '',
+             'No part of this book may be reproduced in any form',
+             'without written permission from the author.'];
+  var cy = ph - mBottom - 1.2;
+  cpy.forEach(function(ln){ doc.text(ln, pw / 2, cy, { align: 'center' }); cy += 0.18; });
+
+  // ---- Chapters ----
+  var lines = text.split(/\r?\n/);
+  var chapters = [];
+  var current = null;
+  lines.forEach(function(ln){
+    if (ln.trim().indexOf('#') === 0) {
+      if (current) chapters.push(current);
+      current = { heading: ln.replace(/^#+\s*/, '').trim(), body: [] };
+    } else {
+      if (!current) current = { heading: '', body: [] };
+      current.body.push(ln);
+    }
   });
-  doc.save(_wiper.fileName + '-cleaned.pdf');
+  if (current) chapters.push(current);
+
+  var bodySize = 11, lineH = 0.19;
+  var textW; // differs by page side (mirrored margins)
+  var pageNum = 1; // body page counter starts after front matter
+
+  chapters.forEach(function(ch){
+    doc.addPage();
+    var pageIsOdd = (doc.internal.getNumberOfPages() % 2) === 1;
+    var mLeft = pageIsOdd ? mInner : mOuter;
+    var mRight = pageIsOdd ? mOuter : mInner;
+    textW = pw - mLeft - mRight;
+    var y = mTop + 0.9;
+
+    if (ch.heading) {
+      doc.setFont('times', 'bold');
+      doc.setFontSize(17);
+      var hLines = doc.splitTextToSize(ch.heading, textW);
+      hLines.forEach(function(hl){ doc.text(hl, pw / 2, y, { align: 'center' }); y += 0.3; });
+      y += 0.25;
+    }
+
+    doc.setFont('times', 'normal');
+    doc.setFontSize(bodySize);
+    var paragraphs = ch.body.join('\n').split(/\n\s*\n/);
+    paragraphs.forEach(function(para){
+      para = para.replace(/\n/g, ' ').trim();
+      if (!para) return;
+      var pLines = doc.splitTextToSize(para, textW);
+      pLines.forEach(function(pl){
+        if (y > ph - mBottom - 0.25) {
+          doc.addPage();
+          var odd = (doc.internal.getNumberOfPages() % 2) === 1;
+          mLeft = odd ? mInner : mOuter;
+          mRight = odd ? mOuter : mInner;
+          textW = pw - mLeft - mRight;
+          y = mTop;
+        }
+        doc.text(pl, mLeft, y);
+        y += lineH;
+      });
+      y += lineH * 0.6; // paragraph gap
+    });
+  });
+
+  // ---- Page numbers (skip title + copyright) ----
+  var total = doc.internal.getNumberOfPages();
+  for (var p = 3; p <= total; p++) {
+    doc.setPage(p);
+    doc.setFont('times', 'normal');
+    doc.setFontSize(9);
+    doc.text(String(p - 2), pw / 2, ph - 0.4, { align: 'center' });
+  }
+
+  var fname = title.replace(/[^a-z0-9]+/gi, '_') + '_manuscript.pdf';
+  doc.save(fname);
+  result.innerHTML =
+    '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:16px;text-align:center">' +
+    '<p style="color:#10b981;font-weight:700;font-size:14px;margin-bottom:6px">Your book PDF is ready — ' + (total - 2) + ' pages</p>' +
+    '<p style="font-size:12px;color:var(--muted);line-height:1.6">Print-ready with title page, copyright page, chapters and page numbers. Upload it to Amazon KDP as your paperback interior, or use it as your eBook base.</p>' +
+    '</div>';
 }
 
 function pdfTab(t, el) {
   document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
   el.classList.add('active');
-  ['csv','image','text','wiper'].forEach(function(id){
+  ['csv','image','text','book'].forEach(function(id){
     var e = document.getElementById('pdf-' + id);
     if (e) e.style.display = id===t?'block':'none';
   });
-  if (t === 'wiper') initWiper();
 }
 
 var _csvData = null;
