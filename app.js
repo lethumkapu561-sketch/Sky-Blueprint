@@ -1936,7 +1936,7 @@ function buildAndMatchCV() {
     '</div>';
 
   // Store CV data for cover letter
-  window._cvData = { fn:fn, ln:ln, em:em, ph:ph, ci:ci, qual:qualLabel, jt:jt, co:co, sk:sk, sum:sum, exp:exp };
+  window._cvData = { fn:fn, ln:ln, em:em, ph:ph, ci:ci, qual:qualLabel, jt:jt, co:co, sk:sk, sum:sum, exp:exp, photo:(window._cvPhoto||'') };
   attachCoverLetterHandler();
 
   // Now match jobs
@@ -2047,6 +2047,25 @@ function downloadCV() {
   doc.rect(0, 0, SIDE_W, 2.5, 'F');
 
   var sx = 10, sy = 26, sw = SIDE_W - 20;
+
+  // Profile photo (circular) at top of sidebar, if uploaded
+  if (d.photo) {
+    try {
+      var photoSize = 34;
+      var photoX = (SIDE_W - photoSize) / 2;
+      var photoY = sy;
+      // white ring behind photo
+      doc.setFillColor(255, 255, 255);
+      doc.circle(SIDE_W / 2, photoY + photoSize / 2, photoSize / 2 + 1.2, 'F');
+      var fmt = (d.photo.indexOf('image/png') > -1) ? 'PNG' : 'JPEG';
+      doc.addImage(d.photo, fmt, photoX, photoY, photoSize, photoSize);
+      // gold ring stroke
+      doc.setDrawColor(GOLD[0], GOLD[1], GOLD[2]);
+      doc.setLineWidth(0.8);
+      doc.circle(SIDE_W / 2, photoY + photoSize / 2, photoSize / 2 + 1.2, 'S');
+      sy += photoSize + 10;
+    } catch (e) { /* if the image can't be added, just skip it */ }
+  }
 
   // Name
   doc.setTextColor(255, 255, 255);
@@ -2275,7 +2294,8 @@ function createCoverLetter() {
         co: (document.getElementById('cv-co') || {value:''}).value.trim(),
         sk: (document.getElementById('cv-sk') || {value:''}).value.trim(),
         sum: (document.getElementById('cv-sum') || {value:''}).value.trim(),
-        exp: (document.getElementById('cv-exp') || {value:''}).value
+        exp: (document.getElementById('cv-exp') || {value:''}).value,
+        photo: (window._cvPhoto || '')
       };
     }
   }
