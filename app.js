@@ -2901,11 +2901,15 @@ function renderImageEditor(el) {
         '<button onclick="ieTextSize(2)" class="ie-toolbtn" style="padding:6px 12px;font-weight:800" title="Bigger">A+</button>' +
         '<button onclick="ieToggleBold()" id="ie-bold-btn" class="ie-toolbtn" style="padding:6px 12px;font-weight:800">B</button>' +
         '<button onclick="ieToggleItalic()" id="ie-italic-btn" class="ie-toolbtn" style="padding:6px 12px;font-style:italic">i</button>' +
+        '<button onclick="ieTextRotate(-15)" class="ie-toolbtn" style="padding:6px 12px" title="Rotate left">⟲</button>' +
+        '<span id="ie-textrot-val" style="font-size:12px;color:#e2e8f0;min-width:34px;text-align:center">0°</span>' +
+        '<button onclick="ieTextRotate(15)" class="ie-toolbtn" style="padding:6px 12px" title="Rotate right">⟳</button>' +
         '<button onclick="ieDeleteActiveText()" class="ie-toolbtn" style="padding:6px 12px;color:#f87171">Delete Text</button>' +
         '<span style="font-size:11px;color:#64748b;flex-basis:100%">Tip: scroll your mouse wheel over the text to resize it</span>' +
       '</div>' +
 
       '<div class="ie-bar">' +
+        '<button onclick="ieRotateCanvas()" class="ie-toolbtn">Rotate Image 90°</button>' +
         '<button onclick="ieUndo()" class="ie-toolbtn">Undo</button>' +
         '<button onclick="ieClear()" class="ie-toolbtn">Reset</button>' +
         '<button onclick="ieDownload()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Download</button>' +
@@ -3148,6 +3152,8 @@ function ieSelectText(textObj) {
   if (fontSel) fontSel.value = textObj.font;
   var sv = document.getElementById('ie-textsize-val');
   if (sv) sv.textContent = Math.round(textObj.size);
+  var rv = document.getElementById('ie-textrot-val');
+  if (rv) rv.textContent = (textObj.rotation || 0) + '°';
 }
 
 function ieTextSize(delta) {
@@ -3187,6 +3193,32 @@ function ieDeleteActiveText() {
   ieState.activeText.el.remove();
   ieState.activeText = null;
   document.getElementById('ie-text-controls').style.display = 'none';
+}
+
+function ieRotateCanvas() {
+  if (!ieState.canvas || !ieState.ctx) return;
+  var c = ieState.canvas;
+  var tmp = document.createElement('canvas');
+  tmp.width = c.height; tmp.height = c.width;
+  var tctx = tmp.getContext('2d');
+  tctx.translate(tmp.width / 2, tmp.height / 2);
+  tctx.rotate(Math.PI / 2);
+  tctx.drawImage(c, -c.width / 2, -c.height / 2);
+  // Swap the real canvas dimensions and paint the rotated result
+  c.width = tmp.width; c.height = tmp.height;
+  ieState.ctx.drawImage(tmp, 0, 0);
+  // Old history snapshots have the wrong dimensions - start fresh from here
+  ieState.history = [];
+  ieSaveHistory();
+}
+
+function ieTextRotate(delta) {
+  if (!ieState.activeText) { alert('Tap a text first, then rotate it.'); return; }
+  var t = ieState.activeText;
+  t.rotation = ((t.rotation || 0) + delta) % 360;
+  t.el.style.transform = 'rotate(' + t.rotation + 'deg)';
+  var rv = document.getElementById('ie-textrot-val');
+  if (rv) rv.textContent = t.rotation + '°';
 }
 
 function ieSaveHistory() {
@@ -3322,16 +3354,25 @@ function ieDownload() {
   var scaleY = canvas.height / srect.height;
 
   ieState.texts.forEach(function(t){
-    var brect = t.el.getBoundingClientRect();
-    var x = (brect.left - srect.left) * scaleX;
-    var y = (brect.top - srect.top) * scaleY;
-    var fontSize = parseFloat(t.el.style.fontSize) * scaleY;
+    // Use layout position (style.left/top) and layout size (offsetWidth/Height),
+    // which are NOT affected by rotation - then rotate around the box centre,
+    // exactly matching how CSS transform:rotate displays it on screen.
+    var left = parseFloat(t.el.style.left) || 0;
+    var top = parseFloat(t.el.style.top) || 0;
+    var cx = (left + t.el.offsetWidth / 2) * scaleX;
+    var cy = (top + t.el.offsetHeight / 2) * scaleY;
+    var fontSize = (t.size || parseFloat(t.el.style.fontSize) || 28) * scaleY;
     var weight = t.bold ? 'bold ' : '';
     var italic = t.italic ? 'italic ' : '';
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(((t.rotation || 0) * Math.PI) / 180);
     ctx.fillStyle = t.color;
     ctx.font = italic + weight + fontSize + 'px ' + t.font;
-    ctx.textBaseline = 'top';
-    ctx.fillText(t.el.textContent, x + 4 * scaleX, y + 2 * scaleY);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(t.el.textContent, 0, 0);
+    ctx.restore();
   });
 
   var url = canvas.toDataURL('image/png');
