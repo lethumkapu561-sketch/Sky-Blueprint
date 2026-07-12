@@ -2930,7 +2930,8 @@ function renderImageEditor(el) {
 
       '<div class="ie-bar">' +
         '<button onclick="ieRotateCanvas()" class="ie-toolbtn">Rotate Image 90°</button>' +
-        '<button onclick="ieCleanScan()" class="ie-toolbtn" style="background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.35);color:#38bdf8">Clean Up Scan</button>' +
+        '<button onclick="ieEnhancePhoto()" class="ie-toolbtn" style="background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.35);color:#10b981">Enhance Photo</button>' +
+        '<button onclick="ieCleanScan()" class="ie-toolbtn" style="background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.35);color:#38bdf8">Document B&amp;W</button>' +
         '<button onclick="ieUndo()" class="ie-toolbtn">Undo</button>' +
         '<button onclick="ieClear()" class="ie-toolbtn">Reset</button>' +
         '<button onclick="ieDownload()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Download</button>' +
@@ -3216,6 +3217,49 @@ function ieDeleteActiveText() {
   document.getElementById('ie-text-controls').style.display = 'none';
 }
 
+function ieEnhancePhoto() {
+  if (!ieState.canvas || !ieState.ctx) { alert('Open an image first.'); return; }
+  var canvas = ieState.canvas, ctx = ieState.ctx;
+  var w = canvas.width, h = canvas.height;
+  var imgData;
+  try { imgData = ctx.getImageData(0, 0, w, h); }
+  catch(e) { alert('Could not read this image.'); return; }
+  var d = imgData.data;
+
+  var brightness = 6;
+  var satBoost = 1.15;
+  var contrast = 1.25; // gentle contrast, applied around mid-grey
+
+  for (var i = 0; i < d.length; i += 4) {
+    // Gentle contrast around 128 + brightness, per channel, but MILD so colour survives
+    for (var c = 0; c < 3; c++) {
+      var v = (d[i+c] - 128) * contrast + 128 + brightness;
+      d[i+c] = v < 0 ? 0 : (v > 255 ? 255 : v);
+    }
+    // Saturation boost around the pixel's own luminance (keeps hue, richer colour)
+    var lum = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+    d[i]   = Math.max(0, Math.min(255, lum + (d[i]   - lum) * satBoost));
+    d[i+1] = Math.max(0, Math.min(255, lum + (d[i+1] - lum) * satBoost));
+    d[i+2] = Math.max(0, Math.min(255, lum + (d[i+2] - lum) * satBoost));
+  }
+  ctx.putImageData(imgData, 0, 0);
+  ieSharpen(ctx, w, h);
+  ieSaveHistory();
+  ieScanNote('Photo enhanced — brighter, richer colour and sharper. Colour is kept. Tap again for more, or Undo to revert.');
+}
+
+function ieScanNote(msg) {
+  var res = document.getElementById('ie-scan-note');
+  if (!res) {
+    res = document.createElement('p');
+    res.id = 'ie-scan-note';
+    res.style.cssText = 'font-size:12px;color:#10b981;margin-top:8px';
+    var ws = document.getElementById('ie-workspace');
+    if (ws) ws.appendChild(res);
+  }
+  res.textContent = msg;
+}
+
 function ieCleanScan() {
   if (!ieState.canvas || !ieState.ctx) { alert('Open an image first.'); return; }
   var canvas = ieState.canvas, ctx = ieState.ctx;
@@ -3265,15 +3309,7 @@ function ieCleanScan() {
   ieSharpen(ctx, w, h);
 
   ieSaveHistory();
-  var res = document.getElementById('ie-scan-note');
-  if (!res) {
-    res = document.createElement('p');
-    res.id = 'ie-scan-note';
-    res.style.cssText = 'font-size:12px;color:#10b981;margin-top:8px';
-    var ws = document.getElementById('ie-workspace');
-    if (ws) ws.appendChild(res);
-  }
-  res.textContent = 'Scan cleaned — background whitened, text sharpened. Tap again for a stronger effect, or Undo to revert.';
+  ieScanNote('Document cleaned to black & white — background whitened, text sharpened. This mode is for paper documents. For colour photos, use Enhance Photo instead. Undo to revert.');
 }
 
 function ieSharpen(ctx, w, h) {
