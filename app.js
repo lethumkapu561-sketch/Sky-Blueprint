@@ -2942,7 +2942,7 @@ function renderImageEditor(el) {
         '<canvas id="ie-canvas" style="display:block;max-width:100%;touch-action:none"></canvas>' +
         '<div id="ie-text-layer" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></div>' +
       '</div>' +
-      '<p style="font-size:11px;color:#64748b;margin-top:10px">Add Text places a movable box — drag it anywhere, then style it. White Out covers like tippex. Eraser can be see-through or match the background colour. Download flattens everything into one image.</p>' +
+      '<p style="font-size:11px;color:#64748b;margin-top:10px">Add Text places a movable box — drag it anywhere, then style it. White Out now matches the background colour so it blends on any image. Eraser can be see-through or match the background colour. Download flattens everything into one image.</p>' +
     '</div>' +
     '</div>';
 
@@ -3037,6 +3037,7 @@ function ieLoadImage(input) {
 }
 
 function ieInit(canvas, ctx) {
+  ieInitDragHandlers();
   ieState.canvas = canvas;
   ieState.ctx = ctx;
   // BULLETPROOF wheel-resize: catch the wheel anywhere over a text box,
@@ -3131,34 +3132,44 @@ function ieMakeDraggable(box, textObj) {
     ieTextSize(delta);
   }, { passive: false });
 
-  var dragging = false, ox = 0, oy = 0;
+  var dragging = false;
   function down(e) {
     if (e.target === box && box.isContentEditable && document.activeElement === box && e.type === 'mousedown') {
       // allow text editing clicks
     }
     ieSelectText(textObj);
     dragging = true;
+    ieState._draggingBox = { box: box, ox: 0, oy: 0 };
     var pt = e.touches ? e.touches[0] : e;
     var rect = box.getBoundingClientRect();
-    ox = pt.clientX - rect.left;
-    oy = pt.clientY - rect.top;
+    ieState._draggingBox.ox = pt.clientX - rect.left;
+    ieState._draggingBox.oy = pt.clientY - rect.top;
     e.stopPropagation();
   }
+  // Only attach the per-box start handlers here. The document-level move/up
+  // handlers are attached ONCE globally (see ieInitDragHandlers) so they don't
+  // stack up every time a text box is added.
+  box.addEventListener('mousedown', down);
+  box.addEventListener('touchstart', down);
+}
+
+function ieInitDragHandlers() {
+  if (window._ieDragBound) return;
+  window._ieDragBound = true;
   function move(e) {
-    if (!dragging) return;
+    var db = ieState._draggingBox;
+    if (!db) return;
     e.preventDefault();
     var pt = e.touches ? e.touches[0] : e;
     var stage = document.getElementById('ie-stage');
+    if (!stage) return;
     var srect = stage.getBoundingClientRect();
-    var x = pt.clientX - srect.left - ox + stage.scrollLeft;
-    var y = pt.clientY - srect.top - oy + stage.scrollTop;
-    box.style.left = Math.max(0, x) + 'px';
-    box.style.top = Math.max(0, y) + 'px';
+    var x = pt.clientX - srect.left - db.ox + stage.scrollLeft;
+    var y = pt.clientY - srect.top - db.oy + stage.scrollTop;
+    db.box.style.left = Math.max(0, x) + 'px';
+    db.box.style.top = Math.max(0, y) + 'px';
   }
-  function up() { dragging = false; }
-  // Drag with a small handle behaviour: hold and move
-  box.addEventListener('mousedown', down);
-  box.addEventListener('touchstart', down);
+  function up() { ieState._draggingBox = null; }
   document.addEventListener('mousemove', move);
   document.addEventListener('touchmove', move, { passive:false });
   document.addEventListener('mouseup', up);
@@ -3436,6 +3447,27 @@ function ieBindEvents() {
   canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end;
 }
 
+function ieSampleBg() {
+  // Sample a small patch a little away from the current stroke point to find
+  // the surrounding background colour, so White Paint blends into it.
+  try {
+    var ctx = ieState.ctx;
+    var x = Math.round(ieState.lastX), y = Math.round(ieState.lastY);
+    var size = parseInt(document.getElementById('ie-size').value) || 8;
+    var off = size + 6;
+    var pts = [[x - off, y], [x + off, y], [x, y - off], [x, y + off]];
+    var rs = 0, gs = 0, bs = 0, n = 0;
+    for (var i = 0; i < pts.length; i++) {
+      var px = pts[i][0], py = pts[i][1];
+      if (px < 0 || py < 0 || px >= ieState.canvas.width || py >= ieState.canvas.height) continue;
+      var dd = ctx.getImageData(px, py, 1, 1).data;
+      rs += dd[0]; gs += dd[1]; bs += dd[2]; n++;
+    }
+    if (n === 0) return ieState.bgColor || '#ffffff';
+    return 'rgb(' + Math.round(rs/n) + ',' + Math.round(gs/n) + ',' + Math.round(bs/n) + ')';
+  } catch(e) { return ieState.bgColor || '#ffffff'; }
+}
+
 function ieApplyStroke(ctx) {
   var size = parseInt(document.getElementById('ie-size').value) || 8;
   var op = (parseInt(document.getElementById('ie-opacity').value) || 100) / 100;
@@ -3451,7 +3483,12 @@ function ieApplyStroke(ctx) {
       ctx.strokeStyle = 'rgba(0,0,0,1)';
     }
   } else if (ieState.tool === 'white') {
-    ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = '#ffffff'; ctx.fillStyle = '#ffffff';
+    ctx.globalCompositeOperation = 'source-over';
+    // "Smart cover": sample the background colour near the stroke so it blends
+    // on ANY coloured image (like a real white-out that matches the paper/theme),
+    // not just pure white. Falls back to white if sampling fails.
+    var coverColor = ieSampleBg();
+    ctx.strokeStyle = coverColor; ctx.fillStyle = coverColor;
   } else {
     ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = ieState.color; ctx.fillStyle = ieState.color;
   }
