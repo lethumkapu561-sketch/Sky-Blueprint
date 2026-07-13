@@ -1718,6 +1718,45 @@ function renderCVBuilder(el) {
       <div class="cv-sec-title">Skills</div>
       <div class="form-group"><input type="text" id="cv-sk" placeholder="Microsoft Office, Customer Service, Driving Licence, Python..."></div>
 
+      <div class="cv-sec-title">Choose Your CV Design</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Pick the style you want — all in the Sky Blueprint look. You can rebuild anytime to switch.</p>
+      <div id="cv-format-picker" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px">
+        <div class="cv-fmt-card cv-fmt-active" data-fmt="navy" onclick="pickCVFormat('navy',this)">
+          <div style="display:flex;height:46px;border-radius:6px;overflow:hidden;margin-bottom:8px">
+            <div style="width:34%;background:#0f172a"></div>
+            <div style="flex:1;background:#fff;border-top:3px solid #d4af37"></div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#e2e8f0">Navy &amp; Gold</div>
+          <div style="font-size:11px;color:var(--muted)">Bold sidebar, premium feel</div>
+        </div>
+        <div class="cv-fmt-card" data-fmt="classic" onclick="pickCVFormat('classic',this)">
+          <div style="height:46px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;margin-bottom:8px;padding:6px;box-sizing:border-box">
+            <div style="height:5px;width:55%;background:#0f172a;margin:0 auto 4px"></div>
+            <div style="height:2px;width:80%;background:#cbd5e1;margin:0 auto 3px"></div>
+            <div style="height:2px;width:70%;background:#cbd5e1;margin:0 auto"></div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#e2e8f0">Classic</div>
+          <div style="font-size:11px;color:var(--muted)">Clean, best for job portals</div>
+        </div>
+        <div class="cv-fmt-card" data-fmt="modern" onclick="pickCVFormat('modern',this)">
+          <div style="height:46px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;margin-bottom:8px;overflow:hidden">
+            <div style="height:14px;background:linear-gradient(90deg,#2563eb,#38bdf8)"></div>
+            <div style="padding:5px"><div style="height:2px;width:70%;background:#cbd5e1;margin-bottom:3px"></div><div style="height:2px;width:85%;background:#cbd5e1"></div></div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#e2e8f0">Modern</div>
+          <div style="font-size:11px;color:var(--muted)">Blue banner, fresh look</div>
+        </div>
+        <div class="cv-fmt-card" data-fmt="minimal" onclick="pickCVFormat('minimal',this)">
+          <div style="height:46px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;margin-bottom:8px;padding:8px;box-sizing:border-box">
+            <div style="height:4px;width:45%;background:#0f172a;margin-bottom:5px"></div>
+            <div style="height:2px;width:90%;background:#e2e8f0;margin-bottom:3px"></div>
+            <div style="height:2px;width:75%;background:#e2e8f0"></div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#e2e8f0">Minimal</div>
+          <div style="font-size:11px;color:var(--muted)">Simple, elegant, lots of space</div>
+        </div>
+      </div>
+
       <button class="btn-primary" style="width:100%;box-sizing:border-box;margin-top:8px" onclick="buildAndMatchCV()">Build CV & Find Matching Jobs</button>
       <div id="cv-msg" style="margin-top:14px"></div>
     </div>
@@ -1821,7 +1860,14 @@ function updateQualHint() {
   }
 }
 
+function pickCVFormat(fmt, el) {
+  window._cvFormat = fmt;
+  document.querySelectorAll('.cv-fmt-card').forEach(function(c){ c.classList.remove('cv-fmt-active'); });
+  if (el) el.classList.add('cv-fmt-active');
+}
+
 function buildAndMatchCV() {
+  if (!window._cvFormat) window._cvFormat = 'navy';
   var fn   = (document.getElementById('cv-fn')   || {value:''}).value.trim();
   var ln   = (document.getElementById('cv-ln')   || {value:''}).value.trim();
   var em   = (document.getElementById('cv-em')   || {value:''}).value.trim();
@@ -2016,6 +2062,116 @@ function downloadCVWord() {
   URL.revokeObjectURL(url);
 }
 
+function downloadCVSingleCol(d, fmt, jsPDFLib) {
+  var doc = new jsPDFLib({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  var PW = 210, PH = 297;
+  var NAVY = [15, 23, 42], BLUE = [37, 99, 235], SKY = [56, 189, 248], GOLD = [212, 175, 55];
+  var TEXT = [30, 41, 59], MUTE = [100, 116, 139], HAIR = [226, 232, 240];
+
+  var mx = 18;                 // left margin
+  var y = 0;
+  var accent = (fmt === 'modern') ? BLUE : (fmt === 'classic' ? NAVY : NAVY);
+
+  function line(color, weight) {
+    doc.setDrawColor(color[0], color[1], color[2]);
+    doc.setLineWidth(weight);
+    doc.line(mx, y, PW - mx, y);
+  }
+  function heading(txt) {
+    y += 7;
+    doc.setTextColor(accent[0], accent[1], accent[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text(txt.toUpperCase(), mx, y);
+    y += 2;
+    line((fmt === 'minimal') ? HAIR : accent, (fmt === 'minimal') ? 0.2 : 0.6);
+    y += 5;
+  }
+  function body(txt, size, color, gap) {
+    doc.setTextColor(color[0], color[1], color[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(size || 10);
+    var lines = doc.splitTextToSize(txt, PW - mx * 2);
+    lines.forEach(function(ln){
+      if (y > PH - 18) { doc.addPage(); y = 20; }
+      doc.text(ln, mx, y); y += (size ? size * 0.42 : 4.6);
+    });
+    y += (gap || 2);
+  }
+
+  // ---------- HEADER ----------
+  if (fmt === 'modern') {
+    // Blue gradient-style banner
+    doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
+    doc.rect(0, 0, PW, 46, 'F');
+    doc.setFillColor(SKY[0], SKY[1], SKY[2]);
+    doc.rect(0, 44, PW, 2, 'F');
+    // photo right side
+    var hy = 18;
+    if (d.photo) {
+      try {
+        var ps = 26, pxp = PW - mx - ps;
+        doc.setFillColor(255,255,255); doc.circle(pxp + ps/2, 23, ps/2 + 1.2, 'F');
+        doc.addImage(d.photo, (d.photo.indexOf('image/png')>-1?'PNG':'JPEG'), pxp, 10, ps, ps);
+      } catch(e){}
+    }
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold'); doc.setFontSize(24);
+    doc.text((d.fn + ' ' + d.ln).trim(), mx, 22);
+    if (d.jt) { doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(219,234,254); doc.text(d.jt, mx, 31); }
+    doc.setFontSize(9); doc.setTextColor(219,234,254);
+    doc.text([d.em, d.ph, d.ci].filter(Boolean).join('   |   '), mx, 40);
+    y = 56;
+  } else if (fmt === 'classic') {
+    // Centered classic header
+    y = 24;
+    if (d.photo) {
+      try { var ps2=26, cx=PW/2-ps2/2; doc.setDrawColor(NAVY[0],NAVY[1],NAVY[2]); doc.setLineWidth(0.6);
+        doc.addImage(d.photo,(d.photo.indexOf('image/png')>-1?'PNG':'JPEG'),cx,y,ps2,ps2); doc.circle(PW/2,y+ps2/2,ps2/2+0.6,'S'); y+=ps2+7; } catch(e){}
+    }
+    doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
+    doc.setFont('helvetica','bold'); doc.setFontSize(24);
+    doc.text((d.fn + ' ' + d.ln).trim(), PW/2, y, { align:'center' }); y += 7;
+    if (d.jt) { doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(GOLD[0],GOLD[1],GOLD[2]); doc.text(d.jt, PW/2, y, {align:'center'}); y += 6; }
+    doc.setFontSize(9); doc.setTextColor(MUTE[0],MUTE[1],MUTE[2]);
+    doc.text([d.em, d.ph, d.ci].filter(Boolean).join('   |   '), PW/2, y, {align:'center'}); y += 4;
+    line(NAVY, 0.6); y += 2;
+  } else {
+    // minimal - left aligned, lots of space, thin lines
+    y = 26;
+    doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
+    doc.setFont('helvetica','bold'); doc.setFontSize(26);
+    doc.text((d.fn + ' ' + d.ln).trim(), mx, y); y += 8;
+    if (d.jt) { doc.setFont('helvetica','normal'); doc.setFontSize(12); doc.setTextColor(MUTE[0],MUTE[1],MUTE[2]); doc.text(d.jt, mx, y); y += 6; }
+    doc.setFontSize(9); doc.setTextColor(MUTE[0],MUTE[1],MUTE[2]);
+    doc.text([d.em, d.ph, d.ci].filter(Boolean).join('   ·   '), mx, y); y += 4;
+    line(HAIR, 0.2); y += 2;
+  }
+
+  // ---------- SECTIONS ----------
+  if (d.sum) { heading('Professional Profile'); body(d.sum, 10, TEXT, 3); }
+  if (d.qual) { heading('Education'); body(d.qual, 10, TEXT, 3); }
+  if (d.exp || d.co) {
+    heading('Work Experience');
+    if (d.co) { doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]); if(y>PH-18){doc.addPage();y=20;} doc.text(d.co, mx, y); y += 5; }
+    if (d.exp) body(String(d.exp) + (String(d.exp).match(/year|month/i)?'':' years') + ' experience', 10, TEXT, 3);
+  }
+  if (d.sk) {
+    heading('Skills');
+    var skills = String(d.sk).split(/[,\n]/).map(function(s){return s.trim();}).filter(Boolean);
+    body(skills.join('   ·   '), 10, TEXT, 3);
+  }
+  heading('References');
+  body('Available on request', 10, MUTE, 0);
+
+  // Footer brand
+  doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
+  doc.setFont('helvetica','italic'); doc.setFontSize(7.5);
+  doc.text('Created with Sky Blueprint - skyblueprint.company', PW/2, PH - 10, { align:'center' });
+
+  doc.save((window._cvName || (d.fn + '_' + d.ln + '_CV')) + '.pdf');
+}
+
 function downloadCV() {
   if (!requirePaidAction('download your CV')) return;
   // Generate a TRUE PDF (real text, exact colors, selectable) - not a screenshot
@@ -2028,6 +2184,8 @@ function downloadCV() {
   }
 
   var d = window._cvData;
+  var fmt = window._cvFormat || 'navy';
+  if (fmt !== 'navy') { downloadCVSingleCol(d, fmt, jsPDFLib); return; }
   var doc = new jsPDFLib({ unit: 'mm', format: 'a4', orientation: 'portrait' });
   var PAGE_W = 210, PAGE_H = 297, SIDE_W = 72;
 

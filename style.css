@@ -689,3 +689,8 @@ body {
 .ie-toolbtn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#e2e8f0; border-radius:8px; padding:10px 15px; font-size:13px; font-weight:600; cursor:pointer; font-family:var(--font); transition:all 0.15s; }
 .ie-toolbtn:hover { background:rgba(255,255,255,0.1); }
 .ie-toolbtn.ie-active { background:linear-gradient(135deg,#38bdf8,#6366f1); color:#fff; border-color:transparent; }
+
+/* CV format picker cards */
+.cv-fmt-card { background:rgba(255,255,255,0.03); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; cursor:pointer; transition:all 0.15s; }
+.cv-fmt-card:hover { border-color:rgba(56,189,248,0.4); background:rgba(56,189,248,0.05); }
+.cv-fmt-card.cv-fmt-active { border-color:#38bdf8; background:rgba(56,189,248,0.1); box-shadow:0 0 0 1px #38bdf8; }
