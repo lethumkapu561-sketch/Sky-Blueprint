@@ -7,62 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=3"><link rel="icon" type="image/svg+xml" href="favicon.svg?v=3"><link rel="apple-touch-icon" href="apple-touch-icon.png?v=3"><link rel="shortcut icon" href="favicon.ico?v=3">
 <link rel="stylesheet" href="style.css?v=9">
-
-<style>
-/* ── SKY SPLASH SCREEN ── */
-#sb-splash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#0ea5e9 0%,#38bdf8 35%,#7dd3fc 65%,#bae6fd 100%);transition:opacity 1.4s ease,visibility 1.4s ease}
-#sb-splash.gone{opacity:0;visibility:hidden;pointer-events:none}
-.sb-cloud{position:absolute;background:rgba(255,255,255,0.82);border-radius:60px;pointer-events:none}
-.sb-cloud::before,.sb-cloud::after{content:'';position:absolute;background:rgba(255,255,255,0.82);border-radius:50%}
-#sb-splash .sp-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(32px,8vw,60px);font-weight:900;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,0.18);z-index:1;letter-spacing:-1px}
-#sb-splash .sp-logo span{color:rgba(255,255,255,0.65)}
-#sb-splash .sp-tag{font-size:clamp(14px,3vw,20px);color:rgba(255,255,255,0.88);z-index:1;font-weight:500;margin-top:8px}
-#sb-splash .sp-bar{width:180px;height:3px;background:rgba(255,255,255,0.3);border-radius:3px;margin-top:36px;z-index:1;overflow:hidden}
-#sb-splash .sp-fill{height:3px;background:#fff;border-radius:3px;width:0;animation:spFill 13s linear forwards}
-@keyframes spFill{to{width:100%}}
-#sb-splash .sp-icon{width:72px;height:72px;margin-bottom:18px;z-index:1;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.15))}
-
-/* ── GIFT CARD GRID ── */
-.sb-gift-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
-.sb-gp,.sb-gm{padding:14px 8px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);text-align:center;cursor:pointer;transition:all 0.2s;font-family:var(--font)}
-.sb-gp-price,.sb-gm-val{font-size:20px;font-weight:900;color:#38bdf8}
-.sb-gp-label,.sb-gm-label{font-size:11px;color:var(--muted);margin-top:4px}
-
-/* ── CHAT DOT ANIMATION ── */
-@keyframes sbDot{0%,80%,100%{opacity:.15}40%{opacity:1}}
-</style>
 </head>
 <body>
-
-<!-- ══ SKY SPLASH (once per page load, fades after 15s) ══ -->
-<div id="sb-splash">
-  <svg class="sp-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="40" cy="40" r="40" fill="rgba(255,255,255,0.18)"/>
-    <path d="M40 8C27 8 16 19 16 32c0 9 5 17 12 21.5V68h4v-12.5c2.5.7 5.2 1 8 1s5.5-.3 8-1V68h4V53.5C59 49 64 41 64 32 64 19 53 8 40 8z" fill="white" opacity="0.95"/>
-    <path d="M28 32c0-6.6 5.4-12 12-12s12 5.4 12 12c0 3.6-1.6 6.8-4 9" stroke="rgba(56,189,248,0.75)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-    <circle cx="40" cy="32" r="3" fill="rgba(56,189,248,0.9)"/>
-    <!-- Cloud shapes -->
-    <ellipse cx="18" cy="22" rx="10" ry="6" fill="rgba(255,255,255,0.18)"/>
-    <ellipse cx="62" cy="18" rx="8" ry="5" fill="rgba(255,255,255,0.14)"/>
-  </svg>
-  <!-- Animated clouds -->
-  <div class="sb-cloud" style="width:160px;height:44px;top:12%;left:-180px;animation:cloudMove 20s linear infinite"><div style="width:70px;height:60px;top:-30px;left:20px;position:absolute;background:rgba(255,255,255,0.82);border-radius:50%"></div><div style="width:50px;height:46px;top:-22px;left:70px;position:absolute;background:rgba(255,255,255,0.82);border-radius:50%"></div></div>
-  <div class="sb-cloud" style="width:120px;height:36px;top:28%;left:-140px;animation:cloudMove 28s linear 5s infinite"><div style="width:55px;height:50px;top:-25px;left:14px;position:absolute;background:rgba(255,255,255,0.82);border-radius:50%"></div></div>
-  <div class="sb-cloud" style="width:200px;height:52px;top:18%;left:-220px;animation:cloudMove 16s linear 2s infinite"><div style="width:80px;height:68px;top:-34px;left:30px;position:absolute;background:rgba(255,255,255,0.82);border-radius:50%"></div><div style="width:60px;height:54px;top:-26px;left:90px;position:absolute;background:rgba(255,255,255,0.82);border-radius:50%"></div></div>
-  <style>@keyframes cloudMove{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 300px))}}</style>
-  <div class="sp-logo">Sky <span>Blueprint</span></div>
-  <div class="sp-tag">Your digital life, unified.</div>
-  <div class="sp-bar"><div class="sp-fill"></div></div>
-</div>
-<script>
-(function(){
-  var splash=document.getElementById('sb-splash');
-  if(!splash) return;
-  // Show every fresh page load (sessionStorage cleared on new tab/refresh)
-  setTimeout(function(){ splash.classList.add('gone'); },15000);
-})();
-</script>
-
 
 <!-- NAV -->
 <nav id="nav">
@@ -94,12 +40,6 @@
     <div class="nav-actions" id="nav-logged-in" style="display:none;align-items:center;gap:12px">
       <span id="nav-trial-badge" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(56,189,248,0.15);color:#38bdf8;white-space:nowrap"></span>
       <button class="btn-ghost-sm" onclick="showAccount()" id="nav-username" style="display:flex;align-items:center;gap:6px"></button>
-      <button class="btn-ghost-sm" onclick="showPage('referral');renderReferralPage(document.getElementById('referral-content'))" title="Earn money">💰 Earn</button>
-      <button class="btn-ghost-sm" onclick="showPage('gift')" title="Gift Sky Blueprint">🎁 Gift</button>
-      <button class="btn-ghost-sm" onclick="openSettings()" title="Settings" style="display:flex;align-items:center;gap:5px">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
-      </button>
       <button class="btn-ghost-sm" onclick="doLogout()">Log Out</button>
     </div>
     <button class="hamburger" onclick="toggleMobileNav()">
@@ -119,9 +59,6 @@
       <div id="mm-name" style="color:#fff;font-weight:600;font-size:15px;margin-bottom:4px"></div>
       <button onclick="showAccount();closeMobileNav()">My Account</button>
       <button onclick="showPage('dashboard');closeMobileNav()">My Tools</button>
-      <button onclick="showPage('referral');renderReferralPage(document.getElementById('referral-content'));closeMobileNav()">💰 Earn</button>
-      <button onclick="showPage('gift');closeMobileNav()">🎁 Gift</button>
-      <button onclick="openSettings();closeMobileNav()">⚙️ Settings</button>
       <button onclick="doLogout();closeMobileNav()">Log Out</button>
     </div>
   </div>
@@ -145,13 +82,13 @@
         <h1>Build. Protect.<br><span class="grad-text">Grow.</span></h1>
         <p class="hero-p">Sky Blueprint gives South African entrepreneurs, job seekers and professionals thirteen powerful tools — all in one platform — for one simple monthly fee.</p>
         <div class="hero-ctas">
-          <button class="btn-primary" onclick="showPage('signup')">Get Started — $2.99/month</button>
+          <button class="btn-primary" onclick="showPage('signup')">Get Started — R55/month</button>
           <button class="btn-outline" onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'})">See All Tools</button>
         </div>
         <div class="trust-row">
-          <span> No contracts</span>
-          <span> Cancel anytime</span>
-          <span> Pay with Paystack</span>
+          <span>✅ No contracts</span>
+          <span>✅ Cancel anytime</span>
+          <span>✅ Pay with Paystack</span>
         </div>
       </div>
       <div class="hero-cards">
@@ -323,7 +260,7 @@
         <div class="price-card featured">
           <div class="pc-badge popular">MOST POPULAR</div>
           <div class="pc-name">Monthly Plan</div>
-          <div class="pc-price">$2.99</div>
+          <div class="pc-price">R55</div>
           <div class="pc-period">per month • auto-debit</div>
           <div class="pc-features">
             <div class="pc-feat">✅ All 13 tools — full access</div>
@@ -334,14 +271,14 @@
             <div class="pc-feat">✅ Cancel anytime</div>
             <div class="pc-feat">✅ Deducted on subscription date monthly</div>
           </div>
-          <button class="btn-primary" onclick="startPaystack('monthly')" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#38bdf8,#6366f1)">Subscribe $2.99/month</button>
+          <button class="btn-primary" onclick="startPaystack('monthly')" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#38bdf8,#6366f1)">Subscribe R55/month</button>
         </div>
 
         <!-- 3 YEAR -->
         <div class="price-card">
           <div class="pc-badge save">PREMIUM</div>
           <div class="pc-name">3-Year Premium Plan</div>
-          <div class="pc-price">$99<span style="font-size:15px;color:var(--muted)">/year</span></div>
+          <div class="pc-price">R1,980<span style="font-size:15px;color:var(--muted)">/year</span></div>
           <div class="pc-period">billed once a year · 3-year plan · auto-renews yearly</div>
           <div class="pc-features">
             <div class="pc-feat">✅ Everything in Monthly</div>
@@ -350,7 +287,7 @@
             <div class="pc-feat">✅ One payment a year — no monthly deductions</div>
             <div class="pc-feat">✅ All future tool updates included</div>
           </div>
-          <button class="btn-primary" onclick="startPaystack('yearly')" style="width:100%;box-sizing:border-box">Get Premium — $99/year</button>
+          <button class="btn-primary" onclick="startPaystack('yearly')" style="width:100%;box-sizing:border-box">Get Premium — R1,980/year</button>
         </div>
 
       </div>
@@ -365,7 +302,7 @@
           <div class="price-card">
             <div class="pc-badge">ONCE-OFF</div>
             <div class="pc-name">Website Build Only</div>
-            <div class="pc-price">$24.99</div>
+            <div class="pc-price">R450</div>
             <div class="pc-period">delivered in 72 hours</div>
             <div class="pc-features">
               <div class="pc-feat">✅ Professional business website</div>
@@ -381,14 +318,14 @@
           <div class="price-card featured">
             <div class="pc-badge popular">RECOMMENDED</div>
             <div class="pc-name">Website + Domain</div>
-            <div class="pc-price">$42.99</div>
+            <div class="pc-price">R750</div>
             <div class="pc-period">.com domain • 72 hours</div>
             <div class="pc-features">
               <div class="pc-feat">✅ Everything in Website Build</div>
               <div class="pc-feat">✅ .com domain included (e.g. mybiz.com)</div>
               <div class="pc-feat">✅ Professional business email address</div>
               <div class="pc-feat">✅ Custom domain linked to your site</div>
-              <div class="pc-feat" style="color:#38bdf8">🇿🇦 Want .co.za? Only $54.99 total</div>
+              <div class="pc-feat" style="color:#38bdf8">🇿🇦 Want .co.za? Only R950 total</div>
             </div>
             <button class="btn-primary" onclick="requireAuth('website-builder')" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#38bdf8,#6366f1)">Order with Domain</button>
           </div>
@@ -397,8 +334,8 @@
           <div class="price-card" style="opacity:0.75">
             <div class="pc-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b">COMING SOON</div>
             <div class="pc-name">Find My Phone</div>
-            <div class="pc-price">$24.99</div>
-            <div class="pc-period">activation + $2.99/month</div>
+            <div class="pc-price">R450</div>
+            <div class="pc-period">activation + R55/month</div>
             <div class="pc-features">
               <div class="pc-feat"> Live GPS tracking on SA Map</div>
               <div class="pc-feat"> Ring, lock or wipe remotely</div>
@@ -447,7 +384,7 @@
         <div class="about-stats">
           <div class="as"><strong>13</strong><span>Powerful Tools</span></div>
           <div class="as"><strong>24/7</strong><span>Always Available</span></div>
-          <div class="as"><strong>$2.99</strong><span>Per Month Only</span></div>
+          <div class="as"><strong>R55</strong><span>Per Month Only</span></div>
           <div class="as"><strong>🇿🇦</strong><span>SA Built</span></div>
         </div>
       </div>
@@ -508,63 +445,7 @@
     </div>
 
     <!-- FOOTER -->
-    
-  <!-- ══ REFERRAL PAGE ══ -->
-  <div class="page" id="page-referral">
-    <div style="min-height:100vh;padding:100px 24px 60px">
-      <div style="max-width:720px;margin:0 auto">
-        <button onclick="showPage('dashboard')" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:var(--font);margin-bottom:28px">← Back</button>
-        <div id="referral-content"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ GIFT PAGE ══ -->
-  <div class="page" id="page-gift">
-    <div style="min-height:100vh;padding:100px 24px 60px">
-      <div style="max-width:620px;margin:0 auto">
-        <button onclick="showPage('dashboard')" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:var(--font);margin-bottom:28px">← Back</button>
-        <h2 style="font-size:30px;font-weight:900;margin:0 0 8px;color:var(--text)">🎁 Gift Sky Blueprint</h2>
-        <p style="color:var(--muted);margin:0 0 32px;font-size:15px">Give someone the gift of 13 powerful digital tools — all in one platform.</p>
-
-        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:12px">CHOOSE A PLAN</div>
-        <div class="sb-gift-grid" style="margin-bottom:24px">
-          <div class="sb-gp" data-p="monthly" onclick="selectGiftPlan('monthly',2.99)" style="border-color:#38bdf8;background:rgba(56,189,248,0.12)">
-            <div class="sb-gp-price">$2.99</div><div class="sb-gp-label">Monthly</div>
-          </div>
-          <div class="sb-gp" data-p="yearly" onclick="selectGiftPlan('yearly',99)">
-            <div class="sb-gp-price">$99</div><div class="sb-gp-label">Yearly (save 72%)</div>
-          </div>
-        </div>
-
-        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:12px">HOW MANY MONTHS</div>
-        <div class="sb-gift-grid" style="margin-bottom:24px">
-          <div class="sb-gm" data-m="1" onclick="selectGiftMonths(1)" style="border-color:#38bdf8;background:rgba(56,189,248,0.12)"><div class="sb-gm-val">1</div><div class="sb-gm-label">month</div></div>
-          <div class="sb-gm" data-m="3" onclick="selectGiftMonths(3)"><div class="sb-gm-val">3</div><div class="sb-gm-label">months</div></div>
-          <div class="sb-gm" data-m="6" onclick="selectGiftMonths(6)"><div class="sb-gm-val">6</div><div class="sb-gm-label">months</div></div>
-          <div class="sb-gm" data-m="12" onclick="selectGiftMonths(12)"><div class="sb-gm-val">12</div><div class="sb-gm-label">months</div></div>
-        </div>
-
-        <div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center">
-          <div><div style="font-size:13px;color:var(--muted)">Total</div><div id="sb-gift-total" style="font-size:36px;font-weight:900;color:#38bdf8">$2.99</div></div>
-          <div style="text-align:right;font-size:13px;color:var(--muted)">All 13 tools<br>Cancel anytime</div>
-        </div>
-
-        <div style="margin-bottom:14px">
-          <label style="font-size:13px;color:var(--muted);display:block;margin-bottom:6px">Recipient Email</label>
-          <input id="sb-gift-email" type="email" placeholder="friend@example.com" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:10px;font-family:var(--font);font-size:14px">
-        </div>
-        <div style="margin-bottom:28px">
-          <label style="font-size:13px;color:var(--muted);display:block;margin-bottom:6px">Your Name (so they know it's from you)</label>
-          <input id="sb-gift-from" type="text" placeholder="Your name" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:10px;font-family:var(--font);font-size:14px">
-        </div>
-        <button onclick="purchaseGift()" style="width:100%;padding:16px;border-radius:12px;border:none;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:var(--font);letter-spacing:0.2px">🎁 Purchase Gift</button>
-        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:14px">Secure payment via Paystack · Recipient gets email with access code</p>
-      </div>
-    </div>
-  </div>
-
-<footer>
+    <footer>
       <div class="footer-inner">
         <div class="logo" style="justify-content:center;margin-bottom:12px">
           <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#fpgrad2)"/><defs><linearGradient id="fpgrad2" x1="5" y1="2" x2="27" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs></svg>
@@ -602,7 +483,7 @@ function showPolicy(type) {
       '<p><strong style="color:#e2e8f0">Contact:</strong> lethumkapu561@gmail.com</p>';
   } else {
     title.textContent = 'Terms of Service';
-    body.innerHTML = '<p><strong style="color:#e2e8f0">Service:</strong> Sky Blueprint provides digital tools on a subscription basis ($2.99/month or 3-year plan) plus once-off products (templates, website builds).</p><br>' +
+    body.innerHTML = '<p><strong style="color:#e2e8f0">Service:</strong> Sky Blueprint provides digital tools on a subscription basis (R55/month or 3-year plan) plus once-off products (templates, website builds).</p><br>' +
       '<p><strong style="color:#e2e8f0">Payments & cancellation:</strong> Subscriptions are billed monthly via Paystack and can be cancelled anytime from your account page. Cancelling stops future charges; no refunds for the current month. Template purchases are once-off and yours to keep.</p><br>' +
       '<p><strong style="color:#e2e8f0">Website builds:</strong> Website orders are delivered within 72 hours of receiving your details and payment. Domain registrations are subject to availability.</p><br>' +
       '<p><strong style="color:#e2e8f0">Fair use:</strong> You may not use our tools for illegal purposes, spam, or to harm others. We may suspend accounts that abuse the service.</p><br>' +
@@ -647,7 +528,7 @@ function showPolicy(type) {
           Sky <span>Blueprint</span>
         </div>
         <h2 class="auth-title">Start free today</h2>
-        <p class="auth-sub">All tools for $2.99/month · Cancel anytime</p>
+        <p class="auth-sub">All tools for R55/month · Cancel anytime</p>
         <div class="form-row">
           <div class="form-group"><label>First Name</label><input type="text" id="su-fname" placeholder="Sipho"></div>
           <div class="form-group"><label>Last Name</label><input type="text" id="su-lname" placeholder="Dlamini"></div>
@@ -676,7 +557,6 @@ function showPolicy(type) {
         <div class="dash-user">
           <span id="dash-greeting">Welcome!</span>
           <button class="btn-ghost-sm" onclick="showAccount()" style="margin-right:8px">My Account</button>
-          <button class="btn-ghost-sm" onclick="openSettings()" style="display:inline-flex;align-items:center;gap:5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</button>
           <button class="btn-ghost-sm" onclick="doLogout()">Log Out</button>
         </div>
         <div class="dash-user-mobile" style="display:none">
@@ -686,8 +566,8 @@ function showPolicy(type) {
       </div>
       <div class="dash-body">
         <div class="trial-banner" id="trial-banner">
-          <strong>Subscribe to unlock all tools</strong> — just $2.99/month, cancel anytime.
-          <button onclick="startPaystack('monthly')">Subscribe $2.99/month</button>
+          <strong>Subscribe to unlock all tools</strong> — just R55/month, cancel anytime.
+          <button onclick="startPaystack('monthly')">Subscribe R55/month</button>
         </div>
         <h2 class="dash-title">Your Tools</h2>
         <div class="tools-grid">
@@ -755,7 +635,7 @@ function showPolicy(type) {
       <svg width="48" height="48" viewBox="0 0 32 32" fill="none"><path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#fpgm)"/><defs><linearGradient id="fpgm" x1="5" y1="2" x2="27" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs></svg>
     </div>
     <h3 class="modal-title" id="modal-title">Subscribe to Sky Blueprint Pro</h3>
-    <p class="modal-sub" id="modal-sub">$2.99/month · Cancel anytime</p>
+    <p class="modal-sub" id="modal-sub">R55/month · Cancel anytime</p>
     <div class="form-group"><label>Full Name</label><input type="text" id="pay-name" placeholder="Sipho Dlamini"></div>
     <div class="form-group"><label>Email Address</label><input type="email" id="pay-email" placeholder="your@email.com"></div>
     <div class="form-group"><label>Phone Number</label><input type="tel" id="pay-phone" placeholder="082 345 6789"></div>
