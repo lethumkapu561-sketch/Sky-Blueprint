@@ -694,3 +694,34 @@ body {
 .cv-fmt-card { background:rgba(255,255,255,0.03); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; cursor:pointer; transition:all 0.15s; }
 .cv-fmt-card:hover { border-color:rgba(56,189,248,0.4); background:rgba(56,189,248,0.05); }
 .cv-fmt-card.cv-fmt-active { border-color:#38bdf8; background:rgba(56,189,248,0.1); box-shadow:0 0 0 1px #38bdf8; }
+
+
+/* ══════════════════════════════════════════════════════
+   THEME SUPPORT (Dark / Light / Navy)
+   ══════════════════════════════════════════════════════ */
+/* Light theme overrides nav bg */
+body[data-theme="light"] #nav { background:rgba(240,244,248,0.92); }
+body[data-theme="light"] .mobile-menu { background:#fff; }
+body[data-theme="light"] .logo { color:#1e293b; }
+body[data-theme="light"] .btn-ghost-sm { color:#1e293b; }
+
+/* ══════════════════════════════════════════════════════
+   SETTINGS PANEL TRANSITION
+   ══════════════════════════════════════════════════════ */
+#sb-settings-panel { transition: transform 0.3s ease; }
+
+/* ══════════════════════════════════════════════════════
+   NAV REFERRAL/GIFT BUTTONS
+   ══════════════════════════════════════════════════════ */
+#nav-logged-in .btn-ghost-sm:first-child { 
+  background:rgba(56,189,248,0.08); 
+  border-color:rgba(56,189,248,0.25); 
+  color:#38bdf8; 
+}
+
+/* ══════════════════════════════════════════════════════
+   GIFT PAGE CARDS RESPONSIVE
+   ══════════════════════════════════════════════════════ */
+@media(max-width:480px){
+  .sb-gift-grid { grid-template-columns: 1fr 1fr; }
+}

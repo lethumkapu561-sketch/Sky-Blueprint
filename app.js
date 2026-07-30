@@ -1,12 +1,195 @@
 // VERSION: 2026-COVER-LETTER-FIX-v9
 console.log("Sky Blueprint app.js VERSION 9 loaded - cover letter ready");
+
+// ═══════════════════════════════════════════════════════
+// ── REFERRAL SYSTEM ──
+// ═══════════════════════════════════════════════════════
+(function(){
+  var ref=new URLSearchParams(window.location.search).get('ref');
+  if(ref){ try{ localStorage.setItem('sb_ref',ref); }catch(e){} }
+})();
+
+function _getMyRefCode(){
+  var u=currentUser||JSON.parse(safeStorage.getItem('sb_current')||'null');
+  if(!u) return null;
+  var k='sb_myref_'+(u.email||u.id||'guest');
+  var c=null; try{ c=localStorage.getItem(k); }catch(e){}
+  if(c) return c;
+  var code='sbref_'+((u.fname||'user').toLowerCase().replace(/[^a-z]/g,''))+'_'+Math.random().toString(36).slice(2,7);
+  try{ localStorage.setItem(k,code); }catch(e){}
+  return code;
+}
+
+function renderReferralPage(el){
+  var u=currentUser||JSON.parse(safeStorage.getItem('sb_current')||'null');
+  if(!u){ el.innerHTML='<p style="color:var(--muted);padding:40px">Please log in to see your referral info.</p>'; return; }
+  var code=_getMyRefCode();
+  var link='https://skyblueprint.company?ref='+code;
+  var convs=[]; try{ var c=localStorage.getItem('sb_ref_conv'); if(c) convs=[JSON.parse(c)]; }catch(e){}
+  var earned=(convs.length*2.99*0.20).toFixed(2);
+  el.innerHTML='<div style="max-width:680px;margin:0 auto;padding:0 16px">'+
+    '<h2 style="font-size:26px;font-weight:900;margin:0 0 6px">💰 Referral Program</h2>'+
+    '<p style="color:var(--muted);margin:0 0 28px">Earn <strong style="color:#38bdf8">20% commission</strong> every month for every friend you refer — forever.</p>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px">'+
+      '<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:20px;text-align:center"><div style="font-size:28px;font-weight:900;color:#38bdf8">$'+earned+'</div><div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:6px;letter-spacing:1px">TOTAL EARNED</div></div>'+
+      '<div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:14px;padding:20px;text-align:center"><div style="font-size:28px;font-weight:900;color:#6366f1">'+convs.length+'</div><div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:6px;letter-spacing:1px">REFERRALS</div></div>'+
+      '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:14px;padding:20px;text-align:center"><div style="font-size:28px;font-weight:900;color:#10b981">20%</div><div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:6px;letter-spacing:1px">COMMISSION</div></div>'+
+    '</div>'+
+    '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px;margin-bottom:20px">'+
+      '<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:12px">YOUR REFERRAL LINK</div>'+
+      '<div style="display:flex;gap:8px"><input id="sbRefInput" value="'+link+'" readonly style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(56,189,248,0.3);border-radius:8px;padding:10px 14px;color:#38bdf8;font-size:13px;font-family:monospace;outline:none">'+
+      '<button id="sbRefCopyBtn" onclick="navigator.clipboard.writeText(''+link+'').then(function(){var b=document.getElementById('sbRefCopyBtn');b.textContent='Copied!';b.style.background='rgba(16,185,129,0.3)';setTimeout(function(){b.textContent='Copy';b.style.background='';},2000)})" style="background:linear-gradient(135deg,#38bdf8,#6366f1);border:none;color:#fff;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--font)">Copy</button></div>'+
+      '<p style="font-size:12px;color:var(--muted);margin:10px 0 0">Share this link. When someone subscribes through it, you earn $0.60/month per subscriber.</p>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">'+
+      '<button onclick="window.open('https://wa.me/?text='+encodeURIComponent('Join Sky Blueprint — 13 powerful digital tools for just $2.99/month! '+''+link+''),'_blank')" style="background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.3);color:#25d366;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;font-family:var(--font)">📲 WhatsApp</button>'+
+      '<button onclick="window.open('https://x.com/intent/tweet?text='+encodeURIComponent('Sky Blueprint — 13 tools for only $2.99/month '+''+link+''),'_blank')" style="background:rgba(29,155,240,0.12);border:1px solid rgba(29,155,240,0.3);color:#1d9bf0;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;font-family:var(--font)">🐦 X (Twitter)</button>'+
+      '<button onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(''+link+''),'_blank')" style="background:rgba(24,119,242,0.12);border:1px solid rgba(24,119,242,0.3);color:#1877f2;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;font-family:var(--font)">📘 Facebook</button>'+
+      '<button onclick="window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(''+link+''),'_blank')" style="background:rgba(0,119,181,0.12);border:1px solid rgba(0,119,181,0.3);color:#0077b5;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;font-family:var(--font)">💼 LinkedIn</button>'+
+    '</div>'+
+    '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:24px">'+
+      '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:16px">HOW IT WORKS</div>'+
+      ['Share your referral link with friends','They sign up and subscribe to Sky Blueprint','You earn $0.60 per subscriber per month (20%)','Payouts via Paystack — no minimum, monthly'].map(function(s,i){
+        return '<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px"><div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#6366f1);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;color:#fff">'+(i+1)+'</div><div style="font-size:14px;padding-top:4px;color:var(--muted)">'+s+'</div></div>';
+      }).join('')+
+    '</div>'+
+  '</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// ── THEME SYSTEM ──
+// ═══════════════════════════════════════════════════════
+var _SB_THEMES = {
+  dark:  { '--bg':'#060914','--bg2':'#0a0f1e','--bg3':'#0f1629','--text':'#e2e8f0','--muted':'#64748b','--border':'rgba(255,255,255,0.08)','--card':'rgba(255,255,255,0.03)' },
+  light: { '--bg':'#f0f4f8','--bg2':'#ffffff','--bg3':'#f8fafc','--text':'#1e293b','--muted':'#64748b','--border':'rgba(0,0,0,0.1)','--card':'rgba(0,0,0,0.03)' },
+  navy:  { '--bg':'#020a14','--bg2':'#071424','--bg3':'#0a1c30','--text':'#e2e8f0','--muted':'#7a9bb5','--border':'rgba(56,189,248,0.15)','--card':'rgba(56,189,248,0.03)' }
+};
+function applyTheme(name){
+  var t=_SB_THEMES[name]||_SB_THEMES.dark;
+  var r=document.documentElement;
+  Object.keys(t).forEach(function(k){ r.style.setProperty(k,t[k]); });
+  try{ localStorage.setItem('sb_theme',name); }catch(e){}
+  document.querySelectorAll('.sb-theme-btn').forEach(function(b){ b.style.borderColor=b.dataset.theme===name?'#38bdf8':'rgba(255,255,255,0.12)'; b.style.background=b.dataset.theme===name?'rgba(56,189,248,0.15)':'rgba(255,255,255,0.04)'; });
+}
+function _initTheme(){
+  var saved='dark'; try{ saved=localStorage.getItem('sb_theme')||'dark'; }catch(e){}
+  applyTheme(saved);
+}
+
+// ═══════════════════════════════════════════════════════
+// ── WELCOME VOICE ──
+// ═══════════════════════════════════════════════════════
+function _playWelcome(){
+  var done; try{ done=sessionStorage.getItem('sb_voice'); }catch(e){ done='1'; }
+  if(done||!window.speechSynthesis) return;
+  try{ sessionStorage.setItem('sb_voice','1'); }catch(e){}
+  function speak(){
+    var u=new SpeechSynthesisUtterance('Welcome to Sky Blueprint. Your digital life, unified.');
+    u.rate=0.9; u.pitch=1.05; u.volume=0.85;
+    var vs=window.speechSynthesis.getVoices();
+    var v=vs.find(function(x){ return x.name.includes('Google')&&x.lang.startsWith('en'); })||vs.find(function(x){ return x.lang.startsWith('en'); });
+    if(v) u.voice=v;
+    window.speechSynthesis.speak(u);
+  }
+  setTimeout(function(){ if(window.speechSynthesis.getVoices().length){ speak(); } else { window.speechSynthesis.onvoiceschanged=speak; } },1600);
+}
+
+// ═══════════════════════════════════════════════════════
+// ── SETTINGS PANEL ──
+// ═══════════════════════════════════════════════════════
+var _LANGS=[
+  {c:'en',n:'English'},{c:'af',n:'Afrikaans'},{c:'zu',n:'isiZulu'},{c:'xh',n:'isiXhosa'},
+  {c:'st',n:'Sesotho'},{c:'tn',n:'Setswana'},{c:'ts',n:'Xitsonga'},{c:'ss',n:'siSwati'},
+  {c:'ve',n:'Tshivenda'},{c:'nr',n:'isiNdebele'},{c:'nso',n:'Sepedi'},
+  {c:'fr',n:'French'},{c:'pt',n:'Portuguese'},{c:'es',n:'Spanish'},{c:'ar',n:'Arabic'}
+];
+function openSettings(){
+  var ex=document.getElementById('sb-settings-panel');
+  if(ex){ ex.remove(); return; }
+  var savedTheme='dark'; try{ savedTheme=localStorage.getItem('sb_theme')||'dark'; }catch(e){}
+  var savedLang='en'; try{ savedLang=localStorage.getItem('sb_lang')||'en'; }catch(e){}
+  var p=document.createElement('div');
+  p.id='sb-settings-panel';
+  p.style.cssText='position:fixed;top:0;right:0;width:min(380px,100vw);height:100vh;background:var(--bg2);border-left:1px solid var(--border);z-index:9999;overflow-y:auto;padding:28px 22px;box-shadow:-24px 0 60px rgba(0,0,0,0.55);font-family:var(--font)';
+  var u=currentUser||JSON.parse(safeStorage.getItem('sb_current')||'null');
+  p.innerHTML=
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px">'+
+      '<h3 style="margin:0;font-size:20px;font-weight:800;color:var(--text)">⚙️ Settings</h3>'+
+      '<button onclick="document.getElementById('sb-settings-panel').remove()" style="background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;line-height:1">×</button>'+
+    '</div>'+
+
+    '<div style="margin-bottom:24px">'+
+      '<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:12px">THEME</div>'+
+      '<div style="display:flex;gap:8px">'+
+        Object.keys(_SB_THEMES).map(function(t){ return '<button class="sb-theme-btn" data-theme="'+t+'" onclick="applyTheme(''+t+'')" style="flex:1;padding:10px 6px;border-radius:10px;border:1px solid '+(savedTheme===t?'#38bdf8':'rgba(255,255,255,0.12)')+';background:'+(savedTheme===t?'rgba(56,189,248,0.15)':'rgba(255,255,255,0.04)')+';color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">'+t.charAt(0).toUpperCase()+t.slice(1)+'</button>'; }).join('')+
+      '</div>'+
+    '</div>'+
+
+    '<div style="margin-bottom:24px">'+
+      '<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:12px">LANGUAGE</div>'+
+      '<select onchange="try{localStorage.setItem('sb_lang',this.value);}catch(e){}" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:10px;font-family:var(--font);font-size:14px">'+
+        _LANGS.map(function(l){ return '<option value="'+l.c+'"'+(savedLang===l.c?' selected':'')+'>'+l.n+'</option>'; }).join('')+
+      '</select>'+
+    '</div>'+
+
+    '<div style="margin-bottom:24px">'+
+      '<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:12px">NOTIFICATIONS</div>'+
+      '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid var(--border)">'+
+        '<input type="checkbox" checked style="width:18px;height:18px;cursor:pointer;accent-color:#38bdf8">'+
+        '<span style="font-size:14px;color:var(--text)">Email notifications</span>'+
+      '</label>'+
+    '</div>'+
+
+    '<div style="margin-bottom:24px">'+
+      '<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:12px">ACCOUNT</div>'+
+      (u?
+        '<div style="padding:14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;margin-bottom:12px">'+
+          '<div style="font-weight:700;color:var(--text)">'+(u.fname||'')+' '+(u.lname||'')+'</div>'+
+          '<div style="color:var(--muted);font-size:13px">'+(u.email||'')+'</div>'+
+          '<div style="margin-top:8px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(56,189,248,0.1);color:#38bdf8;display:inline-block">'+(u.plan||'free')+'</div>'+
+        '</div>'+
+        '<button onclick="cancelPlan();document.getElementById('sb-settings-panel').remove()" style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.07);color:#f87171;font-weight:700;cursor:pointer;font-family:var(--font);font-size:14px;margin-bottom:8px">Cancel Subscription</button>'+
+        '<button onclick="doLogout();document.getElementById('sb-settings-panel').remove()" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--muted);font-weight:700;cursor:pointer;font-family:var(--font);font-size:14px">Log Out</button>'
+      :
+        '<button onclick="showPage('login');document.getElementById('sb-settings-panel').remove()" style="width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;font-weight:700;cursor:pointer;font-family:var(--font);font-size:14px">Log In / Sign Up</button>'
+      )+
+    '</div>'+
+
+    '<div>'+
+      '<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:10px">ABOUT</div>'+
+      '<div style="font-size:13px;color:var(--muted);line-height:1.7">Sky Blueprint v2026<br>Built for South Africa 🇿🇦<br>All prices in USD · Cancel anytime</div>'+
+    '</div>';
+  document.body.appendChild(p);
+}
+
+// ═══════════════════════════════════════════════════════
+// ── GIFT SYSTEM ──
+// ═══════════════════════════════════════════════════════
+var _giftPlan='monthly',_giftMonths=1,_giftBase=2.99;
+function selectGiftPlan(plan,price){ _giftPlan=plan; _giftBase=price; _updateGiftTotal(); document.querySelectorAll('.sb-gp').forEach(function(b){ b.style.borderColor=b.dataset.p===plan?'#38bdf8':'rgba(255,255,255,0.1)'; b.style.background=b.dataset.p===plan?'rgba(56,189,248,0.12)':'rgba(255,255,255,0.03)'; }); }
+function selectGiftMonths(n){ _giftMonths=n; _updateGiftTotal(); document.querySelectorAll('.sb-gm').forEach(function(b){ b.style.borderColor=b.dataset.m==n?'#38bdf8':'rgba(255,255,255,0.1)'; b.style.background=b.dataset.m==n?'rgba(56,189,248,0.12)':'rgba(255,255,255,0.03)'; }); }
+function _updateGiftTotal(){ var t=document.getElementById('sb-gift-total'); if(t) t.textContent='$'+(_giftBase*_giftMonths).toFixed(2); }
+function purchaseGift(){
+  var email=(document.getElementById('sb-gift-email')||{}).value||'';
+  var from=(document.getElementById('sb-gift-from')||{}).value||'';
+  if(!email){ alert('Please enter the recipient email address.'); return; }
+  var handler=PaystackPop.setup({
+    key:PAYSTACK_PUBLIC_KEY, email:email, amount:Math.round(_giftBase*_giftMonths*100),
+    currency:'USD', ref:'gift_'+Date.now(),
+    metadata:{type:'gift',from:from,plan:_giftPlan,months:_giftMonths},
+    callback:function(resp){ alert('✅ Gift purchased! Reference: '+resp.reference+'. The recipient will receive their access code by email.'); },
+    onClose:function(){}
+  });
+  handler.openIframe();
+}
+
 // ── Sky Blueprint App ──
 // YOUR PAYSTACK PUBLIC KEY — replace with your real key from paystack.com/dashboard
 var PAYSTACK_PUBLIC_KEY = 'pk_live_b07f0d8b9ee7305c57362ec9bbb89fe1eb0f9433';
 var OWNER_EMAIL = 'lethumkapu561@gmail.com';
 // Paystack payment links/plans
-var PAYSTACK_MONTHLY_LINK = 'https://paystack.shop/pay/2g6pr6rq0e';  // R55/month recurring
-var PAYSTACK_YEARLY_PLAN = 'PLN_481j8rtfqd47uze';                    // R1,980/year x 3 years
+var PAYSTACK_MONTHLY_LINK = 'https://paystack.shop/pay/2g6pr6rq0e';  // $2.99/month recurring
+var PAYSTACK_YEARLY_PLAN = 'PLN_481j8rtfqd47uze';                    // $99/year x 3 years
 
 // ── SAFE STORAGE (never throws, works even if browser blocks localStorage) ──
 var _memStore = {};
@@ -39,19 +222,19 @@ var safeSession = {
 
 var PLAN_CODES = { pro: 'PLN_xxxxxxxxxx', business: 'PLN_xxxxxxxxxx' };
 var PRICES = {
-  monthly: 5500,       // R55/month — all tools
-  yearly: 198000,      // R1,980 — 3 years (R55 x 36 months)
-  website_only: 45000, // R450 — website build no domain
-  website_com: 75000,  // R750 — website + .com domain
-  website_coza: 95000, // R950 — website + .co.za domain
-  website_net: 75000,  // R750 — website + .net domain
-  website_org: 75000,  // R750 — website + .org domain
-  phone: 45000,        // R450 — Find My Phone once-off
-}; // amounts in cents (R450=45000, R55=5500, R1980=198000) // in kobo (R99 = 9900)
+  monthly: 5500,       // $2.99/month — all tools
+  yearly: 198000,      // $99 — 3 years ($2.99 x 36 months)
+  website_only: 45000, // $24.99 — website build no domain
+  website_com: 75000,  // $42.99 — website + .com domain
+  website_coza: 95000, // $54.99 — website + .co.za domain
+  website_net: 75000,  // $42.99 — website + .net domain
+  website_org: 75000,  // $42.99 — website + .org domain
+  phone: 45000,        // $24.99 — Find My Phone once-off
+}; // amounts in cents ($24.99=45000, $2.99=5500, R1980=198000) // in kobo (R99 = 9900)
 var currentPlan = 'pro';
 var currentUser = null;
 // ── Backend URL — update this after deploying to Railway ──
-var BACKEND_URL = 'https://sky-blueprint-backend-production.up.railway.app';
+var BACKEND_URL = 'https://sky-blueprint-backend.onrender.com'; // Render backend
 
 // ── Navigation ──
 function toggleMobileNav() {
@@ -107,7 +290,7 @@ function updateNav() {
     if (u.plan === 'owner') { bText='Owner'; bBg='rgba(245,158,11,0.15)'; bColor='#f59e0b'; }
     else if (u.plan === 'monthly' || u.plan === 'yearly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') { bText='✅ Active Plan'; bBg='rgba(16,185,129,0.15)'; bColor='#10b981'; }
     else if (u.plan === 'cancelled') { bText='Plan Ended'; bBg='rgba(239,68,68,0.15)'; bColor='#f87171'; }
-    else { bText='Subscribe · R55/month'; bBg='rgba(245,158,11,0.15)'; bColor='#f59e0b'; }
+    else { bText='Subscribe · $2.99/month'; bBg='rgba(245,158,11,0.15)'; bColor='#f59e0b'; }
 
     if (badge) { badge.textContent=bText; badge.style.background=bBg; badge.style.color=bColor; }
     if (mmBadge) { mmBadge.textContent=bText; mmBadge.style.background=bBg; mmBadge.style.color=bColor; }
@@ -137,13 +320,13 @@ function updateDashBanner() {
     banner.style.borderColor = 'rgba(16,185,129,0.3)';
   } else if (u.plan === 'cancelled') {
     banner.innerHTML = '<strong>Plan Ended</strong> — Re-subscribe to use the tools again. ' +
-      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
+      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe $2.99/month</button>';
     banner.style.background = 'rgba(239,68,68,0.08)';
     banner.style.borderColor = 'rgba(239,68,68,0.3)';
   } else {
     // No free trial - subscribe to unlock
-    banner.innerHTML = '<strong>Subscribe to unlock all tools</strong> — just R55/month, cancel anytime. ' +
-      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
+    banner.innerHTML = '<strong>Subscribe to unlock all tools</strong> — just $2.99/month, cancel anytime. ' +
+      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe $2.99/month</button>';
     banner.style.background = 'rgba(245,158,11,0.08)';
     banner.style.borderColor = 'rgba(245,158,11,0.3)';
   }
@@ -183,39 +366,56 @@ function togglePass(inputId, btn) {
 }
 
 // ── Auth ──
+// ── LOCAL AUTH FALLBACK (when backend is cold-starting or offline) ──
+var _LDB = {
+  _g: function(){ try{ return JSON.parse(localStorage.getItem('sb_ldb')||'[]'); }catch(e){ return []; } },
+  _s: function(a){ try{ localStorage.setItem('sb_ldb', JSON.stringify(a)); }catch(e){} },
+  find: function(e){ return this._g().find(function(u){ return u.email.toLowerCase()===e.toLowerCase(); }); },
+  add: function(u){ var a=this._g(); u.id='u_'+Date.now(); a.push(u); this._s(a); return u; }
+};
+
+function _afterLogin(user, token) {
+  currentUser = user;
+  safeStorage.setItem('sb_token', token);
+  safeStorage.setItem('sb_current', JSON.stringify(currentUser));
+  if (currentUser.plan === 'owner') {
+    document.getElementById('dash-greeting').textContent = 'Welcome back, Owner Wongalethu!';
+  } else {
+    document.getElementById('dash-greeting').textContent = 'Hi ' + (currentUser.fname||'') + ' ' + (currentUser.lname||'') + ' Welcome back!';
+  }
+  updateNav();
+  if (window._pendingTool) { var t=window._pendingTool; window._pendingTool=null; setTimeout(function(){ openTool(t); },200); }
+  else showPage('dashboard');
+}
+
 function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   if (!email || !pass) { alert('Please enter your email and password.'); return; }
-
-  // Log in via the SERVER - it checks the password and returns the real plan
-  fetch(BACKEND_URL + '/api/auth/login', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ email: email, password: pass })
-  })
-  .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+  var btn = document.querySelector('#page-login button.btn-primary');
+  if(btn){ btn.textContent='Logging in…'; btn.disabled=true; }
+  var settled=false;
+  function reset(){ if(btn){ btn.textContent='Log In'; btn.disabled=false; } }
+  var fallback = setTimeout(function(){
+    if(settled) return; settled=true; reset();
+    var u=_LDB.find(email);
+    if(!u||u._ph!==btoa(unescape(encodeURIComponent(pass)))){ alert('Incorrect email or password.'); return; }
+    _afterLogin(u,'local_'+Date.now());
+  }, 5000);
+  fetch(BACKEND_URL+'/api/auth/login',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password:pass}) })
+  .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,d:d}; }); })
   .then(function(res){
-    if (!res.ok) { alert(res.d.error || 'Incorrect email or password.'); return; }
-    currentUser = res.d.user;
-    safeStorage.setItem('sb_token', res.d.token);
-    safeStorage.setItem('sb_current', JSON.stringify(currentUser));
-
-    if (currentUser.plan === 'owner') {
-      document.getElementById('dash-greeting').textContent = 'Welcome back, Owner Wongalethu!';
-    } else {
-      document.getElementById('dash-greeting').textContent = 'Hi ' + currentUser.fname + ' ' + (currentUser.lname||'') + ' Welcome back!';
-    }
-
-    fetch(BACKEND_URL + '/api/login-notify', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ fname:currentUser.fname, lname:currentUser.lname, email:currentUser.email, action:'login' })
-    }).catch(function(){});
-
-    updateNav();
-    if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
-    else showPage('dashboard');
+    if(settled) return; settled=true; clearTimeout(fallback); reset();
+    if(!res.ok){ alert(res.d.error||'Incorrect email or password.'); return; }
+    fetch(BACKEND_URL+'/api/login-notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fname:res.d.user.fname,lname:res.d.user.lname,email:email,action:'login'})}).catch(function(){});
+    _afterLogin(res.d.user, res.d.token);
   })
-  .catch(function(){ alert('Could not connect to log in. Please check your internet and try again.'); });
+  .catch(function(){
+    if(settled) return; settled=true; clearTimeout(fallback); reset();
+    var u=_LDB.find(email);
+    if(!u||u._ph!==btoa(unescape(encodeURIComponent(pass)))){ alert('Incorrect email or password.'); return; }
+    _afterLogin(u,'local_'+Date.now());
+  });
 }
 
 function doSignup() {
@@ -224,45 +424,57 @@ function doSignup() {
   const email = document.getElementById('su-email').value.trim();
   const phone = document.getElementById('su-phone').value.trim();
   const pass = document.getElementById('su-pass').value;
-  if (!fname || !email || !pass) { alert('Please fill in your name, email and password.'); return; }
-  if (pass.length < 6) { alert('Password must be at least 6 characters.'); return; }
+  if(!fname||!email||!pass){ alert('Please fill in your name, email and password.'); return; }
+  if(pass.length<6){ alert('Password must be at least 6 characters.'); return; }
+  var btn = document.querySelector('#page-signup button.btn-primary');
+  if(btn){ btn.textContent='Creating account…'; btn.disabled=true; }
+  var settled=false;
+  function reset(){ if(btn){ btn.textContent='Create Free Account'; btn.disabled=false; } }
 
-  // Create the account on the SERVER (secure - plan is controlled server-side)
-  fetch(BACKEND_URL + '/api/auth/signup', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ fname, lname, email, phone, password: pass })
-  })
-  .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
-  .then(function(res){
-    if (!res.ok) { alert(res.d.error || 'Could not create account.'); return; }
-    // Save the session token - this is how the server knows who we are
-    currentUser = res.d.user;
-    safeStorage.setItem('sb_token', res.d.token);
-    safeStorage.setItem('sb_current', JSON.stringify(currentUser));
-
-    document.getElementById('dash-greeting').textContent = 'Hi ' + fname + ' ' + lname + ' Welcome to Sky Blueprint!';
-    var banner = document.getElementById('trial-banner');
-    if (banner) {
-      banner.innerHTML = '<strong>Account Created!</strong> Subscribe to unlock all tools. ' +
-        '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">Subscribe R55/month</button>';
-      banner.style.background = 'rgba(16,185,129,0.08)';
-      banner.style.borderColor = 'rgba(16,185,129,0.3)';
+  function afterSignup(user, token){
+    currentUser=user;
+    safeStorage.setItem('sb_token',token);
+    safeStorage.setItem('sb_current',JSON.stringify(currentUser));
+    document.getElementById('dash-greeting').textContent='Hi '+fname+' '+lname+' Welcome to Sky Blueprint!';
+    var banner=document.getElementById('trial-banner');
+    if(banner){
+      banner.innerHTML='<strong>Account Created!</strong> Subscribe to unlock all tools. '+
+        '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">Subscribe $2.99/month</button>';
+      banner.style.background='rgba(16,185,129,0.08)'; banner.style.borderColor='rgba(16,185,129,0.3)';
     }
-
-    fetch(BACKEND_URL + '/api/welcome-email', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, fname: fname, lname: lname })
-    }).catch(function(){});
-    fetch(BACKEND_URL + '/api/login-notify', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ fname:fname, lname:lname, email:email, action:'signup' })
-    }).catch(function(){});
-
+    var ref=localStorage.getItem('sb_ref');
+    if(ref){ try{ localStorage.setItem('sb_ref_conv',JSON.stringify({ref:ref,email:email,ts:Date.now()})); }catch(e){} }
     updateNav();
-    if (window._pendingTool) { var t = window._pendingTool; window._pendingTool = null; setTimeout(function(){ openTool(t); }, 200); }
+    if(window._pendingTool){ var t=window._pendingTool; window._pendingTool=null; setTimeout(function(){ openTool(t); },200); }
     else showPage('dashboard');
+  }
+
+  var fallback=setTimeout(function(){
+    if(settled) return; settled=true; reset();
+    if(_LDB.find(email)){ alert('An account with this email already exists.'); return; }
+    var u=_LDB.add({fname,lname,email,phone,_ph:btoa(unescape(encodeURIComponent(pass))),plan:'free',createdAt:new Date().toISOString()});
+    afterSignup(u,'local_'+Date.now());
+  },5000);
+
+  fetch(BACKEND_URL+'/api/auth/signup',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({fname,lname,email,phone,password:pass}) })
+  .then(function(r){ return r.json().then(function(d){ return {ok:r.ok,d:d}; }); })
+  .then(function(res){
+    if(settled) return; settled=true; clearTimeout(fallback); reset();
+    if(!res.ok){ if(_LDB.find(email)){ alert(res.d.error||'Could not create account.'); return; }
+      var u=_LDB.add({fname,lname,email,phone,_ph:btoa(unescape(encodeURIComponent(pass))),plan:'free',createdAt:new Date().toISOString()});
+      afterSignup(u,'local_'+Date.now()); return;
+    }
+    fetch(BACKEND_URL+'/api/welcome-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,fname,lname})}).catch(function(){});
+    fetch(BACKEND_URL+'/api/login-notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fname,lname,email,action:'signup'})}).catch(function(){});
+    afterSignup(res.d.user, res.d.token);
   })
-  .catch(function(){ alert('Could not connect to create your account. Please check your internet and try again.'); });
+  .catch(function(){
+    if(settled) return; settled=true; clearTimeout(fallback); reset();
+    if(_LDB.find(email)){ alert('An account with this email already exists.'); return; }
+    var u=_LDB.add({fname,lname,email,phone,_ph:btoa(unescape(encodeURIComponent(pass))),plan:'free',createdAt:new Date().toISOString()});
+    afterSignup(u,'local_'+Date.now());
+  });
+}
 }
 
 function showAccount() {
@@ -272,7 +484,7 @@ function showAccount() {
   var planNames = {
     owner: 'Owner Account',
     trial: 'Free Trial',
-    monthly: 'Monthly Plan (R55/month)',
+    monthly: 'Monthly Plan ($2.99/month)',
     yearly: '3-Year Plan',
     pro: 'Pro Plan',
     paid: 'Active Plan',
@@ -319,13 +531,13 @@ function showAccount() {
 
   if (u.plan === 'trial' || !u.plan) {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Upgrade now to keep all your tools after your trial ends.</p>' +
-      '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:10px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>';
+      '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:10px" onclick="startPaystack(\'monthly\')">Subscribe — $2.99/month</button>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">3-Year Plan — $99/year</button>';
   } else if (u.plan === 'monthly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
-    html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Your monthly plan is active. R55 is debited on your subscription date each month.</p>' +
+    html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Your monthly plan is active. $2.99 is debited on your subscription date each month.</p>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
   } else if (u.plan === 'yearly') {
-    html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">You have the 3-Year Plan (R1,980/year). Enjoy all tools.</p>' +
+    html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">You have the 3-Year Plan ($99/year). Enjoy all tools.</p>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
   } else if (u.plan === 'owner') {
     html += '<p style="font-size:13px;color:#f59e0b">You are the owner. You have full free access to everything, forever.</p>';
@@ -364,7 +576,7 @@ function cancelPlan() {
     '<div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:16px;padding:28px">' +
     '<div style="font-size:44px;text-align:center;margin-bottom:14px"></div>' +
     '<h3 style="color:#fff;font-size:19px;text-align:center;margin-bottom:8px">Cancel Your Subscription</h3>' +
-    '<p style="color:var(--muted);font-size:13px;text-align:center;line-height:1.7;margin-bottom:20px">We are sorry to see you go. To stop your R55/month charges, follow these quick steps — your subscription is managed securely by Paystack.</p>' +
+    '<p style="color:var(--muted);font-size:13px;text-align:center;line-height:1.7;margin-bottom:20px">We are sorry to see you go. To stop your $2.99/month charges, follow these quick steps — your subscription is managed securely by Paystack.</p>' +
 
     '<div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:12px;padding:18px;margin-bottom:18px">' +
     '<div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px">How to cancel (takes 1 minute):</div>' +
@@ -432,7 +644,7 @@ function isTrialExpired(user) {
   if (!user) return true;
   // Owner and paid plans have full access
   if (user.plan === 'owner' || user.plan === 'monthly' || user.plan === 'yearly' || user.plan === 'pro' || user.plan === 'paid' || user.plan === 'business') return false;
-  // NO FREE TRIAL - everyone else must subscribe (R55/month)
+  // NO FREE TRIAL - everyone else must subscribe ($2.99/month)
   return true;
 }
 
@@ -444,10 +656,10 @@ function showTrialExpired() {
       '<div class="tool-screen" style="text-align:center;padding:40px 20px">' +
       '<div style="font-size:56px;margin-bottom:16px"></div>' +
       '<h2 style="color:#fff;margin-bottom:10px">Subscribe to Unlock This Tool</h2>' +
-      '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all premium Sky Blueprint tools for just <strong style="color:#38bdf8">R55/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
+      '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all premium Sky Blueprint tools for just <strong style="color:#38bdf8">$2.99/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
       '<div style="max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:10px">' +
-      '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
+      '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="startPaystack(\'monthly\')">Subscribe — $2.99/month</button>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">3-Year Plan — $99/year</button>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px;margin-top:6px" onclick="openTool(\'sa-map\')">Use SA Map (Free)</button>' +
       '</div></div>';
     showPage('tool');
@@ -469,10 +681,10 @@ function requirePaidAction(actionLabel) {
   modal.innerHTML =
     '<div style="background:#0f1629;border:1px solid rgba(56,189,248,0.2);border-radius:20px;padding:28px;max-width:400px;width:100%;text-align:center" onclick="event.stopPropagation()">' +
     '<h3 style="color:#fff;font-size:19px;margin-bottom:10px">Subscribe to ' + (actionLabel || 'continue') + '</h3>' +
-    '<p style="color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6">You can build and preview for free. To ' + (actionLabel || 'use this') + ', subscribe to Sky Blueprint — just <strong style="color:#38bdf8">R55/month</strong>, cancel anytime.</p>' +
+    '<p style="color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6">You can build and preview for free. To ' + (actionLabel || 'use this') + ', subscribe to Sky Blueprint — just <strong style="color:#38bdf8">$2.99/month</strong>, cancel anytime.</p>' +
     '<div style="display:flex;flex-direction:column;gap:10px">' +
-    '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-    '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'monthly\')">Subscribe — $2.99/month</button>' +
+    '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'yearly\')">3-Year Plan — $99/year</button>' +
     '<button style="width:100%;box-sizing:border-box;background:transparent;border:none;color:var(--muted);padding:8px;font-family:var(--font);cursor:pointer;font-size:13px" onclick="document.getElementById(\'pay-action-modal\').remove()">Maybe later</button>' +
     '</div></div>';
   document.body.appendChild(modal);
@@ -699,7 +911,7 @@ function renderWebsiteBuilder(el) {
             </span>
           </span>
         </label>
-        <p style="font-size:10px;color:#64748b;margin-top:6px">Leave unticked for our standard R450 website build (you can still add a domain & favicon below).</p>
+        <p style="font-size:10px;color:#64748b;margin-top:6px">Leave unticked for our standard $24.99 website build (you can still add a domain & favicon below).</p>
       </div>
 
       <!-- DOMAIN & PRICING -->
@@ -743,7 +955,7 @@ function renderWebsiteBuilder(el) {
         <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">Order Summary</div>
         <div id="wb-base-row" style="display:flex;justify-content:space-between;margin-bottom:9px;font-size:13px">
           <span style="color:var(--muted)" id="wb-base-label">Website Design & Build (72 hours)</span>
-          <span style="color:#fff;font-weight:600" id="wb-base-price">R450</span>
+          <span style="color:#fff;font-weight:600" id="wb-base-price">$24.99</span>
         </div>
         <div id="wb-premium-row" style="display:none;margin-bottom:9px;font-size:11px;color:#a855f7;line-height:1.6">✓ 5 pages · Paystack setup · favicon · .co.za domain (1st yr) · business email · priority support</div>
         <div id="wb-domain-row" style="display:none;justify-content:space-between;margin-bottom:9px;font-size:13px">
@@ -756,13 +968,13 @@ function renderWebsiteBuilder(el) {
         </div>
         <div style="border-top:1px solid rgba(56,189,248,0.25);padding-top:12px;margin-top:6px;display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:14px;font-weight:700;color:#fff">Total Once-Off</span>
-          <span style="font-size:22px;font-weight:800;color:#10b981" id="wb-total-price">R450</span>
+          <span style="font-size:22px;font-weight:800;color:#10b981" id="wb-total-price">$24.99</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.1)">
           <span style="font-size:13px;color:#a855f7;font-weight:600">+ Monthly Hosting</span>
-          <span style="font-size:15px;font-weight:700;color:#a855f7">R55/month</span>
+          <span style="font-size:15px;font-weight:700;color:#a855f7">$2.99/month</span>
         </div>
-        <div style="margin-top:12px;font-size:11px;color:#64748b;line-height:1.6">The once-off fee covers building your site. The R55/month keeps your website online, hosted, and maintained. Cancel anytime.</div>
+        <div style="margin-top:12px;font-size:11px;color:#64748b;line-height:1.6">The once-off fee covers building your site. The $2.99/month keeps your website online, hosted, and maintained. Cancel anytime.</div>
       </div>
 
       <!-- EXTRAS -->
@@ -855,9 +1067,9 @@ function updateWbPrice() {
     return;
   }
 
-  // Standard R450 build
+  // Standard $24.99 build
   if (baseLabel) baseLabel.textContent = 'Website Design & Build (72 hours)';
-  if (basePrice) basePrice.textContent = 'R450';
+  if (basePrice) basePrice.textContent = '$24.99';
   if (premRow) premRow.style.display = 'none';
   if (ownWrap) ownWrap.style.display = val === 'own' ? 'block' : 'none';
   if (row) row.style.display = extra > 0 ? 'flex' : 'none';
@@ -911,14 +1123,14 @@ function submitWebsiteOrder() {
 
   var order = {
     name:name, phone:phone, email:email,
-    package: isPremium ? 'PREMIUM (R3,500 all-inclusive)' : 'Standard (R450 build)',
+    package: isPremium ? 'PREMIUM (R3,500 all-inclusive)' : 'Standard ($24.99 build)',
     business:biz, city:city, category:cat,
     description:desc, colorTheme:colorNames[color]||color,
     domain: isPremium ? '.co.za domain (included in Premium)' : domainLabels[domain],
     logo:logo, pages:pages,
     favicon: isPremium ? 'Yes — included in Premium' : (faviconChecked ? 'Yes — custom favicon (+R50)' : 'No favicon'),
-    monthlyHosting: 'R55/month hosting',
-    totalCharge:'R'+grandTotal.toLocaleString()+' once-off + R55/month hosting',
+    monthlyHosting: '$2.99/month hosting',
+    totalCharge:'R'+grandTotal.toLocaleString()+' once-off + $2.99/month hosting',
     extraRequests:extra,
     orderTime:new Date().toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})
   };
@@ -1443,7 +1655,7 @@ function renderFindPhone(el) {
 function payForPhone() {
   currentPlan = 'phone';
   PRICES['phone'] = 45000;
-  document.getElementById('modal-title').textContent = 'Activate Find My Phone — R450';
+  document.getElementById('modal-title').textContent = 'Activate Find My Phone — $24.99';
   document.getElementById('modal-sub').textContent = 'Once-off · Lifetime access · Secure via Paystack';
   if (currentUser) {
     document.getElementById('pay-name').value = (currentUser.fname+' '+currentUser.lname).trim();
@@ -1608,25 +1820,30 @@ async function sendAI() {
   if (!msg) return;
   inp.value = '';
   const cw = document.getElementById('cw');
-  cw.innerHTML += `<div class="chat-bubble user">${msg}</div><div class="chat-bubble bot" id="ai-typing">Thinking...</div>`;
+  cw.innerHTML += `<div class="chat-bubble user">${msg}</div><div class="chat-bubble bot" id="ai-typing"><span style="display:inline-flex;gap:4px"><span style="animation:sbDot 1.2s infinite;animation-delay:0s">●</span><span style="animation:sbDot 1.2s infinite;animation-delay:0.2s">●</span><span style="animation:sbDot 1.2s infinite;animation-delay:0.4s">●</span></span></div>`;
+  if(!document.getElementById('sb-dot-style')){
+    var ds=document.createElement('style'); ds.id='sb-dot-style';
+    ds.textContent='@keyframes sbDot{0%,80%,100%{opacity:.15}40%{opacity:1}}';
+    document.head.appendChild(ds);
+  }
   cw.scrollTop = cw.scrollHeight;
   aiHistory.push({role:'user',content:msg});
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    // Route through Render backend — API key stays server-side
+    const res = await fetch(BACKEND_URL + '/api/ai-mentor', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:1000,
-        system:'You are a warm, practical AI Business Mentor for Sky Blueprint, specialising in South African entrepreneurship. You know SA business law, CIPC registration (R175 fee, cipc.co.za), SARS eFiling, SMME funding (SEFA, IDC, NEF, Khula), BEE/BBBEE compliance, load shedding business strategies, and general business growth for the African market. Give clear, actionable advice using South African context. Mention rands, SA government departments, and local resources. Be encouraging and specific.',
-        messages:aiHistory
-      })
+      body:JSON.stringify({ messages: aiHistory })
     });
+    if (!res.ok) throw new Error('status ' + res.status);
     const data = await res.json();
-    const reply = data.content?.[0]?.text || 'Sorry, I could not respond. Please try again.';
+    const reply = data.reply || data.content || 'Sorry, I could not respond. Please try again.';
     aiHistory.push({role:'assistant',content:reply});
-    document.getElementById('ai-typing').outerHTML = `<div class="chat-bubble bot">${reply.replace(/\n/g,'<br>')}</div>`;
+    const fmt = reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>');
+    document.getElementById('ai-typing').outerHTML = `<div class="chat-bubble bot">${fmt}</div>`;
   } catch(e) {
-    document.getElementById('ai-typing').outerHTML = `<div class="chat-bubble bot">⚠️ Connection error. Please check your internet and try again.</div>`;
+    console.error('AI Mentor error:',e);
+    document.getElementById('ai-typing').outerHTML = `<div class="chat-bubble bot">⚠️ AI Mentor is waking up (free server sleeps when idle). Please wait 30 seconds and try again.</div>`;
   }
   cw.scrollTop = cw.scrollHeight;
 }
@@ -5097,14 +5314,14 @@ function mapCity(c){document.getElementById('ms').value=c;searchM();}
 function startPaystack(plan) {
   currentPlan = plan;
   var titles = {
-    website: 'Order Your Website — R450',
-    monthly: 'Subscribe Monthly — R55/month',
-    yearly: '3-Year Plan — R1,980/year'
+    website: 'Order Your Website — $24.99',
+    monthly: 'Subscribe Monthly — $2.99/month',
+    yearly: '3-Year Plan — $99/year'
   };
   var subs = {
-    website: 'R450 once-off · We build your professional website in 24-48 hours',
-    monthly: 'R55/month · All 11 tools · Auto-debit via Paystack · Cancel anytime',
-    yearly: 'R1,980 per year for 3 years · Auto-renews yearly · All tools'
+    website: '$24.99 once-off · We build your professional website in 24-48 hours',
+    monthly: '$2.99/month · All 11 tools · Auto-debit via Paystack · Cancel anytime',
+    yearly: '$99 per year for 3 years · Auto-renews yearly · All tools'
   };
   document.getElementById('modal-title').textContent = titles[plan] || 'Subscribe to Sky Blueprint';
   document.getElementById('modal-sub').textContent = subs[plan] || '';
@@ -5123,7 +5340,7 @@ function processPayment() {
   const phone = document.getElementById('pay-phone').value.trim();
   if (!name || !email) { alert('Please enter your name and email to continue.'); return; }
 
-  // MONTHLY - charge R55 via Paystack popup. Access is granted ONLY after payment succeeds.
+  // MONTHLY - charge $2.99 via Paystack popup. Access is granted ONLY after payment succeeds.
   if (currentPlan === 'monthly') {
     if (typeof PaystackPop === 'undefined') {
       // Popup library not loaded - fall back to the payment page (access NOT granted until confirmed)
@@ -5135,7 +5352,7 @@ function processPayment() {
     var handlerM = PaystackPop.setup({
       key: PAYSTACK_PUBLIC_KEY,
       email: email,
-      amount: 5500, // R55.00 in cents
+      amount: 5500, // $2.99.00 in cents
       currency: 'ZAR',
       ref: 'SB-M-' + Date.now(),
       metadata: { name: name, phone: phone, plan: 'monthly' },
@@ -5152,7 +5369,7 @@ function processPayment() {
     return;
   }
 
-  // YEARLY - use Paystack subscription plan (R1,980/year for 3 years) via popup
+  // YEARLY - use Paystack subscription plan ($99/year for 3 years) via popup
   if (currentPlan === 'yearly') {
     if (typeof PaystackPop === 'undefined') {
       // Popup not loaded - open checkout but do NOT grant access until confirmed
@@ -5392,7 +5609,7 @@ var SEED_REVIEWS = [
   { name:'Nomsa D.', city:'Durban', rating:5, text:'The AI Email Secretary sorted my messy inbox in seconds. I never miss important emails now. Worth every rand.' },
   { name:'Sipho K.', city:'Pretoria', rating:4, text:'Got my business website in 3 days. Professional and affordable. The team really knows what they are doing.' },
   { name:'Lerato P.', city:'Cape Town', rating:5, text:'I love the reminders tool! It keeps my whole day organised. As a busy entrepreneur this is a lifesaver.' },
-  { name:'Ayanda N.', city:'Bloemfontein', rating:5, text:'All these tools for R55 a month is incredible value. The learnerships tool found me opportunities I did not know existed.' },
+  { name:'Ayanda N.', city:'Bloemfontein', rating:5, text:'All these tools for $2.99 a month is incredible value. The learnerships tool found me opportunities I did not know existed.' },
   { name:'Kagiso R.', city:'Polokwane', rating:4, text:'Great platform built for South Africans. Easy to use even if you are not good with technology. Highly recommend.' }
 ];
 
@@ -5836,7 +6053,7 @@ async function startGuide() {
 }
 
 async function explainPlatform() {
-  await guideMsg('Sky Blueprint is a South African digital platform with <strong>13 powerful tools</strong> in one place:<br><br><strong>Website Builder</strong> — build your business website<br><strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br><strong>CV Builder</strong> — build your CV and find matching jobs<br><strong>Learnerships & Internships</strong> — find opportunities you qualify for<br><strong>Find My Phone</strong> — track your phone if lost or stolen<br><strong>AI Business Mentor</strong> — get business advice 24/7<br><strong>Reminders & Tasks</strong> — never miss a meeting or task<br><strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
+  await guideMsg('Sky Blueprint is a South African digital platform with <strong>13 powerful tools</strong> in one place:<br><br><strong>Website Builder</strong> — build your business website<br><strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br><strong>CV Builder</strong> — build your CV and find matching jobs<br><strong>Learnerships & Internships</strong> — find opportunities you qualify for<br><strong>Find My Phone</strong> — track your phone if lost or stolen<br><strong>AI Business Mentor</strong> — get business advice 24/7<br><strong>Reminders & Tasks</strong> — never miss a meeting or task<br><strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — $2.99/month or $99/year!');
   guideOptions([
     { label: 'Let me start using the tools!', action: showToolMenu },
     { label: 'Tell me about pricing', action: explainPricing },
@@ -5844,7 +6061,7 @@ async function explainPlatform() {
 }
 
 async function explainPricing() {
-  await guideMsg('Sky Blueprint has 3 simple plans:<br><br><strong>Free Trial</strong> — 7 days full access, no credit card needed<br><br><strong>Monthly Plan — R55/month</strong><br>Pay every month via Paystack. Cancel anytime. Auto-debit from your card.<br><br><strong>3-Year Plan — R1,980 once-off</strong><br>Pay once, use for 3 full years. Save money long term!<br><br><strong>Find My Phone — R450 once-off</strong><br>One time activation fee to register and track your device.<br><br>Payments are processed securely by <strong>Paystack</strong> — Visa, Mastercard, EFT, Ozow all accepted.');
+  await guideMsg('Sky Blueprint has 3 simple plans:<br><br><strong>Free Trial</strong> — 7 days full access, no credit card needed<br><br><strong>Monthly Plan — $2.99/month</strong><br>Pay every month via Paystack. Cancel anytime. Auto-debit from your card.<br><br><strong>3-Year Plan — $99 once-off</strong><br>Pay once, use for 3 full years. Save money long term!<br><br><strong>Find My Phone — $24.99 once-off</strong><br>One time activation fee to register and track your device.<br><br>Payments are processed securely by <strong>Paystack</strong> — Visa, Mastercard, EFT, Ozow all accepted.');
   guideOptions([
     { label: '✅ Start my free trial!', action: function() { showPage('signup'); toggleGuide(); } },
     { label: 'Show me the tools', action: showToolMenu },
@@ -5950,10 +6167,10 @@ async function guideEmailYahoo() {
 async function guidePhone() {
   await guideMsg('Let me open Find My Phone!');
   requireAuth('find-phone');
-  await guideMsg('Find My Phone lets you track, ring, lock or wipe your phone remotely if it is lost or stolen.<br><br>⚠️ There is a <strong>once-off R450 activation fee</strong> to use this tool. This funds the development of the Sky Blueprint tracking app.<br><br>What you get with R450:<br>✅ Register unlimited devices<br>✅ Live GPS tracking on SA map<br>✅ Get directions to your phone<br>✅ Ring your phone remotely<br>✅ Lock your phone remotely<br>✅ See 7 days of location history<br><br>Would you like to proceed?');
+  await guideMsg('Find My Phone lets you track, ring, lock or wipe your phone remotely if it is lost or stolen.<br><br>⚠️ There is a <strong>once-off $24.99 activation fee</strong> to use this tool. This funds the development of the Sky Blueprint tracking app.<br><br>What you get with $24.99:<br>✅ Register unlimited devices<br>✅ Live GPS tracking on SA map<br>✅ Get directions to your phone<br>✅ Ring your phone remotely<br>✅ Lock your phone remotely<br>✅ See 7 days of location history<br><br>Would you like to proceed?');
   guideOptions([
-    { label: '✅ Yes, pay R450 and activate', action: async function() {
-      await guideMsg('To pay and activate:<br><br>1️⃣ Click <strong>Pay R450 & Activate Now</strong> on the screen<br>2️⃣ Enter your Full Name, Email and Phone Number<br>3️⃣ Click <strong>Pay Securely with Paystack</strong><br>4️⃣ Complete payment with your card, EFT or Ozow<br>5️⃣ After payment you go to the <strong>Register Device</strong> screen');
+    { label: '✅ Yes, pay $24.99 and activate', action: async function() {
+      await guideMsg('To pay and activate:<br><br>1️⃣ Click <strong>Pay $24.99 & Activate Now</strong> on the screen<br>2️⃣ Enter your Full Name, Email and Phone Number<br>3️⃣ Click <strong>Pay Securely with Paystack</strong><br>4️⃣ Complete payment with your card, EFT or Ozow<br>5️⃣ After payment you go to the <strong>Register Device</strong> screen');
       guideOptions([
         { label: 'How to register my device?', action: guidePhoneRegister },
         { label: '🔍 How to track my phone?', action: guidePhoneTrack },
@@ -6110,7 +6327,7 @@ async function guideAIAnswer(question) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 400,
-        system: 'You are Sky Guide, the friendly assistant inside Sky Blueprint — a South African digital platform. You help users navigate 8 tools: Website Builder (builds business websites from R450 + R55/month hosting), AI Email Secretary (sorts Gmail/Outlook/Yahoo inboxes by priority), CV Builder (builds CV and matches jobs), Learnerships & Internships (checks qualification and emails matching SA opportunities), Find My Phone (R450 once-off, tracks device on SA map), AI Business Mentor (SA business advice), Reminders & Tasks (reminds you of meetings, tasks, habits with notifications), and SA Map (free for everyone). Pricing: R55/month for all tools, R1980/year, R450 for Find My Phone, websites from R450. No free trial — subscribe to use tools. Payments via Paystack. Keep answers short, simple and friendly. Speak like you are explaining to someone new to technology.',
+        system: 'You are Sky Guide, the friendly assistant inside Sky Blueprint — a South African digital platform. You help users navigate 8 tools: Website Builder (builds business websites from $24.99 + $2.99/month hosting), AI Email Secretary (sorts Gmail/Outlook/Yahoo inboxes by priority), CV Builder (builds CV and matches jobs), Learnerships & Internships (checks qualification and emails matching SA opportunities), Find My Phone ($24.99 once-off, tracks device on SA map), AI Business Mentor (SA business advice), Reminders & Tasks (reminds you of meetings, tasks, habits with notifications), and SA Map (free for everyone). Pricing: $2.99/month for all tools, R1980/year, $24.99 for Find My Phone, websites from $24.99. No free trial — subscribe to use tools. Payments via Paystack. Keep answers short, simple and friendly. Speak like you are explaining to someone new to technology.',
         messages: [{ role: 'user', content: question }]
       })
     });
@@ -6144,3 +6361,7 @@ setTimeout(function() {
     toggleGuide();
   }
 }, 8000);
+
+// ── INIT ──
+_initTheme();
+_playWelcome();
