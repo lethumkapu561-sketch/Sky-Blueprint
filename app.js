@@ -230,7 +230,7 @@ var PRICES = {
   website_net: 75000,  // $42.99 — website + .net domain
   website_org: 75000,  // $42.99 — website + .org domain
   phone: 45000,        // $24.99 — Find My Phone once-off
-}; // amounts in cents ($24.99=45000, $2.99=5500, R1980=198000) // in kobo (R99 = 9900)
+}; // amounts in cents ($24.99=45000, $2.99=5500, $99=198000) // in kobo (R99 = 9900)
 var currentPlan = 'pro';
 var currentUser = null;
 // ── Backend URL — update this after deploying to Railway ──
@@ -474,7 +474,6 @@ function doSignup() {
     var u=_LDB.add({fname,lname,email,phone,_ph:btoa(unescape(encodeURIComponent(pass))),plan:'free',createdAt:new Date().toISOString()});
     afterSignup(u,'local_'+Date.now());
   });
-}
 }
 
 function showAccount() {
@@ -6321,18 +6320,13 @@ function guideHandleInput(val) {
 async function guideAIAnswer(question) {
   await guideMsg('Let me find the answer for you... ');
   try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
+    var res = await fetch(BACKEND_URL + '/api/ai-guide', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 400,
-        system: 'You are Sky Guide, the friendly assistant inside Sky Blueprint — a South African digital platform. You help users navigate 8 tools: Website Builder (builds business websites from $24.99 + $2.99/month hosting), AI Email Secretary (sorts Gmail/Outlook/Yahoo inboxes by priority), CV Builder (builds CV and matches jobs), Learnerships & Internships (checks qualification and emails matching SA opportunities), Find My Phone ($24.99 once-off, tracks device on SA map), AI Business Mentor (SA business advice), Reminders & Tasks (reminds you of meetings, tasks, habits with notifications), and SA Map (free for everyone). Pricing: $2.99/month for all tools, R1980/year, $24.99 for Find My Phone, websites from $24.99. No free trial — subscribe to use tools. Payments via Paystack. Keep answers short, simple and friendly. Speak like you are explaining to someone new to technology.',
-        messages: [{ role: 'user', content: question }]
-      })
+      body: JSON.stringify({ question: question })
     });
     var data = await res.json();
-    var reply = data.content?.[0]?.text || 'I am not sure about that. Try asking the AI Business Mentor for more detailed help!';
+    var reply = data.reply || 'I am not sure about that. Try asking the AI Business Mentor for more detailed help!';
     await guideMsg(reply.replace(/\n/g, '<br>'));
   } catch(e) {
     await guideMsg('I am having trouble connecting right now. Please check your internet and try again, or use the AI Business Mentor tool for detailed help!');

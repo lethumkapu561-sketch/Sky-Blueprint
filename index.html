@@ -22,10 +22,6 @@
 @keyframes spFill{to{width:100%}}
 #sb-splash .sp-icon{width:72px;height:72px;margin-bottom:18px;z-index:1;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.15))}
 
-/* ── SETTINGS GEAR ── */
-#sb-gear-btn{position:fixed;bottom:76px;right:18px;width:46px;height:46px;border-radius:50%;background:rgba(14,23,40,0.7);border:1px solid rgba(56,189,248,0.35);color:#38bdf8;font-size:19px;cursor:pointer;z-index:800;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);transition:transform 0.25s,background 0.2s}
-#sb-gear-btn:hover{background:rgba(56,189,248,0.2);transform:rotate(40deg)}
-
 /* ── GIFT CARD GRID ── */
 .sb-gift-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
 .sb-gp,.sb-gm{padding:14px 8px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);text-align:center;cursor:pointer;transition:all 0.2s;font-family:var(--font)}
@@ -67,9 +63,6 @@
 })();
 </script>
 
-<!-- ══ SETTINGS GEAR BUTTON ══ -->
-<button id="sb-gear-btn" onclick="openSettings()" title="Settings">⚙️</button>
-
 
 <!-- NAV -->
 <nav id="nav">
@@ -101,8 +94,12 @@
     <div class="nav-actions" id="nav-logged-in" style="display:none;align-items:center;gap:12px">
       <span id="nav-trial-badge" style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(56,189,248,0.15);color:#38bdf8;white-space:nowrap"></span>
       <button class="btn-ghost-sm" onclick="showAccount()" id="nav-username" style="display:flex;align-items:center;gap:6px"></button>
-      <button class="btn-ghost-sm" onclick="showPage('referral');renderReferralPage(document.getElementById('referral-content'))">💰 Earn</button>
-      <button class="btn-ghost-sm" onclick="showPage('gift')">🎁 Gift</button>
+      <button class="btn-ghost-sm" onclick="showPage('referral');renderReferralPage(document.getElementById('referral-content'))" title="Earn money">💰 Earn</button>
+      <button class="btn-ghost-sm" onclick="showPage('gift')" title="Gift Sky Blueprint">🎁 Gift</button>
+      <button class="btn-ghost-sm" onclick="openSettings()" title="Settings" style="display:flex;align-items:center;gap:5px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
       <button class="btn-ghost-sm" onclick="doLogout()">Log Out</button>
     </div>
     <button class="hamburger" onclick="toggleMobileNav()">
@@ -122,6 +119,9 @@
       <div id="mm-name" style="color:#fff;font-weight:600;font-size:15px;margin-bottom:4px"></div>
       <button onclick="showAccount();closeMobileNav()">My Account</button>
       <button onclick="showPage('dashboard');closeMobileNav()">My Tools</button>
+      <button onclick="showPage('referral');renderReferralPage(document.getElementById('referral-content'));closeMobileNav()">💰 Earn</button>
+      <button onclick="showPage('gift');closeMobileNav()">🎁 Gift</button>
+      <button onclick="openSettings();closeMobileNav()">⚙️ Settings</button>
       <button onclick="doLogout();closeMobileNav()">Log Out</button>
     </div>
   </div>
@@ -676,6 +676,7 @@ function showPolicy(type) {
         <div class="dash-user">
           <span id="dash-greeting">Welcome!</span>
           <button class="btn-ghost-sm" onclick="showAccount()" style="margin-right:8px">My Account</button>
+          <button class="btn-ghost-sm" onclick="openSettings()" style="display:inline-flex;align-items:center;gap:5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</button>
           <button class="btn-ghost-sm" onclick="doLogout()">Log Out</button>
         </div>
         <div class="dash-user-mobile" style="display:none">
