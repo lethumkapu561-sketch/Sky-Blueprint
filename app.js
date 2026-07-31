@@ -1,3 +1,36 @@
+// ═══════════════════════════════════════════
+// PROFESSIONAL LOADING SPLASH
+// ═══════════════════════════════════════════
+(function(){
+  var loader = document.getElementById('sb-loader');
+  if (!loader) return;
+  var bar = document.getElementById('sb-load-bar');
+  var txt = document.getElementById('sb-load-text');
+  var steps = ['Connecting securely...', 'Loading your tools...', 'Almost ready...'];
+  var pcts  = [30, 65, 90];
+  var si = 0;
+  var iv = setInterval(function(){
+    if (si < steps.length) {
+      if (txt) txt.textContent = steps[si];
+      if (bar) bar.style.width = pcts[si] + '%';
+      si++;
+    }
+  }, 400);
+  function dismiss() {
+    clearInterval(iv);
+    if (bar) bar.style.width = '100%';
+    if (txt) txt.textContent = 'Welcome to Sky Blueprint!';
+    setTimeout(function(){
+      if (loader) { loader.style.opacity = '0'; setTimeout(function(){ loader.style.display = 'none'; }, 600); }
+    }, 300);
+  }
+  // Hide once DOM is ready
+  if (document.readyState === 'complete') { setTimeout(dismiss, 1200); }
+  else { window.addEventListener('load', function(){ setTimeout(dismiss, 600); }); }
+  // Safety fallback — never block more than 4s
+  setTimeout(dismiss, 4000);
+})();
+
 // VERSION: 2026-COVER-LETTER-FIX-v9
 console.log("Sky Blueprint app.js VERSION 9 loaded - cover letter ready");
 // ── Sky Blueprint App ──
@@ -6136,6 +6169,288 @@ async function guideDismiss() {
     { label: 'Thanks, bye!', action: function() { toggleGuide(); } }
   ]);
 }
+
+
+// ═══════════════════════════════════════════════════════
+//  THEME SYSTEM (Dark / Light / Navy)
+// ═══════════════════════════════════════════════════════
+var THEMES = {
+  dark: {
+    '--bg':'#060914','--surface-1':'#0d1117','--surface-2':'#161b22',
+    '--border':'rgba(255,255,255,0.08)','--text-primary':'#f1f5f9',
+    '--text-secondary':'#94a3b8','--muted':'#64748b','--accent':'#38bdf8'
+  },
+  light: {
+    '--bg':'#f8fafc','--surface-1':'#ffffff','--surface-2':'#f1f5f9',
+    '--border':'rgba(0,0,0,0.1)','--text-primary':'#0f172a',
+    '--text-secondary':'#475569','--muted':'#94a3b8','--accent':'#2563eb'
+  },
+  navy: {
+    '--bg':'#0a1628','--surface-1':'#0f1f3d','--surface-2':'#162548',
+    '--border':'rgba(56,189,248,0.15)','--text-primary':'#e2e8f0',
+    '--text-secondary':'#94a3b8','--muted':'#64748b','--accent':'#38bdf8'
+  }
+};
+
+function setTheme(t) {
+  var theme = THEMES[t] || THEMES.dark;
+  var root = document.documentElement;
+  Object.keys(theme).forEach(function(k){ root.style.setProperty(k, theme[k]); });
+  // Body background
+  document.body.style.background = theme['--bg'];
+  document.body.style.color = theme['--text-primary'];
+  // Update active button
+  ['dark','light','navy'].forEach(function(n){
+    var b = document.getElementById('theme-'+n);
+    if (b) { b.classList.toggle('active', n===t); }
+  });
+  safeStorage.setItem('sb_theme', t);
+}
+
+function toggleSettings() {
+  var p = document.getElementById('settings-panel');
+  if (p) p.classList.toggle('sp-open');
+}
+
+// Close settings when clicking outside
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('settings-panel');
+  var btn = document.getElementById('nav-settings-btn');
+  if (panel && btn && !panel.contains(e.target) && !btn.contains(e.target)) {
+    panel.classList.remove('sp-open');
+  }
+});
+
+// Restore theme on load
+(function(){
+  var saved = safeStorage.getItem('sb_theme') || 'dark';
+  setTheme(saved);
+})();
+
+// ═══════════════════════════════════════════════════════
+//  CURRENCY DISPLAY
+// ═══════════════════════════════════════════════════════
+var RATE = 18.5; // approximate ZAR/USD rate
+var currentCurrency = 'zar';
+
+function setCurrency(cur) {
+  currentCurrency = cur;
+  safeStorage.setItem('sb_currency', cur);
+  ['cur-zar','cur-usd'].forEach(function(id){
+    var b = document.getElementById(id);
+    if (b) b.classList.toggle('active', id === 'cur-' + cur);
+  });
+  document.querySelectorAll('.price-display').forEach(function(el){
+    var zar = parseFloat(el.dataset.zar || 55);
+    el.textContent = cur === 'usd' ? ('$' + (zar/RATE).toFixed(2) + '/mo') : ('R'+zar+'/month');
+  });
+  // Update hero button text
+  var hb = document.querySelector('.price-display');
+  if (hb && !hb.dataset.zar) hb.dataset.zar = '55';
+}
+
+// ═══════════════════════════════════════════════════════
+//  LANGUAGE (basic greetings for now)
+// ═══════════════════════════════════════════════════════
+var LANGS = {
+  en: { welcome:'Welcome to Sky Blueprint', tagline:'Your Digital Life, Unified', getStarted:'Get Started' },
+  zu: { welcome:'Wamukelekile ku-Sky Blueprint', tagline:'Ukuphila Kwakho Kwedijithali, Kohlangene', getStarted:'Qala Lapha' },
+  xh: { welcome:'Wamkelekile kwi-Sky Blueprint', tagline:'Ubomi Bakho Bedijithali, Budityanisiwe', getStarted:'Qala Apha' },
+  af: { welcome:'Welkom by Sky Blueprint', tagline:'Jou Digitale Lewe, Verenig', getStarted:'Begin Hier' },
+  st: { welcome:'Rea u amohela ho Sky Blueprint', tagline:'Bophelo ba hao ba Dijithale', getStarted:'Qala Mona' }
+};
+
+function setLanguage(lang) {
+  var t = LANGS[lang] || LANGS.en;
+  var el = document.querySelector('.auth-title');
+  if (el) el.textContent = t.welcome;
+  safeStorage.setItem('sb_lang', lang);
+}
+
+// ═══════════════════════════════════════════════════════
+//  VOICE WELCOME
+// ═══════════════════════════════════════════════════════
+function playWelcome() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    var msg = new SpeechSynthesisUtterance('Welcome to Sky Blueprint. Your digital life, unified. Thirteen powerful tools built for South Africans, all for just fifty-five rand per month. Explore, create, and grow. We are glad you are here.');
+    msg.rate = 0.92;
+    msg.pitch = 0.95;
+    msg.volume = 1;
+    // Pick a deep male voice if available
+    var voices = window.speechSynthesis.getVoices();
+    var male = voices.find(function(v){ return v.name.indexOf('Male') > -1 || v.name.indexOf('David') > -1 || v.name.indexOf('James') > -1; });
+    if (male) msg.voice = male;
+    window.speechSynthesis.speak(msg);
+  } else {
+    alert('Voice not supported on this browser. Please try Chrome.');
+  }
+}
+
+// Load voices (needed in some browsers)
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = function(){
+    window.speechSynthesis.getVoices();
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+//  FAQ TOGGLE
+// ═══════════════════════════════════════════════════════
+function toggleFAQ(btn) {
+  var item = btn.closest('.faq-item');
+  var answer = item.querySelector('.faq-a');
+  var arr = btn.querySelector('.faq-arr');
+  var isOpen = item.classList.contains('faq-open');
+  // Close all
+  document.querySelectorAll('.faq-item.faq-open').forEach(function(fi){
+    fi.classList.remove('faq-open');
+    fi.querySelector('.faq-a').style.maxHeight = '0';
+    fi.querySelector('.faq-arr').textContent = '+';
+  });
+  if (!isOpen) {
+    item.classList.add('faq-open');
+    answer.style.maxHeight = answer.scrollHeight + 'px';
+    arr.textContent = '−';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  INDIVIDUAL TOOL PAGES
+// ═══════════════════════════════════════════════════════
+var TOOL_PAGES = [
+  {id:'cv-builder', name:'CV Builder', icon:'📄', color:'#10b981,#059669',
+   headline:'Build a Professional CV in Minutes',
+   desc:'Create a stunning, downloadable CV in 4 formats — Navy & Gold, Classic, Modern, or Minimal. Attach your photo, get matching jobs, and download as PDF or Word.',
+   benefits:['4 professional CV formats','Photo upload support','Word & PDF download','AI job matching included','Cover letter generator'],
+   who:'Job seekers, students, graduates, professionals', price:'R55/month'},
+  {id:'email-secretary', name:'AI Email Secretary', icon:'📧', color:'#6366f1,#8b5cf6',
+   headline:'Let AI Sort Your Entire Inbox for You',
+   desc:'Connect your Gmail, Outlook or Yahoo. Your AI secretary reads every email and sorts them into Urgent, Important, Can Wait, and Low priority — automatically.',
+   benefits:['Works with Gmail, Outlook, Yahoo','4-tier priority sorting','Daily email summary','Spam detection','Never miss an important email again'],
+   who:'Entrepreneurs, executives, busy professionals', price:'R55/month'},
+  {id:'ai-mentor', name:'AI Business Mentor', icon:'🧠', color:'#8b5cf6,#ec4899',
+   headline:'Your 24/7 South African Business Coach',
+   desc:'Ask anything about starting, running or growing a business in South Africa. Get practical, localised advice on funding, CIPC registration, marketing, and more.',
+   benefits:['South Africa-specific advice','CIPC & SARS guidance','Business plan help','Marketing strategy','Available 24/7, instant answers'],
+   who:'Entrepreneurs, spaza owners, startups, SMME owners', price:'R55/month'},
+  {id:'learnerships', name:'Learnerships Finder', icon:'🎓', color:'#f59e0b,#ef4444',
+   headline:'Find Learnerships & Internships in SA',
+   desc:'Check if you qualify for learnerships and get a personalised list of open opportunities across South Africa — from government programmes to private-sector internships.',
+   benefits:['Qualification checker','Live SA learnership listings','Automatic email matches','Government & private sector','Free for all subscribers'],
+   who:'Matric holders, school leavers, unemployed youth', price:'R55/month'},
+  {id:'pdf-tools', name:'PDF Tools', icon:'📑', color:'#2563eb,#38bdf8',
+   headline:'Convert, Create and Format Documents',
+   desc:'CSV to PDF, images to PDF, text to PDF, and the eBook Manuscript Formatter that creates print-ready book PDFs for Amazon KDP — all in your browser.',
+   benefits:['CSV/Excel to PDF','Images to PDF','eBook manuscript formatter','KDP-ready book output','No file uploads needed'],
+   who:'Writers, authors, teachers, small business owners', price:'R55/month'},
+  {id:'file-compressor', name:'File Compressor', icon:'🗜️', color:'#f59e0b,#ef4444',
+   headline:'Shrink Your Files to Send Faster',
+   desc:'Compress images, audio, and videos right in your browser. Image and audio compression runs on your device; video compression runs on our secure server so your phone never freezes.',
+   benefits:['Image compression with quality slider','Audio downsampling','Server-side video compression','Target size selector (5MB–50MB)','250MB video input supported'],
+   who:'Content creators, students, job seekers, entrepreneurs', price:'R55/month'},
+  {id:'image-editor', name:'Image Editor', icon:'🖼️', color:'#ec4899,#8b5cf6',
+   headline:'A Full Image Editor in Your Browser',
+   desc:'Draw, paint, white-out, erase, add draggable text, shapes, and more. Enhance colour photos, clean up scanned documents, rotate and download — no app needed.',
+   benefits:['7 tools: brush, white-out, eraser, line, box, circle, fill','Draggable movable text with font & bold/italic control','Mouse-wheel text resize','Clean up scans to B&W','Enhance colour photos'],
+   who:'Everyone — students, entrepreneurs, designers, teachers', price:'R55/month'},
+  {id:'customer-manager', name:'Customer Manager', icon:'👥', color:'#0ea5e9,#6366f1',
+   headline:'Keep All Your Customers in One Place',
+   desc:'Save and manage your clients — name, phone, email, last purchase, notes. One-tap WhatsApp. Search when you have many. Your data is private and secure on our server.',
+   benefits:['Client profiles with notes','One-tap WhatsApp messaging','Private & secure per account','Search across all clients','Works on phone & PC'],
+   who:'Spaza owners, freelancers, SMEs, service businesses', price:'R55/month'},
+  {id:'templates', name:'Templates Store', icon:'📋', color:'#10b981,#059669',
+   headline:'Premium Business & School Templates',
+   desc:'Buy once, use forever — no subscription needed for templates. Professional Excel templates in luxury black & gold for CEOs, schools, and businesses.',
+   benefits:['Invoice, Quotation, Stock Tracker','Business Budget, Wage Register','School Mark Sheet & Attendance','Merchant Agreement Sheets','Luxury executive design, R59–R149'],
+   who:'Business owners, school principals, entrepreneurs', price:'From R59 (once-off)'},
+  {id:'sa-map', name:'SA Map', icon:'🗺️', color:'#22c55e,#16a34a',
+   headline:'Explore South Africa — Completely Free',
+   desc:'Browse an interactive map of all South African provinces and major cities. No login, no subscription, completely free forever.',
+   benefits:['All 9 provinces covered','Major cities & towns','No login required','Completely free forever','Works on any device'],
+   who:'Everyone — students, tourists, job seekers, businesses', price:'FREE'},
+  {id:'reminders', name:'Reminders & Tasks', icon:'⏰', color:'#a855f7,#6366f1',
+   headline:'Never Miss Anything Important',
+   desc:'Set reminders for meetings, payments, habits, family, or anything you choose. Get browser notifications with a chime, categorised by type.',
+   benefits:['7 reminder categories','Browser push notifications','Chime alerts','Habit tracking','Payment deadline reminders'],
+   who:'Professionals, entrepreneurs, students, families', price:'R55/month'},
+  {id:'website-builder', name:'Website Builder', icon:'🌐', color:'#2563eb,#06b6d4',
+   headline:'Get a Professional Website for Your Business',
+   desc:'Order a custom website built by a real person — starting from R450. Premium package (R3,500) includes 5 pages, Paystack setup, favicon, .co.za domain, and business email.',
+   benefits:['From R450 base build','Premium R3,500 all-inclusive','Paystack payment integration','.co.za domain included','1 month support included'],
+   who:'Small businesses, spaza shops, schools, startups', price:'From R450'},
+];
+
+function renderToolPages() {
+  var grid = document.getElementById('tp-grid');
+  if (!grid) return;
+  grid.innerHTML = TOOL_PAGES.map(function(t){
+    return '<div class="tp-card" onclick="openToolPage(\''+t.id+'\')">' +
+      '<div class="tp-icon" style="background:linear-gradient(135deg,'+t.color+')">'+t.icon+'</div>' +
+      '<h3>'+t.name+'</h3>' +
+      '<p>'+t.desc.substring(0,80)+'...</p>' +
+      '<span class="tp-cta">Learn more →</span>' +
+    '</div>';
+  }).join('');
+}
+
+function openToolPage(id) {
+  var t = TOOL_PAGES.find(function(x){ return x.id === id; });
+  if (!t) return;
+  var overlay = document.getElementById('tool-page-overlay');
+  var content = document.getElementById('tpo-content');
+  if (!overlay || !content) return;
+  content.innerHTML =
+    '<div class="tpo-hero" style="background:linear-gradient(135deg,'+t.color+')">' +
+      '<div class="tpo-icon">'+t.icon+'</div>' +
+      '<h1>'+t.headline+'</h1>' +
+      '<p>'+t.desc+'</p>' +
+      '<div class="tpo-btns">' +
+        '<button class="btn-primary" onclick="closeToolPage();showPage(\'signup\')">Get Started — '+t.price+'</button>' +
+        '<button class="btn-outline" onclick="closeToolPage()">Back to All Tools</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="tpo-body">' +
+      '<div class="tpo-benefits">' +
+        '<h2>What You Get</h2>' +
+        t.benefits.map(function(b){ return '<div class="tpo-benefit"><span class="tpo-check">✅</span>'+b+'</div>'; }).join('') +
+      '</div>' +
+      '<div class="tpo-who">' +
+        '<h2>Who Is This For?</h2>' +
+        '<p>'+t.who+'</p>' +
+      '</div>' +
+      '<div class="tpo-cta-wrap">' +
+        '<button class="btn-primary" style="font-size:16px;padding:16px 40px" onclick="closeToolPage();showPage(\'signup\')">Start Using '+t.name+'</button>' +
+        '<p style="color:var(--muted);font-size:13px;margin-top:10px">'+t.price+' · Cancel anytime · No contracts</p>' +
+      '</div>' +
+    '</div>';
+  overlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeToolPage() {
+  var overlay = document.getElementById('tool-page-overlay');
+  if (overlay) overlay.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════════════════════
+//  GIFT FUNCTION
+// ═══════════════════════════════════════════════════════
+function buyGift() {
+  var email = prompt('Enter the email address of the person you want to gift Sky Blueprint to:');
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  alert('Thank you! We will set up the gift for ' + email + ' and contact you with payment details. WhatsApp us on 065 601 3544 to complete the gift purchase.');
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT on DOMContentLoaded
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function(){
+  renderToolPages();
+  var savedTheme = safeStorage.getItem('sb_theme') || 'dark';
+  setTheme(savedTheme);
+});
 
 // Auto-greet after 8 seconds on homepage (once per session)
 setTimeout(function() {
