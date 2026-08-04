@@ -1,35 +1,3 @@
-// ═══════════════════════════════════════════
-// PROFESSIONAL LOADING SPLASH
-// ═══════════════════════════════════════════
-(function(){
-  var loader = document.getElementById('sb-loader');
-  if (!loader) return;
-  var bar = document.getElementById('sb-load-bar');
-  var txt = document.getElementById('sb-load-text');
-  var steps = ['Connecting securely...', 'Loading your tools...', 'Almost ready...'];
-  var pcts  = [30, 65, 90];
-  var si = 0;
-  var iv = setInterval(function(){
-    if (si < steps.length) {
-      if (txt) txt.textContent = steps[si];
-      if (bar) bar.style.width = pcts[si] + '%';
-      si++;
-    }
-  }, 400);
-  function dismiss() {
-    clearInterval(iv);
-    if (bar) bar.style.width = '100%';
-    if (txt) txt.textContent = 'Welcome to Sky Blueprint!';
-    setTimeout(function(){
-      if (loader) { loader.style.opacity = '0'; setTimeout(function(){ loader.style.display = 'none'; }, 600); }
-    }, 300);
-  }
-  // Hide once DOM is ready
-  if (document.readyState === 'complete') { setTimeout(dismiss, 1200); }
-  else { window.addEventListener('load', function(){ setTimeout(dismiss, 600); }); }
-  // Safety fallback — never block more than 4s
-  setTimeout(dismiss, 4000);
-})();
 
 // VERSION: 2026-COVER-LETTER-FIX-v9
 console.log("Sky Blueprint app.js VERSION 9 loaded - cover letter ready");
