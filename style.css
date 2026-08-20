@@ -706,6 +706,11 @@ body.theme-light {
 body.theme-light .tool-card { background:#fff; border-color:rgba(0,0,0,0.1); }
 body.theme-light .tool-card h3 { color:#0f172a; }
 body.theme-light nav { background:rgba(248,250,252,0.97); border-bottom:1px solid rgba(0,0,0,0.08); }
+/* Light theme: white headings become dark so they stay readable */
+body.theme-light .tool-screen h2,
+body.theme-light h1, body.theme-light h2,
+body.theme-light .sec-title { color:#0f172a; }
+body.theme-light .tool-page-title { color:#0f172a; }
 
 body.theme-navy {
   --bg:#0a1628; --text:#e2e8f0; --muted:#94a3b8;

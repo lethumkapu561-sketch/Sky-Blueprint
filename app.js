@@ -5732,6 +5732,199 @@ function openReferral() {
   }
 }
 
+// ═══════════════════════════════════════════
+// TOOL LANDING PAGES — each tool has its own page
+// (Hostinger-style: benefits first, then open the tool)
+// ═══════════════════════════════════════════
+var TOOL_LANDINGS = {
+  'website-builder': {
+    title: 'Website Builder',
+    tag: 'Get a professional business website built for you in 72 hours — no coding, no stress.',
+    benefits: [
+      'We build it FOR you — just fill in your business details and we handle everything',
+      'Delivered in 72 hours, ready to share with customers',
+      'Premium option: 5 pages, Paystack payments, .co.za domain (1st year free) and business email'
+    ],
+    steps: ['Fill in your business details', 'We design and build your site', 'Receive your live website in 72 hours'],
+    price: 'From R450 once-off (≈ $25 USD)',
+    action: "requireAuth('website-builder')", cta: 'Order My Website'
+  },
+  'email-cleaner': {
+    title: 'AI Email Secretary',
+    tag: 'Never drown in your inbox again — AI sorts your emails by priority so you only read what matters.',
+    benefits: [
+      'Automatically finds urgent emails, invoices and opportunities',
+      'Cuts inbox time from hours to minutes every day',
+      'Works like a personal secretary, available 24/7'
+    ],
+    steps: ['Open the tool', 'Paste or connect your emails', 'Get a sorted, prioritised inbox instantly'],
+    price: 'Included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('email-cleaner')", cta: 'Sort My Inbox'
+  },
+  'find-phone': {
+    title: 'Find My Phone',
+    tag: 'Lost your phone? Locate it fast — coming soon to Sky Blueprint.',
+    benefits: [
+      'Locate your phone from any browser',
+      'Works even when your phone is on silent',
+      'Built for South African networks'
+    ],
+    steps: ['Create your free account now', 'We notify you the moment it launches', 'Locate your phone in seconds'],
+    price: 'Launching soon — included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('find-phone')", cta: 'Get Notified — Sign Up'
+  },
+  'ai-mentor': {
+    title: 'AI Business Mentor',
+    tag: 'Never get stuck again — get a real business plan and expert advice in minutes, any time of day.',
+    benefits: [
+      '24/7 business coaching that never sleeps',
+      'Step-by-step guidance on registering, funding and growing your business in SA',
+      'Ask anything — from CIPC registration to marketing your spaza shop'
+    ],
+    steps: ['Open the mentor', 'Ask your business question', 'Get a clear, practical plan instantly'],
+    price: 'Included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('ai-mentor')", cta: 'Ask My Mentor'
+  },
+  'cv-builder': {
+    title: 'CV Builder & Jobs',
+    tag: 'Land your next job faster — build a professional CV and get matched to real openings.',
+    benefits: [
+      'Professional CV templates employers actually read',
+      'Job matching with links to LinkedIn and Indeed openings',
+      'Download your CV as a polished PDF in minutes'
+    ],
+    steps: ['Enter your details and experience', 'Pick a professional template', 'Download your CV and apply'],
+    price: 'Included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('cv-builder')", cta: 'Build My CV'
+  },
+  'sa-map': {
+    title: 'SA Map',
+    tag: 'Explore South Africa on a live interactive map — completely free, forever.',
+    benefits: [
+      'Live interactive map of all 9 provinces',
+      'Find places, plan routes and explore your area',
+      'Free forever — no subscription needed'
+    ],
+    steps: ['Click Open', 'Search any place in South Africa', 'Explore the live map'],
+    price: '100% Free — no account needed',
+    action: "openTool('sa-map')", cta: 'Open SA Map Free'
+  },
+  'reminders': {
+    title: 'Reminders & Tasks',
+    tag: 'Never miss a meeting, deadline or family event again — your personal assistant that chimes on time.',
+    benefits: [
+      'Set reminders that alert you anywhere in the app',
+      'Organise tasks for business, school and family',
+      'Simple enough to use every single day'
+    ],
+    steps: ['Add your task or reminder', 'Set the date and time', 'Get chimed when it matters'],
+    price: 'Included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('reminders')", cta: 'Set My First Reminder'
+  },
+  'learnerships': {
+    title: 'Learnerships & Internships',
+    tag: 'Find learnerships and internships you actually qualify for — opportunities matched to you.',
+    benefits: [
+      'Matched to your qualifications and province',
+      'Learnerships, internships and graduate programmes in one place',
+      'Direct application links — no endless searching'
+    ],
+    steps: ['Tell us your qualification and area', 'See opportunities that match you', 'Apply directly'],
+    price: 'Included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('learnerships')", cta: 'Find My Opportunity'
+  },
+  'templates': {
+    title: 'Templates Store',
+    tag: 'Professional spreadsheet templates that do the maths for you — invoices, budgets, registers and more.',
+    benefits: [
+      'Auto-calculating invoices, quotes, budgets and wage registers',
+      'Built for SA businesses, schools and families',
+      'Buy once, keep forever — instant download'
+    ],
+    steps: ['Browse the store', 'Pick your template', 'Pay once and download instantly'],
+    price: 'From R59 once-off per template (≈ $4 USD)',
+    action: "openTool('templates')", cta: 'Browse Templates'
+  },
+  'pdf-tools': {
+    title: 'PDF Tools',
+    tag: 'Convert any file to PDF instantly — CVs, documents, images, ready to send.',
+    benefits: [
+      'Convert Word docs and images to professional PDFs',
+      'Everything happens in your browser — fast and private',
+      'Perfect for CVs, contracts and school documents'
+    ],
+    steps: ['Upload your file', 'Click convert', 'Download your PDF'],
+    price: 'Included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('pdf-tools')", cta: 'Convert My File'
+  },
+  'customers': {
+    title: 'Customer Manager',
+    tag: 'Keep every customer in one place — names, numbers and notes your business can grow on.',
+    benefits: [
+      'Save customer names, contacts and notes',
+      'Never lose a customer number again',
+      'Your own mini-CRM, made simple'
+    ],
+    steps: ['Add your customers', 'Keep notes on every deal', 'Grow repeat business'],
+    price: 'Included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('customers')", cta: 'Manage My Customers'
+  },
+  'compressor': {
+    title: 'File Compressor',
+    tag: 'Shrink images, audio and video so they send fast on WhatsApp and email — even on mobile data.',
+    benefits: [
+      'Compress photos, audio and video in seconds',
+      'Save mobile data when sharing files',
+      'Smart compression that keeps your quality'
+    ],
+    steps: ['Upload your file', 'Choose the size you need', 'Download the smaller file'],
+    price: 'Included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('compressor')", cta: 'Compress My File'
+  },
+  'imgeditor': {
+    title: 'Image Editor',
+    tag: 'Draw, paint and erase on your photos — quick edits without expensive software.',
+    benefits: [
+      'Draw and paint directly on any photo',
+      'Erase mistakes and unwanted marks',
+      'Simple tools that work on any device'
+    ],
+    steps: ['Upload your image', 'Edit with draw, paint and erase tools', 'Download your edited photo'],
+    price: 'Included in your R55/month plan (≈ $3 USD)',
+    action: "requireAuth('imgeditor')", cta: 'Edit My Image'
+  }
+};
+
+function openToolPage(name) {
+  var L = TOOL_LANDINGS[name];
+  if (!L) { // fallback: behave exactly like before
+    if (name === 'sa-map' || name === 'templates') { openTool(name); } else { requireAuth(name); }
+    return;
+  }
+  var check = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><path d="M20 6 9 17l-5-5"/></svg>';
+  var benefitsHtml = L.benefits.map(function(b){
+    return '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px">' + check + '<div style="font-size:14px;color:var(--text,#e2e8f0);line-height:1.6">' + b + '</div></div>';
+  }).join('');
+  var stepsHtml = L.steps.map(function(s, i){
+    return '<div style="flex:1;min-width:140px;background:var(--surface-1,rgba(255,255,255,0.04));border:1px solid var(--border,rgba(255,255,255,0.08));border-radius:14px;padding:16px 14px;text-align:center">' +
+      '<div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">' + (i+1) + '</div>' +
+      '<div style="font-size:13px;color:var(--muted,#94a3b8);line-height:1.5">' + s + '</div></div>';
+  }).join('');
+  document.getElementById('tool-page-title').textContent = L.title;
+  document.getElementById('tool-page-body').innerHTML =
+    '<div class="tool-screen" style="max-width:720px;margin:0 auto">' +
+      '<h2 style="margin-bottom:10px">' + L.title + '</h2>' +
+      '<p style="color:var(--muted,#94a3b8);font-size:15px;line-height:1.7;margin-bottom:24px">' + L.tag + '</p>' +
+      '<div style="margin-bottom:26px">' + benefitsHtml + '</div>' +
+      '<div style="font-weight:700;color:var(--text,#e2e8f0);font-size:14px;margin-bottom:12px">How it works</div>' +
+      '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:26px">' + stepsHtml + '</div>' +
+      '<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);border-radius:12px;padding:13px 16px;font-size:13px;color:#38bdf8;font-weight:700;margin-bottom:22px;text-align:center">' + L.price + '</div>' +
+      '<button class="btn-primary landing-cta" style="width:100%;box-sizing:border-box;font-size:16px;padding:16px" onclick="' + L.action + '">' + L.cta + ' →</button>' +
+      '<p style="text-align:center;margin-top:14px"><a href="#" onclick="showPage(\'home\');return false" style="color:var(--muted,#94a3b8);font-size:13px">← Back to all tools</a></p>' +
+    '</div>';
+  showPage('tool');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // Check if user is already logged in
   const saved = safeStorage.getItem('sb_current');
