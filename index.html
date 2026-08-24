@@ -10,79 +10,10 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     ENTRY SPLASH — self-contained, cannot get stuck.
-     The removal script below is INLINE and independent of app.js,
-     with THREE separate ways to guarantee it disappears:
-     1) as soon as the page finishes loading
-     2) a hard 2.2s timeout no matter what
-     3) the FIRST tap/click anywhere instantly removes it
-     Once dismissed it is fully REMOVED from the DOM (not hidden),
-     so it can never block a click again.
-═══════════════════════════════════════════════════════════ -->
-<div id="sb-splash" style="position:fixed;inset:0;background:#060914;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s ease">
-  <svg width="56" height="56" viewBox="0 0 32 32" fill="none" style="margin-bottom:18px">
-    <path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#sbsgrad)"/>
-    <path d="M11 13c0-2.8 2.2-5 5-5s5 2.2 5 5c0 1.5-.7 2.9-1.7 3.8" stroke="#fff" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-    <circle cx="16" cy="13" r="1.2" fill="#fff"/>
-    <defs><linearGradient id="sbsgrad" x1="5" y1="2" x2="27" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs>
-  </svg>
-  <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-bottom:14px">Sky Blueprint</div>
-  <div style="width:120px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden">
-    <div style="height:100%;width:40%;background:linear-gradient(90deg,#38bdf8,#6366f1);border-radius:2px;animation:sbSplashSlide 1s ease-in-out infinite"></div>
-  </div>
-  <style>@keyframes sbSplashSlide{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}</style>
-</div>
-<script>
-(function(){
-  var done = false;
-  function killSplash(){
-    if (done) return;
-    done = true;
-    var el = document.getElementById('sb-splash');
-    if (!el) return;
-    el.style.opacity = '0';
-    setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 400);
-    trySpeakWelcome();
-  }
-  // 1) normal path — once the page has loaded
-  if (document.readyState === 'complete') { setTimeout(killSplash, 500); }
-  else { window.addEventListener('load', function(){ setTimeout(killSplash, 400); }); }
-  // 2) hard failsafe — no matter what happens, gone by 2.2s
-  setTimeout(killSplash, 2200);
-  // 3) instant escape hatch — any tap/click anywhere removes it immediately
-  document.addEventListener('click', killSplash, { once:true, capture:true });
-  document.addEventListener('touchstart', killSplash, { once:true, capture:true });
-
-  // ── Welcome voice (plays once per browser session) ──
-  function trySpeakWelcome(){
-    try {
-      if (!('speechSynthesis' in window)) return;
-      var already = sessionStorage.getItem('sb_welcomed');
-      if (already) return;
-      sessionStorage.setItem('sb_welcomed', '1');
-      var say = function(){
-        var u = new SpeechSynthesisUtterance('Welcome to Sky Blueprint.');
-        var voices = window.speechSynthesis.getVoices();
-        var pick = voices.find(function(v){ return /en-ZA|en-GB|en-US/i.test(v.lang) && /female/i.test(v.name); })
-                || voices.find(function(v){ return /en-ZA|en-GB|en-US/i.test(v.lang); })
-                || voices[0];
-        if (pick) u.voice = pick;
-        u.rate = 0.98; u.pitch = 1.02; u.volume = 1;
-        window.speechSynthesis.speak(u);
-      };
-      if (window.speechSynthesis.getVoices().length) say();
-      else window.speechSynthesis.onvoiceschanged = say;
-    } catch(e) { /* fail silently — never break the page over a voice greeting */ }
-  }
-})();
-</script>
-
 <!-- NAV -->
 <nav id="nav">
   <div class="nav-inner">
     <div class="logo" onclick="showPage('home')">
-
       <svg class="fp-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
         <path d="M16 2C10 2 5 7 5 13c0 4 2 7.5 5 9.5v6.5h2v-5.5c1.2.3 2.6.5 4 .5s2.8-.2 4-.5V29h2v-6.5c3-2 5-5.5 5-9.5 0-6-5-11-11-11z" fill="url(#fpgrad)"/>
         <path d="M11 13c0-2.8 2.2-5 5-5s5 2.2 5 5c0 1.5-.7 2.9-1.7 3.8" stroke="#fff" stroke-width="1.2" stroke-linecap="round" fill="none"/>
