@@ -1612,21 +1612,18 @@ async function sendAI() {
   cw.scrollTop = cw.scrollHeight;
   aiHistory.push({role:'user',content:msg});
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(BACKEND_URL + '/api/ai-mentor', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:1000,
-        system:'You are a warm, practical AI Business Mentor for Sky Blueprint, specialising in South African entrepreneurship. You know SA business law, CIPC registration (R175 fee, cipc.co.za), SARS eFiling, SMME funding (SEFA, IDC, NEF, Khula), BEE/BBBEE compliance, load shedding business strategies, and general business growth for the African market. Give clear, actionable advice using South African context. Mention rands, SA government departments, and local resources. Be encouraging and specific.',
-        messages:aiHistory
-      })
+      body:JSON.stringify({ messages: aiHistory, mode: 'mentor' })
     });
     const data = await res.json();
-    const reply = data.content?.[0]?.text || 'Sorry, I could not respond. Please try again.';
+    if (!res.ok) throw new Error(data.error || 'AI service error');
+    const reply = data.reply || 'Sorry, I could not respond. Please try again.';
     aiHistory.push({role:'assistant',content:reply});
     document.getElementById('ai-typing').outerHTML = `<div class="chat-bubble bot">${reply.replace(/\n/g,'<br>')}</div>`;
   } catch(e) {
-    document.getElementById('ai-typing').outerHTML = `<div class="chat-bubble bot">⚠️ Connection error. Please check your internet and try again.</div>`;
+    document.getElementById('ai-typing').outerHTML = `<div class="chat-bubble bot">⚠️ ${e.message || 'Connection error. Please check your internet and try again.'}</div>`;
   }
   cw.scrollTop = cw.scrollHeight;
 }
@@ -5720,15 +5717,53 @@ function openReferral() {
   var email = (user && user.email) ? user.email : null;
   var code = email ? btoa(email).replace(/[^a-z0-9]/gi,'').substring(0,8).toUpperCase() : 'SKYREF';
   var link = 'https://skyblueprint.company/?ref=' + code;
-  var msg = 'Your Sky Blueprint referral link:\n\n' + link +
-    '\n\nShare this link with friends. When they subscribe, you earn a commission.' +
-    '\n\nContact us on WhatsApp 065 601 3544 to track your referrals and get paid.';
+
+  var existing = document.getElementById('ref-modal');
+  if (existing) existing.remove();
+  var modal = document.createElement('div');
+  modal.id = 'ref-modal';
+  modal.className = 'modal-overlay';
+  modal.onclick = function(e){ if (e.target === modal) modal.remove(); };
+  modal.innerHTML =
+    '<div style="background:var(--bg,#0f1629);border:1px solid var(--border,rgba(56,189,248,0.2));border-radius:20px;padding:0;max-width:420px;width:100%;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:24px 24px 0">' +
+        '<div>' +
+          '<h3 style="color:var(--text,#fff);font-size:19px;margin-bottom:6px">Refer friends. Earn rewards.</h3>' +
+          '<p style="color:var(--muted,#94a3b8);font-size:13px;line-height:1.6;margin:0">Share your link and earn commission on each friend\'s first payment.</p>' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'ref-modal\').remove()" style="background:none;border:none;color:var(--muted,#94a3b8);font-size:20px;cursor:pointer;line-height:1;padding:4px" aria-label="Close">✕</button>' +
+      '</div>' +
+      '<div style="padding:20px 24px">' +
+        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:12px 14px">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>' +
+          '<div><div style="font-size:11px;color:var(--muted,#94a3b8)">You earn</div><div style="font-weight:700;color:var(--text,#fff);font-size:14px">R25 per referral</div></div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:12px 14px">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>' +
+          '<div><div style="font-size:11px;color:var(--muted,#94a3b8)">Your friend gets</div><div style="font-weight:700;color:var(--text,#fff);font-size:14px">20% off their first month</div></div>' +
+        '</div>' +
+        '<div style="font-size:12px;font-weight:700;color:var(--muted,#94a3b8);margin-bottom:8px">Your referral link</div>' +
+        '<div style="display:flex;gap:8px;margin-bottom:16px">' +
+          '<input id="ref-link-input" readonly value="' + link + '" style="flex:1;min-width:0;background:rgba(255,255,255,0.05);border:1px solid var(--border,rgba(255,255,255,0.12));border-radius:10px;padding:11px 12px;color:var(--text,#fff);font-size:12px;font-family:var(--font)">' +
+        '</div>' +
+        '<button onclick="copyReferralLink(\'' + link + '\')" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:8px">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+          'Copy referral link' +
+        '</button>' +
+        '<p style="text-align:center;margin-top:14px"><a href="#" onclick="alert(\'Contact us on WhatsApp 065 601 3544 to track your referrals and get paid.\');return false" style="color:#8b5cf6;font-size:13px;font-weight:600;text-decoration:none">Track your referrals →</a></p>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+}
+
+function copyReferralLink(link) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(link).then(function(){
-      alert('Referral link copied!\n\n' + link + '\n\nShare it with friends and earn when they subscribe.');
-    }).catch(function(){ alert(msg); });
+      var btn = event.target.closest('button');
+      if (btn) { var orig = btn.innerHTML; btn.innerHTML = '✓ Copied!'; setTimeout(function(){ btn.innerHTML = orig; }, 2000); }
+    }).catch(function(){ alert('Your link: ' + link); });
   } else {
-    alert(msg);
+    alert('Your link: ' + link);
   }
 }
 
@@ -6349,18 +6384,17 @@ function guideHandleInput(val) {
 async function guideAIAnswer(question) {
   await guideMsg('Let me find the answer for you... ');
   try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
+    var res = await fetch(BACKEND_URL + '/api/ai-mentor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 400,
-        system: 'You are Sky Guide, the friendly assistant inside Sky Blueprint — a South African digital platform. You help users navigate 8 tools: Website Builder (builds business websites from R450 + R55/month hosting), AI Email Secretary (sorts Gmail/Outlook/Yahoo inboxes by priority), CV Builder (builds CV and matches jobs), Learnerships & Internships (checks qualification and emails matching SA opportunities), Find My Phone (R450 once-off, tracks device on SA map), AI Business Mentor (SA business advice), Reminders & Tasks (reminds you of meetings, tasks, habits with notifications), and SA Map (free for everyone). Pricing: R55/month for all tools, R1980/year, R450 for Find My Phone, websites from R450. No free trial — subscribe to use tools. Payments via Paystack. Keep answers short, simple and friendly. Speak like you are explaining to someone new to technology.',
-        messages: [{ role: 'user', content: question }]
+        messages: [{ role: 'user', content: question }],
+        mode: 'guide'
       })
     });
     var data = await res.json();
-    var reply = data.content?.[0]?.text || 'I am not sure about that. Try asking the AI Business Mentor for more detailed help!';
+    if (!res.ok) throw new Error(data.error || 'AI service error');
+    var reply = data.reply || 'I am not sure about that. Try asking the AI Business Mentor for more detailed help!';
     await guideMsg(reply.replace(/\n/g, '<br>'));
   } catch(e) {
     await guideMsg('I am having trouble connecting right now. Please check your internet and try again, or use the AI Business Mentor tool for detailed help!');
