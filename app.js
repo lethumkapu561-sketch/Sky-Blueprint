@@ -3768,7 +3768,7 @@ function compTab(type, elem) {
     body.innerHTML =
       '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
       '<p style="font-size:13px;color:#10b981;font-weight:600;margin-bottom:4px">Compressed on our secure server — nothing freezes on your device</p>' +
-      '<p style="font-size:12px;color:var(--muted);line-height:1.6">Works for videos up to 250MB and several minutes long. Larger or longer videos may take a minute or two to process.</p>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.6">Works for videos up to 200MB and up to 4 minutes long. Compression happens on our server, so nothing freezes your phone.</p>' +
       '</div>' +
       '<div class="form-group"><label>Target file size</label>' +
       '<select id="comp-video-target" style="width:100%;box-sizing:border-box">' +
@@ -3779,7 +3779,7 @@ function compTab(type, elem) {
       '</select></div>' +
       '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
       '<p style="color:#fff;font-weight:600;margin-bottom:6px">Compress a Video</p>' +
-      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">MP4, MOV and most video formats. Up to 250MB.</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">MP4, MOV and most video formats. Up to 200MB, up to 4 minutes long.</p>' +
       '<input type="file" id="comp-video-input" accept="video/*" onchange="handleVideoCompress()" style="display:none">' +
       '<button class="btn-primary" onclick="document.getElementById(\'comp-video-input\').click()">Choose Video</button>' +
       '</div>' +
@@ -3912,30 +3912,43 @@ function handleVideoCompress() {
   if (!file) return;
   var result = document.getElementById('comp-video-result');
 
-  if (file.size > 250 * 1048576) {
-    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Video too large (' + fmtSize(file.size) + ')</p><p style="color:var(--muted);font-size:12px;margin-top:6px">Please choose a video under 250MB.</p></div>';
+  if (file.size > 200 * 1048576) {
+    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Video too large (' + fmtSize(file.size) + ')</p><p style="color:var(--muted);font-size:12px;margin-top:6px">Please choose a video under 200MB.</p></div>';
     return;
   }
 
   var targetMB = (document.getElementById('comp-video-target') || {value:'10'}).value;
 
+  // Live elapsed-time counter so the UI never looks frozen, even on a slow server
+  var startedAt = Date.now();
   result.innerHTML =
     '<div style="text-align:center;padding:20px">' +
     '<div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:14px"></div>' +
-    '<p style="color:var(--muted)">Compressing your video on our server... this can take a minute or two for longer clips. Please keep this page open.</p>' +
+    '<p style="color:var(--muted)">Compressing your video on our server...</p>' +
+    '<p style="color:#38bdf8;font-size:12px;margin-top:6px" id="comp-video-elapsed">0s elapsed</p>' +
     '</div>';
+  var elapsedTimer = setInterval(function(){
+    var el = document.getElementById('comp-video-elapsed');
+    if (el) el.textContent = Math.round((Date.now() - startedAt) / 1000) + 's elapsed';
+  }, 1000);
 
   var formData = new FormData();
   formData.append('video', file);
   formData.append('targetMB', targetMB);
-
   var origSize = file.size;
+
+  // Match the server's 12-minute hard timeout, with a little buffer on top
+  var controller = new AbortController();
+  var clientTimeout = setTimeout(function(){ controller.abort(); }, 730000);
 
   fetch(BACKEND_URL + '/api/compress-video', {
     method: 'POST',
-    body: formData
+    body: formData,
+    signal: controller.signal
   })
   .then(function(r) {
+    clearTimeout(clientTimeout);
+    clearInterval(elapsedTimer);
     if (!r.ok) { return r.json().then(function(d){ throw new Error(d.error || 'Compression failed'); }); }
     return r.blob();
   })
@@ -3953,7 +3966,12 @@ function handleVideoCompress() {
       '</div>';
   })
   .catch(function(err) {
-    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Could not compress this video</p><p style="color:var(--muted);font-size:12px;margin-top:6px">' + (err.message || 'Please try again or use a different file.') + '</p></div>';
+    clearTimeout(clientTimeout);
+    clearInterval(elapsedTimer);
+    var msg = (err.name === 'AbortError')
+      ? 'This is taking longer than our server allows (12 minutes). Please try a shorter clip or a smaller target size.'
+      : (err.message || 'Please try again or use a different file.');
+    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Could not compress this video</p><p style="color:var(--muted);font-size:12px;margin-top:6px">' + msg + '</p></div>';
   });
 }
 
