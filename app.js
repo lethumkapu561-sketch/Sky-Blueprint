@@ -2136,6 +2136,14 @@ function downloadCVSingleCol(d, fmt, jsPDFLib) {
   } else {
     // minimal - left aligned, lots of space, thin lines
     y = 26;
+    if (d.photo) {
+      try {
+        var ps3 = 24;
+        doc.setDrawColor(NAVY[0],NAVY[1],NAVY[2]); doc.setLineWidth(0.4);
+        doc.addImage(d.photo, (d.photo.indexOf('image/png')>-1?'PNG':'JPEG'), PW - mx - ps3, y - 4, ps3, ps3);
+        doc.circle(PW - mx - ps3/2, y - 4 + ps3/2, ps3/2 + 0.4, 'S');
+      } catch(e){}
+    }
     doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
     doc.setFont('helvetica','bold'); doc.setFontSize(26);
     doc.text((d.fn + ' ' + d.ln).trim(), mx, y); y += 8;
@@ -2171,15 +2179,33 @@ function downloadCVSingleCol(d, fmt, jsPDFLib) {
 
 function downloadCV() {
   if (!requirePaidAction('download your CV')) return;
-  // Generate a TRUE PDF (real text, exact colors, selectable) - not a screenshot
   if (!window._cvData) { alert('Please build your CV first.'); return; }
   var jsPDFLib = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
-  if (!jsPDFLib) {
-    // fallback to old html2pdf method if jsPDF missing
-    if (typeof html2pdf !== 'undefined' && window._cvHTML) { downloadCVLegacy(); return; }
-    downloadCVPrint(); return;
-  }
+  if (jsPDFLib) { downloadCVReal(jsPDFLib); return; }
 
+  // The PDF engine loads from a CDN and can occasionally still be loading
+  // when the button is clicked. Wait briefly and retry a few times before
+  // ever falling back to a screenshot-style PDF, instead of giving up instantly.
+  var attempts = 0;
+  var waitMsg = document.getElementById('cv-msg');
+  var retryTimer = setInterval(function(){
+    attempts++;
+    var lib = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+    if (lib) {
+      clearInterval(retryTimer);
+      downloadCVReal(lib);
+      return;
+    }
+    if (attempts >= 10) { // ~5 seconds total
+      clearInterval(retryTimer);
+      if (typeof html2pdf !== 'undefined' && window._cvHTML) { downloadCVLegacy(); return; }
+      downloadCVPrint();
+    }
+  }, 500);
+}
+
+function downloadCVReal(jsPDFLib) {
+  // Generate a TRUE PDF (real text, exact colors, selectable) - not a screenshot
   var d = window._cvData;
   var fmt = window._cvFormat || 'navy';
   if (fmt !== 'navy') { downloadCVSingleCol(d, fmt, jsPDFLib); return; }
@@ -3768,7 +3794,7 @@ function compTab(type, elem) {
     body.innerHTML =
       '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
       '<p style="font-size:13px;color:#10b981;font-weight:600;margin-bottom:4px">Compressed on our secure server — nothing freezes on your device</p>' +
-      '<p style="font-size:12px;color:var(--muted);line-height:1.6">Works for videos up to 200MB and up to 4 minutes long. Compression happens on our server, so nothing freezes your phone.</p>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.6">Works for videos up to 200MB and up to 4 minutes long. Output is capped at 720p for reliable processing. Compression happens on our server, so nothing freezes your phone.</p>' +
       '</div>' +
       '<div class="form-group"><label>Target file size</label>' +
       '<select id="comp-video-target" style="width:100%;box-sizing:border-box">' +
@@ -5704,27 +5730,7 @@ function setTheme(theme) {
     .replace(/\btheme-\w+\b/g, '').trim();
   document.body.classList.add('theme-' + theme);
   try { localStorage.setItem('sb_theme', theme); } catch(e){}
-}
-
-// ═══════════════════════════════════════════
-// WELCOME VOICE
-// ═══════════════════════════════════════════
-function playWelcomeVoice() {
-  if (!window.speechSynthesis) return;
-  var msg = new SpeechSynthesisUtterance(
-    'Welcome to Sky Blueprint — your all-in-one digital toolkit, built for South Africa.'
-  );
-  msg.rate = 0.92;
-  msg.pitch = 1.0;
-  msg.volume = 1;
-  // Pick a deep male voice if available
-  var voices = window.speechSynthesis.getVoices();
-  var male = voices.find(function(v){
-    return v.lang.indexOf('en') === 0 && /male|guy|david|mark|james|daniel/i.test(v.name);
-  }) || voices.find(function(v){ return v.lang.indexOf('en') === 0; });
-  if (male) msg.voice = male;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(msg);
+  if (typeof updateSettingsChecks === 'function') updateSettingsChecks();
 }
 
 // ═══════════════════════════════════════════
