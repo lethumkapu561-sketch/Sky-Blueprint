@@ -1629,6 +1629,44 @@ async function sendAI() {
 }
 
 // ── CV Builder ──
+// ── Multi-job work experience (works for one job or many) ──
+var _cvJobCounter = 0;
+
+function addJobEntry(job) {
+  job = job || {};
+  var id = _cvJobCounter++;
+  var container = document.getElementById('cv-jobs-container');
+  if (!container) return;
+  var div = document.createElement('div');
+  div.className = 'cv-job-entry';
+  div.setAttribute('data-job-id', id);
+  div.style.cssText = 'border:1px solid var(--border,rgba(255,255,255,0.1));border-radius:10px;padding:14px;margin-bottom:12px;position:relative';
+  div.innerHTML =
+    '<button type="button" onclick="removeJobEntry(' + id + ')" style="position:absolute;top:10px;right:10px;background:none;border:none;color:#f87171;cursor:pointer;font-size:13px;font-family:var(--font)">Remove</button>' +
+    '<div class="form-row"><div class="form-group"><label>Job Title</label><input type="text" class="cv-job-title" placeholder="Sales Assistant" value="' + (job.title || '') + '"></div>' +
+    '<div class="form-group"><label>Company</label><input type="text" class="cv-job-co" placeholder="Shoprite" value="' + (job.co || '') + '"></div></div>' +
+    '<div class="form-row"><div class="form-group"><label>Start</label><input type="text" class="cv-job-start" placeholder="Jan 2022" value="' + (job.start || '') + '"></div>' +
+    '<div class="form-group"><label>End</label><input type="text" class="cv-job-end" placeholder="Present" value="' + (job.end || '') + '"></div></div>';
+  container.appendChild(div);
+}
+
+function removeJobEntry(id) {
+  var el = document.querySelector('[data-job-id="' + id + '"]');
+  if (el) el.remove();
+}
+
+function collectJobEntries() {
+  var jobs = [];
+  document.querySelectorAll('.cv-job-entry').forEach(function(entry){
+    var title = entry.querySelector('.cv-job-title').value.trim();
+    var co = entry.querySelector('.cv-job-co').value.trim();
+    var start = entry.querySelector('.cv-job-start').value.trim();
+    var end = entry.querySelector('.cv-job-end').value.trim();
+    if (title || co) jobs.push({ title:title, co:co, start:start, end:end });
+  });
+  return jobs;
+}
+
 function renderCVBuilder(el) {
   el.innerHTML = `
   <div class="tool-screen">
@@ -1690,14 +1728,10 @@ function renderCVBuilder(el) {
       <div class="form-group"><label>Year Completed</label><input type="text" id="cv-year" placeholder="2022"></div>
 
       <div class="cv-sec-title">Work Experience</div>
-      <div class="form-row">
-        <div class="form-group"><label>Job Title</label><input type="text" id="cv-jt" placeholder="Sales Assistant"></div>
-        <div class="form-group"><label>Company</label><input type="text" id="cv-co" placeholder="Shoprite"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Start</label><input type="text" id="cv-sd" placeholder="Jan 2022"></div>
-        <div class="form-group"><label>End</label><input type="text" id="cv-ed" placeholder="Present"></div>
-      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Add as many jobs as you have. If this is your first job, that is completely fine — skip this section.</p>
+      <div id="cv-jobs-container"></div>
+      <button type="button" onclick="addJobEntry()" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:16px">+ Add a Job</button>
+
       <div class="form-group"><label>Years of Experience Total</label>
         <select id="cv-exp">
           <option value="0">No experience (Fresher)</option>
@@ -1714,6 +1748,28 @@ function renderCVBuilder(el) {
 
       <div class="cv-sec-title">Skills</div>
       <div class="form-group"><input type="text" id="cv-sk" placeholder="Microsoft Office, Customer Service, Driving Licence, Python..."></div>
+
+      <div class="cv-sec-title">More Sections <span style="font-size:11px;color:var(--muted);font-weight:400">(all optional — fill in whatever applies to you)</span></div>
+
+      <div class="form-group"><label>Certifications &amp; Licenses</label>
+        <p style="font-size:11px;color:#38bdf8;margin-bottom:6px">One per line. Anything from a trade certificate to a professional license — e.g. "Forklift Operator License", "Code 10 Drivers License", "HPCSA Registration"</p>
+        <textarea id="cv-certs" rows="3" placeholder="Forklift Operator License - 2022&#10;First Aid Level 1"></textarea>
+      </div>
+
+      <div class="form-group"><label>Languages</label>
+        <p style="font-size:11px;color:#38bdf8;margin-bottom:6px">Comma separated</p>
+        <input type="text" id="cv-langs" placeholder="isiZulu, English, Afrikaans">
+      </div>
+
+      <div class="form-group"><label>Awards &amp; Achievements</label>
+        <p style="font-size:11px;color:#38bdf8;margin-bottom:6px">One per line — school, work or community achievements</p>
+        <textarea id="cv-awards" rows="2" placeholder="Employee of the Month - March 2024"></textarea>
+      </div>
+
+      <div class="form-group"><label>Publications &amp; Research</label>
+        <p style="font-size:11px;color:#38bdf8;margin-bottom:6px">For academic or research roles — leave blank if not applicable</p>
+        <textarea id="cv-pubs" rows="2" placeholder="e.g. Nkosi, S. (2023). Title of paper. Journal Name."></textarea>
+      </div>
 
       <div class="cv-sec-title">Choose Your CV Design</div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Pick the style you want — all in the Sky Blueprint look. You can rebuild anytime to switch.</p>
@@ -1780,6 +1836,9 @@ function renderCVBuilder(el) {
       <div id="upload-result"></div>
     </div>
   </div>`;
+  _cvJobCounter = 0;
+  document.getElementById('cv-jobs-container').innerHTML = '';
+  addJobEntry(); // start with one job block ready to fill in
 }
 
 function cvTab2(t, el) {
@@ -1821,9 +1880,26 @@ function previewPhoto(input) {
   if (input.files && input.files[0]) {
     var reader = new FileReader();
     reader.onload = function(e) {
-      var preview = document.getElementById('cv-photo-preview');
-      preview.innerHTML = '<img src="'+e.target.result+'" style="width:72px;height:72px;border-radius:50%;object-fit:cover">';
-      window._cvPhoto = e.target.result;
+      var img = new Image();
+      img.onload = function() {
+        // Center-crop to a perfect square BEFORE storing it. Phone photos
+        // are almost never square (usually 3:4 or 4:3) — without this,
+        // forcing a rectangular photo into a circular CV frame stretches
+        // and distorts it. Cropping here fixes it everywhere at once.
+        var side = Math.min(img.width, img.height);
+        var sx = (img.width - side) / 2;
+        var sy = (img.height - side) / 2;
+        var canvas = document.createElement('canvas');
+        var outSize = 500; // sharp enough for print quality in the CV
+        canvas.width = outSize; canvas.height = outSize;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, outSize, outSize);
+        var squareDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        var preview = document.getElementById('cv-photo-preview');
+        preview.innerHTML = '<img src="'+squareDataUrl+'" style="width:72px;height:72px;border-radius:50%;object-fit:cover">';
+        window._cvPhoto = squareDataUrl;
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(input.files[0]);
   }
@@ -1872,14 +1948,17 @@ function buildAndMatchCV() {
   var ci   = (document.getElementById('cv-ci')   || {value:''}).value.trim();
   var qual = (document.getElementById('cv-qual-level') || {value:''}).value;
   var exp  = (document.getElementById('cv-exp')  || {value:'0'}).value;
-  var jt   = (document.getElementById('cv-jt')   || {value:''}).value.trim();
-  var co   = (document.getElementById('cv-co')   || {value:''}).value.trim();
-  var sd   = (document.getElementById('cv-sd')   || {value:''}).value.trim();
-  var ed   = (document.getElementById('cv-ed')   || {value:''}).value.trim();
+  var jobs = collectJobEntries();
+  var jt = jobs.length ? jobs[0].title : '', co = jobs.length ? jobs[0].co : '';
+  var sd = jobs.length ? jobs[0].start : '', ed = jobs.length ? jobs[0].end : '';
   var inst = (document.getElementById('cv-inst') || {value:''}).value.trim();
   var yr   = (document.getElementById('cv-year') || {value:''}).value.trim();
   var sk   = (document.getElementById('cv-sk')   || {value:''}).value.trim();
   var sum  = (document.getElementById('cv-sum')  || {value:''}).value.trim();
+  var certs = (document.getElementById('cv-certs') || {value:''}).value.trim();
+  var langs = (document.getElementById('cv-langs') || {value:''}).value.trim();
+  var awards = (document.getElementById('cv-awards') || {value:''}).value.trim();
+  var pubs = (document.getElementById('cv-pubs') || {value:''}).value.trim();
   var photo = window._cvPhoto || '';
 
   if (!fn || !qual) {
@@ -1979,7 +2058,7 @@ function buildAndMatchCV() {
     '</div>';
 
   // Store CV data for cover letter
-  window._cvData = { fn:fn, ln:ln, em:em, ph:ph, ci:ci, qual:qualLabel, jt:jt, co:co, sk:sk, sum:sum, exp:exp, photo:(window._cvPhoto||'') };
+  window._cvData = { fn:fn, ln:ln, em:em, ph:ph, ci:ci, qual:qualLabel, jt:jt, co:co, sk:sk, sum:sum, exp:exp, photo:(window._cvPhoto||''), jobs:jobs, certs:certs, langs:langs, awards:awards, pubs:pubs };
   attachCoverLetterHandler();
 
   // Now match jobs
@@ -2029,22 +2108,42 @@ function downloadCVWord() {
     'p{margin:0 0 8pt 0}' +
     '.skill{display:inline-block;margin:0 4pt 4pt 0}' +
     '</style></head><body>' +
+    (d.photo ? '<img src="' + d.photo + '" width="110" height="110" style="border-radius:50%;float:right;margin:0 0 10pt 14pt">' : '') +
     '<h1>' + esc(d.fn) + ' ' + esc(d.ln) + '</h1>' +
     (d.jt ? '<p class="role">' + esc(d.jt) + '</p>' : '') +
     '<p class="contact">' + esc(d.em) + ' &nbsp;|&nbsp; ' + esc(d.ph) + (d.ci ? ' &nbsp;|&nbsp; ' + esc(d.ci) : '') + '</p>';
 
   if (d.sum) html += '<h2>Professional Summary</h2><p>' + esc(d.sum) + '</p>';
-  if (d.qual) html += '<h2>Education & Qualifications</h2><p>' + esc(d.qual) + '</p>';
-  if (d.exp || d.co) {
+  if (d.qual) html += '<h2>Education &amp; Qualifications</h2><p>' + esc(d.qual) + '</p>';
+
+  var jobListW = (d.jobs && d.jobs.length) ? d.jobs : (d.jt || d.co ? [{title:d.jt, co:d.co, start:'', end:''}] : []);
+  if (jobListW.length) {
     html += '<h2>Work Experience</h2>';
-    if (d.co) html += '<p><b>' + esc(d.co) + '</b></p>';
-    if (d.exp) html += '<p>' + esc(String(d.exp)) + (String(d.exp).match(/year|month/i) ? '' : ' years') + ' experience</p>';
+    jobListW.forEach(function(job){
+      if (job.title) html += '<p style="margin-bottom:1pt"><b>' + esc(job.title) + '</b></p>';
+      if (job.co) html += '<p style="margin-bottom:8pt;color:#b45309">' + esc(job.co) + ((job.start || job.end) ? '  (' + esc([job.start, job.end].filter(Boolean).join(' - ')) + ')' : '') + '</p>';
+    });
+    if (d.exp) html += '<p>' + esc(String(d.exp)) + (String(d.exp).match(/year|month/i) ? '' : ' years') + ' total experience</p>';
   }
+
   if (d.sk) {
     html += '<h2>Skills</h2><p>';
     var skills = String(d.sk).split(/[,\n]/).filter(function(s){ return s.trim(); });
     html += skills.map(function(s){ return '&#8226; ' + esc(s.trim()); }).join('&nbsp;&nbsp;&nbsp;');
     html += '</p>';
+  }
+  if (d.certs) {
+    html += '<h2>Certifications &amp; Licenses</h2>';
+    String(d.certs).split('\n').filter(Boolean).forEach(function(c){ html += '<p style="margin-bottom:3pt">&#8226; ' + esc(c.trim()) + '</p>'; });
+  }
+  if (d.langs) html += '<h2>Languages</h2><p>' + esc(d.langs) + '</p>';
+  if (d.awards) {
+    html += '<h2>Awards &amp; Achievements</h2>';
+    String(d.awards).split('\n').filter(Boolean).forEach(function(a){ html += '<p style="margin-bottom:3pt">&#8226; ' + esc(a.trim()) + '</p>'; });
+  }
+  if (d.pubs) {
+    html += '<h2>Publications &amp; Research</h2>';
+    String(d.pubs).split('\n').filter(Boolean).forEach(function(p){ html += '<p style="margin-bottom:3pt;color:#475569;font-size:9.5pt">' + esc(p.trim()) + '</p>'; });
   }
   html += '</body></html>';
 
@@ -2075,6 +2174,7 @@ function downloadCVSingleCol(d, fmt, jsPDFLib) {
     doc.line(mx, y, PW - mx, y);
   }
   function heading(txt) {
+    if (y > PH - 30) { doc.addPage(); y = 20; }
     y += 7;
     doc.setTextColor(accent[0], accent[1], accent[2]);
     doc.setFont('helvetica', 'bold');
@@ -2156,16 +2256,34 @@ function downloadCVSingleCol(d, fmt, jsPDFLib) {
   // ---------- SECTIONS ----------
   if (d.sum) { heading('Professional Profile'); body(d.sum, 10, TEXT, 3); }
   if (d.qual) { heading('Education'); body(d.qual, 10, TEXT, 3); }
-  if (d.exp || d.co) {
-    heading('Work Experience');
-    if (d.co) { doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]); if(y>PH-18){doc.addPage();y=20;} doc.text(d.co, mx, y); y += 5; }
-    if (d.exp) body(String(d.exp) + (String(d.exp).match(/year|month/i)?'':' years') + ' experience', 10, TEXT, 3);
-  }
   if (d.sk) {
     heading('Skills');
     var skills = String(d.sk).split(/[,\n]/).map(function(s){return s.trim();}).filter(Boolean);
     body(skills.join('   ·   '), 10, TEXT, 3);
   }
+
+  // WORK EXPERIENCE — supports one job or many
+  var jobListSC = (d.jobs && d.jobs.length) ? d.jobs : (d.jt || d.co ? [{title:d.jt, co:d.co, start:'', end:''}] : []);
+  if (jobListSC.length) {
+    heading('Work Experience');
+    jobListSC.forEach(function(job){
+      if (y > PH - 22) { doc.addPage(); y = 20; }
+      if (job.title) { doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]); doc.text(job.title, mx, y); y += 5; }
+      if (job.co) {
+        doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(accent[0],accent[1],accent[2]);
+        var coLineSC = job.co + ((job.start || job.end) ? '  (' + [job.start, job.end].filter(Boolean).join(' – ') + ')' : '');
+        doc.text(coLineSC, mx, y); y += 6;
+      }
+    });
+    if (d.exp) body(String(d.exp) + (String(d.exp).match(/year|month/i)?'':' years') + ' total experience', 9.5, MUTE, 3);
+  }
+
+  // OPTIONAL SECTIONS — only shown if filled in
+  if (d.certs) { heading('Certifications & Licenses'); body(String(d.certs).split('\n').filter(Boolean).map(function(c){return '•  '+c.trim();}).join('\n'), 9.5, TEXT, 3); }
+  if (d.langs) { heading('Languages'); body(d.langs, 9.5, TEXT, 3); }
+  if (d.awards) { heading('Awards & Achievements'); body(String(d.awards).split('\n').filter(Boolean).map(function(a){return '•  '+a.trim();}).join('\n'), 9.5, TEXT, 3); }
+  if (d.pubs) { heading('Publications & Research'); body(String(d.pubs).split('\n').filter(Boolean).join('\n'), 9, MUTE, 3); }
+
   heading('References');
   body('Available on request', 10, MUTE, 0);
 
@@ -2316,8 +2434,19 @@ function downloadCVReal(jsPDFLib) {
 
   // ===== MAIN AREA (white) =====
   var mx = SIDE_W + 12, my = 26, mw = PAGE_W - mx - 12;
+  var mxFull = 15; // margin used on any overflow page (no sidebar there)
+
+  function checkPageBreak(neededHeight) {
+    if (my + neededHeight > PAGE_H - 15) {
+      doc.addPage();
+      my = 20;
+      mx = mxFull;
+      mw = PAGE_W - mxFull * 2;
+    }
+  }
 
   function mainHeading(label) {
+    checkPageBreak(14);
     doc.setTextColor(HEAD[0], HEAD[1], HEAD[2]);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
@@ -2328,14 +2457,15 @@ function downloadCVReal(jsPDFLib) {
     doc.line(mx, my, mx + mw, my);
     my += 7;
   }
-  function mainText(text, size, color) {
+  function mainText(text, size, color, gap) {
     var c = color || DARK_TEXT;
     doc.setTextColor(c[0], c[1], c[2]);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(size || 9.5);
     var lines = doc.splitTextToSize(text, mw);
+    checkPageBreak(lines.length * 4.6 + 2);
     doc.text(lines, mx, my);
-    my += lines.length * 4.6 + 2;
+    my += lines.length * 4.6 + (gap !== undefined ? gap : 2);
   }
 
   // PERSONAL PROFILE
@@ -2355,31 +2485,45 @@ function downloadCVReal(jsPDFLib) {
     my += 12;
   }
 
-  // WORK EXPERIENCE
-  mainHeading('Work Experience');
-  if (d.jt) {
-    doc.setTextColor(HEAD[0], HEAD[1], HEAD[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text(d.jt, mx, my);
-    my += 5;
-  }
-  if (d.co) {
-    doc.setTextColor(GOLD[0], GOLD[1], GOLD[2]);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.text(d.co, mx, my);
-    my += 5;
-  }
-  if (d.exp) {
-    mainText(d.exp + (String(d.exp).match(/year|month/i) ? '' : ' years') + ' experience', 8.5, MUTE);
+  // WORK EXPERIENCE — one or more jobs, oldest formatting kept for a single job
+  var jobList = (d.jobs && d.jobs.length) ? d.jobs : (d.jt || d.co ? [{title:d.jt, co:d.co, start:'', end:''}] : []);
+  if (jobList.length) {
+    mainHeading('Work Experience');
+    jobList.forEach(function(job){
+      checkPageBreak(11);
+      if (job.title) {
+        doc.setTextColor(HEAD[0], HEAD[1], HEAD[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(job.title, mx, my);
+        my += 5;
+      }
+      if (job.co) {
+        doc.setTextColor(GOLD[0], GOLD[1], GOLD[2]);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        var coLine = job.co + ((job.start || job.end) ? '  (' + [job.start, job.end].filter(Boolean).join(' – ') + ')' : '');
+        doc.text(coLine, mx, my);
+        my += 6;
+      }
+    });
+    if (d.exp) mainText(d.exp + (String(d.exp).match(/year|month/i) ? '' : ' years') + ' total experience', 8.5, MUTE);
   }
 
-  // Footer branding
+  // OPTIONAL SECTIONS — only appear if the person actually filled them in,
+  // so a basic CV stays clean and a fuller CV can go deeper.
+  if (d.certs) { mainHeading('Certifications & Licenses'); String(d.certs).split('\n').filter(Boolean).forEach(function(c){ mainText('• ' + c.trim(), 9, DARK_TEXT, 1.5); }); my += 3; }
+  if (d.langs) { mainHeading('Languages'); mainText(d.langs, 9, DARK_TEXT, 3); }
+  if (d.awards) { mainHeading('Awards & Achievements'); String(d.awards).split('\n').filter(Boolean).forEach(function(a){ mainText('• ' + a.trim(), 9, DARK_TEXT, 1.5); }); my += 3; }
+  if (d.pubs) { mainHeading('Publications & Research'); String(d.pubs).split('\n').filter(Boolean).forEach(function(p){ mainText(p.trim(), 8.5, MUTE, 2); }); }
+
+  // Footer branding — on whichever page ended up being last
   doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(7.5);
-  doc.text('Sky Blueprint — Your Digital Life, Unified', (SIDE_W + PAGE_W) / 2, PAGE_H - 10, { align: 'center' });
+  var isFirstPage = doc.internal.getNumberOfPages() === 1;
+  var footerX = isFirstPage ? (SIDE_W + PAGE_W) / 2 : PAGE_W / 2;
+  doc.text('Sky Blueprint — Your Digital Life, Unified', footerX, PAGE_H - 10, { align: 'center' });
 
   doc.save((window._cvName || 'My_CV') + '.pdf');
 }
