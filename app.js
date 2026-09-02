@@ -228,9 +228,10 @@ function doSignup() {
   if (pass.length < 6) { alert('Password must be at least 6 characters.'); return; }
 
   // Create the account on the SERVER (secure - plan is controlled server-side)
+  var refCode = safeStorage.getItem('sb_ref') || '';
   fetch(BACKEND_URL + '/api/auth/signup', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ fname, lname, email, phone, password: pass })
+    body: JSON.stringify({ fname, lname, email, phone, password: pass, refCode: refCode })
   })
   .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
   .then(function(res){
@@ -6273,11 +6274,26 @@ function setTheme(theme) {
 // ═══════════════════════════════════════════
 // REFERRAL / AFFILIATE
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// AFFILIATE PROGRAMME — real tracking + payouts
+// ═══════════════════════════════════════════
+
+// Capture ?ref=CODE the moment someone arrives, so it survives until signup
+(function captureRefCode(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var ref = params.get('ref');
+    if (ref) safeStorage.setItem('sb_ref', String(ref).trim().toUpperCase());
+  } catch(e) {}
+})();
+
 function openReferral() {
-  var user = window.currentUser;
-  var email = (user && user.email) ? user.email : null;
-  var code = email ? btoa(email).replace(/[^a-z0-9]/gi,'').substring(0,8).toUpperCase() : 'SKYREF';
-  var link = 'https://skyblueprint.company/?ref=' + code;
+  var token = safeStorage.getItem('sb_token');
+  if (!token) {
+    alert('Please log in or create a free account first — that is how we track your referrals and earnings.');
+    showPage('login');
+    return;
+  }
 
   var existing = document.getElementById('ref-modal');
   if (existing) existing.remove();
@@ -6286,35 +6302,121 @@ function openReferral() {
   modal.className = 'modal-overlay';
   modal.onclick = function(e){ if (e.target === modal) modal.remove(); };
   modal.innerHTML =
-    '<div style="background:var(--bg,#0f1629);border:1px solid var(--border,rgba(56,189,248,0.2));border-radius:20px;padding:0;max-width:420px;width:100%;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">' +
+    '<div style="background:var(--bg,#0f1629);border:1px solid var(--border,rgba(56,189,248,0.2));border-radius:20px;padding:0;max-width:460px;width:100%;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">' +
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:24px 24px 0">' +
-        '<div>' +
-          '<h3 style="color:var(--text,#fff);font-size:19px;margin-bottom:6px">Refer friends. Earn rewards.</h3>' +
-          '<p style="color:var(--muted,#94a3b8);font-size:13px;line-height:1.6;margin:0">Share your link and earn commission on each friend\'s first payment.</p>' +
-        '</div>' +
-        '<button onclick="document.getElementById(\'ref-modal\').remove()" style="background:none;border:none;color:var(--muted,#94a3b8);font-size:20px;cursor:pointer;line-height:1;padding:4px" aria-label="Close">✕</button>' +
+        '<div><h3 style="color:var(--text,#fff);font-size:19px;margin-bottom:6px">Refer friends. Earn real money.</h3>' +
+        '<p style="color:var(--muted,#94a3b8);font-size:13px;line-height:1.6;margin:0">Earn <strong style="color:#10b981">R25</strong> for every person who subscribes using your link.</p></div>' +
+        '<button onclick="document.getElementById(\'ref-modal\').remove()" style="background:none;border:none;color:var(--muted,#94a3b8);font-size:20px;cursor:pointer;padding:4px" aria-label="Close">&#10005;</button>' +
       '</div>' +
-      '<div style="padding:20px 24px">' +
-        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:12px 14px">' +
-          '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>' +
-          '<div><div style="font-size:11px;color:var(--muted,#94a3b8)">You earn</div><div style="font-weight:700;color:var(--text,#fff);font-size:14px">R25 per referral</div></div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:12px 14px">' +
-          '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>' +
-          '<div><div style="font-size:11px;color:var(--muted,#94a3b8)">Your friend gets</div><div style="font-weight:700;color:var(--text,#fff);font-size:14px">20% off their first month</div></div>' +
-        '</div>' +
-        '<div style="font-size:12px;font-weight:700;color:var(--muted,#94a3b8);margin-bottom:8px">Your referral link</div>' +
-        '<div style="display:flex;gap:8px;margin-bottom:16px">' +
-          '<input id="ref-link-input" readonly value="' + link + '" style="flex:1;min-width:0;background:rgba(255,255,255,0.05);border:1px solid var(--border,rgba(255,255,255,0.12));border-radius:10px;padding:11px 12px;color:var(--text,#fff);font-size:12px;font-family:var(--font)">' +
-        '</div>' +
-        '<button onclick="copyReferralLink(\'' + link + '\')" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:8px">' +
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
-          'Copy referral link' +
-        '</button>' +
-        '<p style="text-align:center;margin-top:14px"><a href="#" onclick="alert(\'Contact us on WhatsApp 065 601 3544 to track your referrals and get paid.\');return false" style="color:#8b5cf6;font-size:13px;font-weight:600;text-decoration:none">Track your referrals →</a></p>' +
-      '</div>' +
+      '<div id="ref-body" style="padding:20px 24px"><p style="color:var(--muted);font-size:13px;text-align:center;padding:20px">Loading your affiliate dashboard...</p></div>' +
     '</div>';
   document.body.appendChild(modal);
+
+  fetch(BACKEND_URL + '/api/affiliate/stats', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ token: token })
+  })
+  .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+  .then(function(res){
+    if (!res.ok) { document.getElementById('ref-body').innerHTML = '<p style="color:#f87171;font-size:13px;text-align:center;padding:20px">' + (res.d.error || 'Could not load your dashboard.') + '</p>'; return; }
+    renderAffiliateDashboard(res.d);
+  })
+  .catch(function(){
+    document.getElementById('ref-body').innerHTML = '<p style="color:#f87171;font-size:13px;text-align:center;padding:20px">Could not connect. Please check your internet and try again.</p>';
+  });
+}
+
+function renderAffiliateDashboard(d) {
+  var body = document.getElementById('ref-body');
+  if (!body) return;
+  var p = d.payout || {};
+  body.innerHTML =
+    // Stats row
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">' +
+      '<div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:12px 8px;text-align:center">' +
+        '<div style="font-size:20px;font-weight:800;color:#38bdf8">' + d.signups + '</div>' +
+        '<div style="font-size:10px;color:var(--muted)">Signups</div></div>' +
+      '<div style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px 8px;text-align:center">' +
+        '<div style="font-size:20px;font-weight:800;color:#10b981">' + d.paidReferrals + '</div>' +
+        '<div style="font-size:10px;color:var(--muted)">Subscribed</div></div>' +
+      '<div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 8px;text-align:center">' +
+        '<div style="font-size:20px;font-weight:800;color:#f59e0b">R' + d.balance + '</div>' +
+        '<div style="font-size:10px;color:var(--muted)">Available</div></div>' +
+    '</div>' +
+
+    // Referral link
+    '<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">YOUR REFERRAL LINK</div>' +
+    '<input id="ref-link-input" readonly value="' + d.refLink + '" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid var(--border,rgba(255,255,255,0.12));border-radius:10px;padding:11px 12px;color:var(--text,#fff);font-size:12px;font-family:var(--font);margin-bottom:10px">' +
+    '<button onclick="copyReferralLink(\'' + d.refLink + '\')" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:20px">Copy referral link</button>' +
+
+    // Payout details
+    '<div style="border-top:1px solid var(--border,rgba(255,255,255,0.08));padding-top:18px">' +
+    '<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">HOW YOU GET PAID</div>' +
+    '<div class="form-group"><label style="font-size:12px">Payout method</label>' +
+      '<select id="ref-method" style="width:100%;box-sizing:border-box">' +
+        '<option value="skrill"' + (p.method==='skrill'?' selected':'') + '>Skrill</option>' +
+        '<option value="bank"' + (p.method==='bank'?' selected':'') + '>South African bank account</option>' +
+        '<option value="paypal"' + (p.method==='paypal'?' selected':'') + '>PayPal</option>' +
+      '</select></div>' +
+    '<div class="form-group"><label style="font-size:12px" id="ref-account-label">Skrill email address</label>' +
+      '<input type="text" id="ref-account" placeholder="your@email.com" value="' + (p.account || '') + '"></div>' +
+    '<div class="form-group"><label style="font-size:12px">Account holder name</label>' +
+      '<input type="text" id="ref-account-name" placeholder="Your full name" value="' + (p.accountName || '') + '"></div>' +
+    '<button onclick="saveAffiliatePayout()" style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.35);color:#38bdf8;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px">Save payout details</button>' +
+    '<button onclick="requestAffiliatePayout()" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Request payout (R' + d.balance + ')</button>' +
+    '<p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6">Minimum payout R100. Paid within 5 working days of your request.</p>' +
+    '</div>' +
+    '<div id="ref-msg" style="margin-top:12px"></div>';
+
+  // Update the account label to match the chosen method
+  var sel = document.getElementById('ref-method');
+  var lbl = document.getElementById('ref-account-label');
+  var inp = document.getElementById('ref-account');
+  function syncLabel(){
+    if (sel.value === 'skrill') { lbl.textContent = 'Skrill email address'; inp.placeholder = 'your@email.com'; }
+    else if (sel.value === 'paypal') { lbl.textContent = 'PayPal email address'; inp.placeholder = 'your@email.com'; }
+    else { lbl.textContent = 'Bank account number'; inp.placeholder = 'e.g. 1234567890 (Capitec, FNB, etc.)'; }
+  }
+  sel.onchange = syncLabel;
+  syncLabel();
+}
+
+function saveAffiliatePayout() {
+  var token = safeStorage.getItem('sb_token');
+  var method = document.getElementById('ref-method').value;
+  var account = document.getElementById('ref-account').value.trim();
+  var accountName = document.getElementById('ref-account-name').value.trim();
+  var msg = document.getElementById('ref-msg');
+  if (!account) { msg.innerHTML = '<p style="color:#f87171;font-size:12px;text-align:center">Please enter your account details.</p>'; return; }
+
+  fetch(BACKEND_URL + '/api/affiliate/payout-details', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ token: token, method: method, account: account, accountName: accountName })
+  })
+  .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+  .then(function(res){
+    msg.innerHTML = res.ok
+      ? '<p style="color:#10b981;font-size:12px;text-align:center">Payout details saved.</p>'
+      : '<p style="color:#f87171;font-size:12px;text-align:center">' + (res.d.error || 'Could not save.') + '</p>';
+  })
+  .catch(function(){ msg.innerHTML = '<p style="color:#f87171;font-size:12px;text-align:center">Could not connect. Try again.</p>'; });
+}
+
+function requestAffiliatePayout() {
+  var token = safeStorage.getItem('sb_token');
+  var msg = document.getElementById('ref-msg');
+  msg.innerHTML = '<p style="color:var(--muted);font-size:12px;text-align:center">Sending request...</p>';
+  fetch(BACKEND_URL + '/api/affiliate/request-payout', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ token: token })
+  })
+  .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+  .then(function(res){
+    msg.innerHTML = res.ok
+      ? '<p style="color:#10b981;font-size:12px;text-align:center">' + res.d.message + '</p>'
+      : '<p style="color:#f87171;font-size:12px;text-align:center">' + (res.d.error || 'Could not request payout.') + '</p>';
+  })
+  .catch(function(){ msg.innerHTML = '<p style="color:#f87171;font-size:12px;text-align:center">Could not connect. Try again.</p>'; });
 }
 
 function copyReferralLink(link) {
