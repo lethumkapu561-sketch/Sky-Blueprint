@@ -4152,15 +4152,130 @@ function renderPDFTools(el) {
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Convert your files to PDF instantly — right in your browser.</p>' +
     '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Fast, private and secure. Your files never leave your device.</p>' +
 
-    '<div class="tab-bar">' +
-    '<div class="tab active" onclick="pdfTab(\'csv\',this)">CSV / Excel to PDF</div>' +
+    '<div class="tab-bar" style="flex-wrap:wrap">' +
+    '<div class="tab active" onclick="pdfTab(\'merge\',this)">Merge PDF</div>' +
+    '<div class="tab" onclick="pdfTab(\'split\',this)">Split PDF</div>' +
+    '<div class="tab" onclick="pdfTab(\'rotate\',this)">Rotate PDF</div>' +
+    '<div class="tab" onclick="pdfTab(\'remove\',this)">Delete Pages</div>' +
+    '<div class="tab" onclick="pdfTab(\'numbers\',this)">Page Numbers</div>' +
+    '<div class="tab" onclick="pdfTab(\'watermark\',this)">Watermark</div>' +
+    '<div class="tab" onclick="pdfTab(\'topics\',this)">PDF to Images</div>' +
+    '<div class="tab" onclick="pdfTab(\'csv\',this)">CSV / Excel to PDF</div>' +
     '<div class="tab" onclick="pdfTab(\'image\',this)">Images to PDF</div>' +
     '<div class="tab" onclick="pdfTab(\'text\',this)">Text to PDF</div>' +
     '<div class="tab" onclick="pdfTab(\'book\',this)">eBook Manuscript</div>' +
     '</div>' +
 
+    // MERGE PDF
+    '<div id="pdf-merge">' +
+    '<div class="cv-sec-title">Merge PDF Files</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Combine two or more PDFs into one file, in the order you choose.</p>' +
+    '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
+    '<input type="file" id="merge-files" accept=".pdf" multiple onchange="handleMergeFiles(this)" style="display:none">' +
+    '<button class="btn-primary" onclick="document.getElementById(\'merge-files\').click()">Choose PDF Files</button>' +
+    '<p id="merge-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '</div>' +
+    '<div id="merge-result"></div>' +
+    '</div>' +
+
+    // SPLIT PDF
+    '<div id="pdf-split" style="display:none">' +
+    '<div class="cv-sec-title">Split PDF</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Pull out specific pages into a new PDF.</p>' +
+    '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
+    '<input type="file" id="split-file" accept=".pdf" onchange="handleSplitFile(this)" style="display:none">' +
+    '<button class="btn-primary" onclick="document.getElementById(\'split-file\').click()">Choose PDF File</button>' +
+    '<p id="split-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '</div>' +
+    '<div class="form-group"><label>Pages to keep</label>' +
+    '<p style="font-size:11px;color:#38bdf8;margin-bottom:6px">Examples: 1-3 (a range), or 1,3,5 (specific pages), or 2-4,7</p>' +
+    '<input type="text" id="split-range" placeholder="e.g. 1-3"></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="doSplitPDF()">Split PDF</button>' +
+    '<div id="split-result" style="margin-top:12px"></div>' +
+    '</div>' +
+
+    // ROTATE PDF
+    '<div id="pdf-rotate" style="display:none">' +
+    '<div class="cv-sec-title">Rotate PDF</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Turn all pages in your PDF — useful for sideways scans.</p>' +
+    '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
+    '<input type="file" id="rotate-file" accept=".pdf" onchange="handleRotateFile(this)" style="display:none">' +
+    '<button class="btn-primary" onclick="document.getElementById(\'rotate-file\').click()">Choose PDF File</button>' +
+    '<p id="rotate-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '</div>' +
+    '<div class="form-group"><label>Rotation</label>' +
+    '<select id="rotate-angle" style="width:100%;box-sizing:border-box">' +
+    '<option value="90">90° clockwise</option>' +
+    '<option value="180">180° (upside down)</option>' +
+    '<option value="270">90° anti-clockwise</option>' +
+    '</select></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="doRotatePDF()">Rotate PDF</button>' +
+    '<div id="rotate-result" style="margin-top:12px"></div>' +
+    '</div>' +
+
+    // DELETE PAGES
+    '<div id="pdf-remove" style="display:none">' +
+    '<div class="cv-sec-title">Delete Pages from PDF</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Remove pages you do not want and keep the rest.</p>' +
+    '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
+    '<input type="file" id="remove-file" accept=".pdf" onchange="handleRemoveFile(this)" style="display:none">' +
+    '<button class="btn-primary" onclick="document.getElementById(\'remove-file\').click()">Choose PDF File</button>' +
+    '<p id="remove-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '</div>' +
+    '<div class="form-group"><label>Pages to delete</label>' +
+    '<p style="font-size:11px;color:#38bdf8;margin-bottom:6px">Examples: 2 (one page), or 2,5,9, or 3-6</p>' +
+    '<input type="text" id="remove-range" placeholder="e.g. 2,5"></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="doRemovePages()">Delete Pages</button>' +
+    '<div id="remove-result" style="margin-top:12px"></div>' +
+    '</div>' +
+
+    // PAGE NUMBERS
+    '<div id="pdf-numbers" style="display:none">' +
+    '<div class="cv-sec-title">Add Page Numbers</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Add clean page numbers to the bottom of every page.</p>' +
+    '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
+    '<input type="file" id="numbers-file" accept=".pdf" onchange="handleNumbersFile(this)" style="display:none">' +
+    '<button class="btn-primary" onclick="document.getElementById(\'numbers-file\').click()">Choose PDF File</button>' +
+    '<p id="numbers-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '</div>' +
+    '<div class="form-group"><label>Position</label>' +
+    '<select id="numbers-pos" style="width:100%;box-sizing:border-box">' +
+    '<option value="center">Bottom centre</option>' +
+    '<option value="right">Bottom right</option>' +
+    '<option value="left">Bottom left</option>' +
+    '</select></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="doAddPageNumbers()">Add Page Numbers</button>' +
+    '<div id="numbers-result" style="margin-top:12px"></div>' +
+    '</div>' +
+
+    // WATERMARK
+    '<div id="pdf-watermark" style="display:none">' +
+    '<div class="cv-sec-title">Add Watermark</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Stamp text across every page — e.g. DRAFT, CONFIDENTIAL, or your business name.</p>' +
+    '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
+    '<input type="file" id="watermark-file" accept=".pdf" onchange="handleWatermarkFile(this)" style="display:none">' +
+    '<button class="btn-primary" onclick="document.getElementById(\'watermark-file\').click()">Choose PDF File</button>' +
+    '<p id="watermark-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '</div>' +
+    '<div class="form-group"><label>Watermark text</label><input type="text" id="watermark-text" placeholder="e.g. CONFIDENTIAL"></div>' +
+    '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="doAddWatermark()">Add Watermark</button>' +
+    '<div id="watermark-result" style="margin-top:12px"></div>' +
+    '</div>' +
+
+    // PDF TO IMAGES
+    '<div id="pdf-topics" style="display:none">' +
+    '<div class="cv-sec-title">PDF to Images</div>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Turn each page of your PDF into a PNG image you can download.</p>' +
+    '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
+    '<input type="file" id="topics-file" accept=".pdf" onchange="handlePdfToImages(this)" style="display:none">' +
+    '<button class="btn-primary" onclick="document.getElementById(\'topics-file\').click()">Choose PDF File</button>' +
+    '<p id="topics-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '</div>' +
+    '<div id="topics-result"></div>' +
+    '</div>' +
+
     // CSV/Excel to PDF
-    '<div id="pdf-csv">' +
+    '<div id="pdf-csv" style="display:none">' +
     '<div class="cv-sec-title">Convert CSV or Excel to PDF</div>' +
     '<p style="font-size:13px;color:var(--muted);margin-bottom:14px">Upload a .csv or .xlsx file and we turn it into a clean, printable PDF table.</p>' +
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
@@ -4349,10 +4464,288 @@ function formatManuscript() {
     '</div>';
 }
 
+// ═══════════════════════════════════════════
+// PDF EDITING TOOLS (powered by pdf-lib)
+// ═══════════════════════════════════════════
+
+function _pdfLib() {
+  return (window.PDFLib && window.PDFLib.PDFDocument) ? window.PDFLib : null;
+}
+function _pdfErr(elId, msg) {
+  var el = document.getElementById(elId);
+  if (el) el.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:14px;text-align:center"><p style="color:#f87171;font-size:13px;margin:0">' + msg + '</p></div>';
+}
+function _pdfBusy(elId, msg) {
+  var el = document.getElementById(elId);
+  if (el) el.innerHTML = '<div style="text-align:center;padding:18px"><div style="display:inline-block;width:26px;height:26px;border:3px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px"></div><p style="color:var(--muted);font-size:13px;margin:0">' + (msg || 'Working...') + '</p></div>';
+}
+function _pdfDone(elId, bytes, filename, note) {
+  var blob = new Blob([bytes], { type: 'application/pdf' });
+  var url = URL.createObjectURL(blob);
+  var el = document.getElementById(elId);
+  if (el) el.innerHTML =
+    '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:18px;text-align:center">' +
+    '<p style="color:#10b981;font-weight:700;font-size:15px;margin-bottom:6px">Done!</p>' +
+    (note ? '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">' + note + '</p>' : '') +
+    '<a href="' + url + '" download="' + filename + '" class="btn-primary" style="text-decoration:none;display:inline-block">Download PDF</a>' +
+    '</div>';
+}
+
+// Parse "1-3,5" into a zero-based page index array
+function _parsePages(str, maxPages) {
+  // Returns a clean, plain array of zero-based page indices.
+  var out = [];
+  String(str || '').split(',').forEach(function(part){
+    part = part.trim();
+    if (!part) return;
+    if (part.indexOf('-') > -1) {
+      var bits = part.split('-');
+      var a = parseInt(bits[0], 10), b = parseInt(bits[1], 10);
+      if (isNaN(a) || isNaN(b)) return;
+      for (var i = a; i <= b; i++) { if (i >= 1 && i <= maxPages && out.indexOf(i-1) === -1) out.push(i-1); }
+    } else {
+      var n = parseInt(part, 10);
+      if (!isNaN(n) && n >= 1 && n <= maxPages && out.indexOf(n-1) === -1) out.push(n-1);
+    }
+  });
+  return out;
+}
+
+// ---- MERGE ----
+var _mergeFiles = [];
+function handleMergeFiles(input) {
+  _mergeFiles = Array.from(input.files || []);
+  document.getElementById('merge-filename').textContent = _mergeFiles.length ? _mergeFiles.length + ' file(s) selected' : '';
+  if (_mergeFiles.length >= 2) {
+    document.getElementById('merge-result').innerHTML =
+      '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="doMergePDF()">Merge ' + _mergeFiles.length + ' PDFs</button>';
+  } else if (_mergeFiles.length === 1) {
+    _pdfErr('merge-result', 'Please choose at least 2 PDF files to merge.');
+  }
+}
+async function doMergePDF() {
+  if (!requirePaidAction('merge PDFs')) return;
+  var lib = _pdfLib();
+  if (!lib) return _pdfErr('merge-result', 'PDF engine is still loading. Please wait a moment and try again.');
+  if (_mergeFiles.length < 2) return _pdfErr('merge-result', 'Please choose at least 2 PDF files.');
+  _pdfBusy('merge-result', 'Merging your PDFs...');
+  try {
+    var merged = await lib.PDFDocument.create();
+    for (var i = 0; i < _mergeFiles.length; i++) {
+      var buf = await _mergeFiles[i].arrayBuffer();
+      var src = await lib.PDFDocument.load(buf, { ignoreEncryption: true });
+      var pages = await merged.copyPages(src, Array.prototype.slice.call(src.getPageIndices()).map(Number));
+      pages.forEach(function(p){ merged.addPage(p); });
+    }
+    var bytes = await merged.save();
+    _pdfDone('merge-result', bytes, 'merged.pdf', _mergeFiles.length + ' files combined into one');
+  } catch (e) {
+    _pdfErr('merge-result', 'Could not merge these files. One may be password-protected or damaged.');
+  }
+}
+
+// ---- SPLIT ----
+var _splitFile = null;
+function handleSplitFile(input) {
+  _splitFile = input.files[0] || null;
+  document.getElementById('split-filename').textContent = _splitFile ? _splitFile.name : '';
+}
+async function doSplitPDF() {
+  if (!requirePaidAction('split a PDF')) return;
+  var lib = _pdfLib();
+  if (!lib) return _pdfErr('split-result', 'PDF engine is still loading. Please wait a moment and try again.');
+  if (!_splitFile) return _pdfErr('split-result', 'Please choose a PDF file first.');
+  var range = document.getElementById('split-range').value.trim();
+  if (!range) return _pdfErr('split-result', 'Please enter which pages to keep, e.g. 1-3');
+  _pdfBusy('split-result', 'Splitting your PDF...');
+  try {
+    var buf = await _splitFile.arrayBuffer();
+    var src = await lib.PDFDocument.load(buf, { ignoreEncryption: true });
+    var total = src.getPageCount();
+    var wanted = _parsePages(range, total);
+    if (!wanted.length) return _pdfErr('split-result', 'No valid pages found. This PDF has ' + total + ' page(s). Try something like 1-' + total + '.');
+    var out = await lib.PDFDocument.create();
+    var copied = await out.copyPages(src, Array.prototype.slice.call(wanted).map(Number));
+    copied.forEach(function(p){ out.addPage(p); });
+    var bytes = await out.save();
+    _pdfDone('split-result', bytes, 'split.pdf', wanted.length + ' page(s) extracted from ' + total);
+  } catch (e) {
+    _pdfErr('split-result', 'Could not split this file. It may be password-protected or damaged.');
+  }
+}
+
+// ---- ROTATE ----
+var _rotateFile = null;
+function handleRotateFile(input) {
+  _rotateFile = input.files[0] || null;
+  document.getElementById('rotate-filename').textContent = _rotateFile ? _rotateFile.name : '';
+}
+async function doRotatePDF() {
+  if (!requirePaidAction('rotate a PDF')) return;
+  var lib = _pdfLib();
+  if (!lib) return _pdfErr('rotate-result', 'PDF engine is still loading. Please wait a moment and try again.');
+  if (!_rotateFile) return _pdfErr('rotate-result', 'Please choose a PDF file first.');
+  var angle = parseInt(document.getElementById('rotate-angle').value, 10) || 90;
+  _pdfBusy('rotate-result', 'Rotating your PDF...');
+  try {
+    var buf = await _rotateFile.arrayBuffer();
+    var doc = await lib.PDFDocument.load(buf, { ignoreEncryption: true });
+    doc.getPages().forEach(function(page){
+      var current = page.getRotation().angle || 0;
+      page.setRotation(lib.degrees((current + angle) % 360));
+    });
+    var bytes = await doc.save();
+    _pdfDone('rotate-result', bytes, 'rotated.pdf', 'All pages rotated ' + angle + '°');
+  } catch (e) {
+    _pdfErr('rotate-result', 'Could not rotate this file. It may be password-protected or damaged.');
+  }
+}
+
+// ---- DELETE PAGES ----
+var _removeFile = null;
+function handleRemoveFile(input) {
+  _removeFile = input.files[0] || null;
+  document.getElementById('remove-filename').textContent = _removeFile ? _removeFile.name : '';
+}
+async function doRemovePages() {
+  if (!requirePaidAction('delete PDF pages')) return;
+  var lib = _pdfLib();
+  if (!lib) return _pdfErr('remove-result', 'PDF engine is still loading. Please wait a moment and try again.');
+  if (!_removeFile) return _pdfErr('remove-result', 'Please choose a PDF file first.');
+  var range = document.getElementById('remove-range').value.trim();
+  if (!range) return _pdfErr('remove-result', 'Please enter which pages to delete, e.g. 2,5');
+  _pdfBusy('remove-result', 'Removing pages...');
+  try {
+    var buf = await _removeFile.arrayBuffer();
+    var src = await lib.PDFDocument.load(buf, { ignoreEncryption: true });
+    var total = src.getPageCount();
+    var toRemove = _parsePages(range, total);
+    if (!toRemove.length) return _pdfErr('remove-result', 'No valid pages found. This PDF has ' + total + ' page(s).');
+    var keep = [];
+    for (var i = 0; i < total; i++) { if (toRemove.indexOf(i) === -1) keep.push(i); }
+    if (!keep.length) return _pdfErr('remove-result', 'You cannot delete every page — at least one must remain.');
+    var out = await lib.PDFDocument.create();
+    var copied = await out.copyPages(src, Array.prototype.slice.call(keep).map(Number));
+    copied.forEach(function(p){ out.addPage(p); });
+    var bytes = await out.save();
+    _pdfDone('remove-result', bytes, 'edited.pdf', toRemove.length + ' page(s) removed, ' + keep.length + ' kept');
+  } catch (e) {
+    _pdfErr('remove-result', 'Could not edit this file. It may be password-protected or damaged.');
+  }
+}
+
+// ---- PAGE NUMBERS ----
+var _numbersFile = null;
+function handleNumbersFile(input) {
+  _numbersFile = input.files[0] || null;
+  document.getElementById('numbers-filename').textContent = _numbersFile ? _numbersFile.name : '';
+}
+async function doAddPageNumbers() {
+  if (!requirePaidAction('add page numbers')) return;
+  var lib = _pdfLib();
+  if (!lib) return _pdfErr('numbers-result', 'PDF engine is still loading. Please wait a moment and try again.');
+  if (!_numbersFile) return _pdfErr('numbers-result', 'Please choose a PDF file first.');
+  var pos = document.getElementById('numbers-pos').value;
+  _pdfBusy('numbers-result', 'Adding page numbers...');
+  try {
+    var buf = await _numbersFile.arrayBuffer();
+    var doc = await lib.PDFDocument.load(buf, { ignoreEncryption: true });
+    var font = await doc.embedFont(lib.StandardFonts.Helvetica);
+    var pages = doc.getPages();
+    pages.forEach(function(page, i){
+      var label = String(i + 1);
+      var size = 10;
+      var w = page.getWidth();
+      var textW = font.widthOfTextAtSize(label, size);
+      var x = (pos === 'left') ? 40 : (pos === 'right') ? (w - 40 - textW) : (w / 2 - textW / 2);
+      page.drawText(label, { x: x, y: 25, size: size, font: font, color: lib.rgb(0.35, 0.35, 0.35) });
+    });
+    var bytes = await doc.save();
+    _pdfDone('numbers-result', bytes, 'numbered.pdf', pages.length + ' page(s) numbered');
+  } catch (e) {
+    _pdfErr('numbers-result', 'Could not add page numbers. The file may be password-protected or damaged.');
+  }
+}
+
+// ---- WATERMARK ----
+var _watermarkFile = null;
+function handleWatermarkFile(input) {
+  _watermarkFile = input.files[0] || null;
+  document.getElementById('watermark-filename').textContent = _watermarkFile ? _watermarkFile.name : '';
+}
+async function doAddWatermark() {
+  if (!requirePaidAction('add a watermark')) return;
+  var lib = _pdfLib();
+  if (!lib) return _pdfErr('watermark-result', 'PDF engine is still loading. Please wait a moment and try again.');
+  if (!_watermarkFile) return _pdfErr('watermark-result', 'Please choose a PDF file first.');
+  var text = document.getElementById('watermark-text').value.trim();
+  if (!text) return _pdfErr('watermark-result', 'Please type the watermark text.');
+  _pdfBusy('watermark-result', 'Adding watermark...');
+  try {
+    var buf = await _watermarkFile.arrayBuffer();
+    var doc = await lib.PDFDocument.load(buf, { ignoreEncryption: true });
+    var font = await doc.embedFont(lib.StandardFonts.HelveticaBold);
+    var pages = doc.getPages();
+    pages.forEach(function(page){
+      var w = page.getWidth(), h = page.getHeight();
+      var size = Math.min(60, Math.max(24, w / (text.length * 0.6)));
+      var textW = font.widthOfTextAtSize(text, size);
+      page.drawText(text, {
+        x: w / 2 - textW / 2,
+        y: h / 2,
+        size: size,
+        font: font,
+        color: lib.rgb(0.6, 0.6, 0.6),
+        opacity: 0.3,
+        rotate: lib.degrees(45)
+      });
+    });
+    var bytes = await doc.save();
+    _pdfDone('watermark-result', bytes, 'watermarked.pdf', 'Watermark added to ' + pages.length + ' page(s)');
+  } catch (e) {
+    _pdfErr('watermark-result', 'Could not add a watermark. The file may be password-protected or damaged.');
+  }
+}
+
+// ---- PDF TO IMAGES ----
+async function handlePdfToImages(input) {
+  if (!requirePaidAction('convert PDF to images')) return;
+  var file = input.files[0];
+  if (!file) return;
+  document.getElementById('topics-filename').textContent = file.name;
+  if (typeof pdfjsLib === 'undefined' && !window.pdfjsLib) {
+    return _pdfErr('topics-result', 'PDF reader is still loading. Please wait a moment and try again.');
+  }
+  var pdfjs = window.pdfjsLib || pdfjsLib;
+  try { pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch(e){}
+  _pdfBusy('topics-result', 'Converting pages to images...');
+  try {
+    var buf = await file.arrayBuffer();
+    var pdf = await pdfjs.getDocument({ data: buf }).promise;
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">';
+    for (var i = 1; i <= pdf.numPages; i++) {
+      var page = await pdf.getPage(i);
+      var viewport = page.getViewport({ scale: 1.5 });
+      var canvas = document.createElement('canvas');
+      canvas.width = viewport.width; canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
+      var dataUrl = canvas.toDataURL('image/png');
+      html += '<div style="text-align:center">' +
+        '<img src="' + dataUrl + '" style="width:100%;border:1px solid var(--border,rgba(255,255,255,0.1));border-radius:8px;margin-bottom:6px">' +
+        '<a href="' + dataUrl + '" download="page-' + i + '.png" style="font-size:12px;color:#38bdf8;text-decoration:none;font-weight:600">Download page ' + i + '</a>' +
+        '</div>';
+    }
+    html += '</div>';
+    document.getElementById('topics-result').innerHTML = html;
+  } catch (e) {
+    _pdfErr('topics-result', 'Could not read this PDF. It may be password-protected or damaged.');
+  }
+}
+
 function pdfTab(t, el) {
   document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
   el.classList.add('active');
-  ['csv','image','text','book'].forEach(function(id){
+  ['merge','split','rotate','remove','numbers','watermark','topics','csv','image','text','book'].forEach(function(id){
     var e = document.getElementById('pdf-' + id);
     if (e) e.style.display = id===t?'block':'none';
   });
