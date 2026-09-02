@@ -6332,17 +6332,21 @@ function renderAffiliateDashboard(d) {
   var p = d.payout || {};
   body.innerHTML =
     // Stats row
-    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">' +
-      '<div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:12px 8px;text-align:center">' +
-        '<div style="font-size:20px;font-weight:800;color:#38bdf8">' + d.signups + '</div>' +
-        '<div style="font-size:10px;color:var(--muted)">Signups</div></div>' +
-      '<div style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px 8px;text-align:center">' +
-        '<div style="font-size:20px;font-weight:800;color:#10b981">' + d.paidReferrals + '</div>' +
-        '<div style="font-size:10px;color:var(--muted)">Subscribed</div></div>' +
-      '<div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 8px;text-align:center">' +
-        '<div style="font-size:20px;font-weight:800;color:#f59e0b">R' + d.balance + '</div>' +
-        '<div style="font-size:10px;color:var(--muted)">Available</div></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">' +
+      '<div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:12px 6px;text-align:center">' +
+        '<div style="font-size:18px;font-weight:800;color:#38bdf8">' + d.signups + '</div>' +
+        '<div style="font-size:9px;color:var(--muted)">Signups</div></div>' +
+      '<div style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px 6px;text-align:center">' +
+        '<div style="font-size:18px;font-weight:800;color:#10b981">' + d.paidReferrals + '</div>' +
+        '<div style="font-size:9px;color:var(--muted)">Subscribed</div></div>' +
+      '<div style="background:rgba(148,163,184,0.07);border:1px solid rgba(148,163,184,0.2);border-radius:10px;padding:12px 6px;text-align:center">' +
+        '<div style="font-size:18px;font-weight:800;color:#94a3b8">R' + (d.pending || 0) + '</div>' +
+        '<div style="font-size:9px;color:var(--muted)">Pending</div></div>' +
+      '<div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 6px;text-align:center">' +
+        '<div style="font-size:18px;font-weight:800;color:#f59e0b">R' + d.balance + '</div>' +
+        '<div style="font-size:9px;color:var(--muted)">Available</div></div>' +
     '</div>' +
+    ((d.pending > 0) ? '<p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:18px;line-height:1.5">Commissions clear 30 days after your referral pays, then become available to withdraw.</p>' : '<div style="margin-bottom:18px"></div>') +
 
     // Referral link
     '<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">YOUR REFERRAL LINK</div>' +
@@ -6364,7 +6368,7 @@ function renderAffiliateDashboard(d) {
       '<input type="text" id="ref-account-name" placeholder="Your full name" value="' + (p.accountName || '') + '"></div>' +
     '<button onclick="saveAffiliatePayout()" style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.35);color:#38bdf8;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px">Save payout details</button>' +
     '<button onclick="requestAffiliatePayout()" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Request payout (R' + d.balance + ')</button>' +
-    '<p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6">Minimum payout R100. Paid within 5 working days of your request.</p>' +
+    '<p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6">Minimum payout R200. Paid within 5 working days of your request.<br><strong style="color:#f59e0b">Note:</strong> PayPal charges its own fees and converts to US Dollars, so you receive roughly 10% less. Choose <strong>bank transfer</strong> to get the full amount in Rands.</p>' +
     '</div>' +
     '<div id="ref-msg" style="margin-top:12px"></div>';
 
