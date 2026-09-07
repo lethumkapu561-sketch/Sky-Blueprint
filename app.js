@@ -6358,28 +6358,49 @@ function renderAffiliateDashboard(d) {
     '<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">HOW YOU GET PAID</div>' +
     '<div class="form-group"><label style="font-size:12px">Payout method</label>' +
       '<select id="ref-method" style="width:100%;box-sizing:border-box">' +
+        '<option value="payshap"' + (p.method==='payshap'?' selected':'') + '>PayShap — instant, to your cellphone number</option>' +
+        '<option value="bank"' + (p.method==='bank'?' selected':'') + '>South African bank account (EFT)</option>' +
         '<option value="skrill"' + (p.method==='skrill'?' selected':'') + '>Skrill</option>' +
-        '<option value="bank"' + (p.method==='bank'?' selected':'') + '>South African bank account</option>' +
-        '<option value="paypal"' + (p.method==='paypal'?' selected':'') + '>PayPal</option>' +
       '</select></div>' +
-    '<div class="form-group"><label style="font-size:12px" id="ref-account-label">Skrill email address</label>' +
-      '<input type="text" id="ref-account" placeholder="your@email.com" value="' + (p.account || '') + '"></div>' +
+    '<div class="form-group"><label style="font-size:12px" id="ref-account-label">Your ShapID (cellphone number)</label>' +
+      '<input type="text" id="ref-account" placeholder="e.g. 072 123 4567" value="' + (p.account || '') + '"></div>' +
+    '<div class="form-group" id="ref-bank-wrap" style="display:none"><label style="font-size:12px">Bank</label>' +
+      '<select id="ref-bank" style="width:100%;box-sizing:border-box">' +
+        ['Capitec','FNB','Absa','Standard Bank','Nedbank','TymeBank','African Bank','Discovery Bank','Investec','Other'].map(function(b){
+          return '<option value="' + b + '"' + (p.bank===b?' selected':'') + '>' + b + '</option>';
+        }).join('') +
+      '</select></div>' +
     '<div class="form-group"><label style="font-size:12px">Account holder name</label>' +
-      '<input type="text" id="ref-account-name" placeholder="Your full name" value="' + (p.accountName || '') + '"></div>' +
+      '<input type="text" id="ref-account-name" placeholder="Your full name as it appears on your account" value="' + (p.accountName || '') + '"></div>' +
     '<button onclick="saveAffiliatePayout()" style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.35);color:#38bdf8;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px">Save payout details</button>' +
     '<button onclick="requestAffiliatePayout()" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Request payout (R' + d.balance + ')</button>' +
-    '<p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6">Minimum payout R200. Paid within 5 working days of your request.<br><strong style="color:#f59e0b">Note:</strong> PayPal charges its own fees and converts to US Dollars, so you receive roughly 10% less. Choose <strong>bank transfer</strong> to get the full amount in Rands.</p>' +
+    '<p id="ref-method-note" style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6"></p>' +
     '</div>' +
     '<div id="ref-msg" style="margin-top:12px"></div>';
 
-  // Update the account label to match the chosen method
+  // Update the form to match the chosen payout method
   var sel = document.getElementById('ref-method');
   var lbl = document.getElementById('ref-account-label');
   var inp = document.getElementById('ref-account');
+  var bankWrap = document.getElementById('ref-bank-wrap');
+  var note = document.getElementById('ref-method-note');
   function syncLabel(){
-    if (sel.value === 'skrill') { lbl.textContent = 'Skrill email address'; inp.placeholder = 'your@email.com'; }
-    else if (sel.value === 'paypal') { lbl.textContent = 'PayPal email address'; inp.placeholder = 'your@email.com'; }
-    else { lbl.textContent = 'Bank account number'; inp.placeholder = 'e.g. 1234567890 (Capitec, FNB, etc.)'; }
+    if (sel.value === 'payshap') {
+      lbl.textContent = 'Your ShapID (cellphone number)';
+      inp.placeholder = 'e.g. 072 123 4567';
+      bankWrap.style.display = 'none';
+      note.innerHTML = 'Minimum payout R200. <strong style="color:#10b981">PayShap is instant and free to receive</strong> — money arrives in seconds, 24/7. Register your ShapID once in your banking app (Capitec, FNB, Absa, Nedbank, Standard Bank, TymeBank and more all support it).';
+    } else if (sel.value === 'bank') {
+      lbl.textContent = 'Bank account number';
+      inp.placeholder = 'e.g. 1234567890';
+      bankWrap.style.display = 'block';
+      note.innerHTML = 'Minimum payout R200. Paid by EFT within 5 working days. You receive the <strong style="color:#10b981">full amount in Rands</strong>.';
+    } else {
+      lbl.textContent = 'Skrill email address';
+      inp.placeholder = 'your@email.com';
+      bankWrap.style.display = 'none';
+      note.innerHTML = 'Minimum payout R200. <strong style="color:#f59e0b">Note:</strong> Skrill charges its own fees and converts currency, so you may receive less than the full amount. Choose <strong>PayShap</strong> or <strong>bank transfer</strong> to get the full amount in Rands.';
+    }
   }
   sel.onchange = syncLabel;
   syncLabel();
@@ -6390,12 +6411,14 @@ function saveAffiliatePayout() {
   var method = document.getElementById('ref-method').value;
   var account = document.getElementById('ref-account').value.trim();
   var accountName = document.getElementById('ref-account-name').value.trim();
+  var bankEl = document.getElementById('ref-bank');
+  var bank = (method === 'bank' && bankEl) ? bankEl.value : '';
   var msg = document.getElementById('ref-msg');
   if (!account) { msg.innerHTML = '<p style="color:#f87171;font-size:12px;text-align:center">Please enter your account details.</p>'; return; }
 
   fetch(BACKEND_URL + '/api/affiliate/payout-details', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ token: token, method: method, account: account, accountName: accountName })
+    body: JSON.stringify({ token: token, method: method, account: account, accountName: accountName, bank: bank })
   })
   .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
   .then(function(res){
