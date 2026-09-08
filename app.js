@@ -485,7 +485,7 @@ function openTool(name) {
     'website-builder': 'Website Builder',
     'email-cleaner': 'AI Email Secretary',
     'find-phone': 'Find My Phone',
-    'ai-mentor': 'AI Business Mentor',
+    'device-repair': 'Device Repair & Optimization',
     'cv-builder': 'CV Builder & Jobs',
     'sa-map': 'SA Map',
     'reminders': 'Reminders & Tasks',
@@ -503,7 +503,7 @@ function openTool(name) {
     'website-builder': renderWebsiteBuilder,
     'email-cleaner': renderEmailCleaner,
     'find-phone': renderFindPhone,
-    'ai-mentor': renderAIMentor,
+    'device-repair': renderDeviceRepair,
     'cv-builder': renderCVBuilder,
     'sa-map': renderSAMap,
     'reminders': renderReminders,
@@ -517,7 +517,7 @@ function openTool(name) {
   // NEW MODEL: Most tools open freely so people can preview and enter details.
   // Payment is required at the final ACTION (download/submit) via requirePaidAction().
   // ONLY the AI tools that cost money per use are locked before opening.
-  var payFirstTools = ['email-cleaner', 'ai-mentor'];
+  var payFirstTools = ['email-cleaner'];
   if (payFirstTools.indexOf(name) > -1 && isTrialExpired(currentUser)) {
     showTrialExpired();
     return;
@@ -1583,51 +1583,278 @@ function showLocOnMap(loc) { document.getElementById('track-iframe').src='https:
 
 
 // ── AI Business Mentor ──
-var aiHistory = [];
-function renderAIMentor(el) {
-  aiHistory = [];
-  el.innerHTML = `
-  <div class="tool-screen">
-    <h2>AI Business Mentor</h2>
-    <p>Your 24/7 South African business coach. Ask anything about starting, growing or scaling your business.</p>
-    <div class="chat-window" id="cw">
-      <div class="chat-bubble bot">Hi! I'm your Sky Blueprint AI Business Mentor. I specialise in South African entrepreneurship — CIPC registration, SARS tax, SMME funding, BEE requirements, load shedding strategies and business growth. How can I help you today?</div>
-    </div>
-    <div class="chat-input-row">
-      <input type="text" id="ci" placeholder="Ask me anything about your business..." onkeypress="if(event.key==='Enter')sendAI()">
-      <button class="send-btn" onclick="sendAI()">Send</button>
-    </div>
-    <div class="quick-chips">
-      ${['How do I register my business?','What taxes do I need to pay?','How to get SMME funding?','How to market on social media?','How to write a business plan?','What is BEE compliance?'].map(q=>`<div class="chip" onclick="quickAI('${q}')">${q}</div>`).join('')}
-    </div>
-  </div>`;
+// ═══════════════════════════════════════════
+// DEVICE REPAIR & OPTIMIZATION
+// Android/Samsung service bookings (ADB + Odin)
+// ═══════════════════════════════════════════
+
+var DR_SERVICES = [
+  { id:'bloat',   name:'Bloatware Removal',            price:400, time:'20 min', desc:'Remove 5-10 unwanted pre-installed apps (Facebook, games, carrier apps). Frees storage and speeds up your phone.', reversible:true },
+  { id:'knoxapps',name:'Samsung Knox Apps Removal',    price:450, time:'20 min', desc:'Disables Knox agent apps (Secure Folder, Knox VPN, security log agent) that run in the background using RAM and battery.', reversible:true, warn:true },
+  { id:'cache',   name:'Cache & System Cleanup',       price:350, time:'15 min', desc:'Clear junk files and temporary data. Frees up storage space and improves performance.', reversible:true },
+  { id:'reset',   name:'Factory Reset (frozen phone)', price:300, time:'20 min', desc:'For phones stuck, frozen or unresponsive. Restores the phone to working condition.', reversible:false },
+  { id:'odin',    name:'Firmware Flash / Unbrick',     price:900, time:'60 min', desc:'Samsung Odin firmware flashing. Recovers phones stuck on boot loop, soft-bricked, or locked out. Includes clean firmware install.', reversible:false, warn:true },
+  { id:'diag',    name:'Phone Diagnostics',            price:200, time:'20 min', desc:'Full health check: battery, storage, RAM, running apps. You get a written report of what is wrong.', reversible:true },
+  { id:'usbdbg',  name:'USB Debugging Setup',          price:100, time:'10 min', desc:'We set up developer options and USB debugging correctly on your device.', reversible:true }
+];
+
+var DR_ADDONS = [
+  { id:'extra_app', name:'Each additional app removal', price:50 },
+  { id:'sameday',   name:'Same-day service',            price:150 },
+  { id:'express',   name:'Express (2-4 hours)',         price:250 },
+  { id:'emergency', name:'Emergency (within 1 hour)',   price:400 }
+];
+
+function renderDeviceRepair(el) {
+  el.innerHTML =
+    '<div class="tool-screen">' +
+    '<h2>Device Repair &amp; Optimization</h2>' +
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Professional Android and Samsung device servicing — speed up a slow phone, remove bloatware, or recover a stuck device.</p>' +
+    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Proof of ownership required. We do not service stolen devices.</p>' +
+
+    '<div id="dr-step1">' +
+      '<div class="cv-sec-title">1. Choose Your Services</div>' +
+      '<div id="dr-services"></div>' +
+
+      '<div class="cv-sec-title" style="margin-top:20px">2. Add-ons (optional)</div>' +
+      '<div id="dr-addons"></div>' +
+
+      '<div id="dr-summary" style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.06));border:1px solid rgba(56,189,248,0.25);border-radius:16px;padding:20px;margin:20px 0">' +
+        '<div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px;letter-spacing:1px">YOUR QUOTE</div>' +
+        '<div id="dr-lines"><p style="color:var(--muted);font-size:13px;margin:0">Select a service above to see your price.</p></div>' +
+        '<div id="dr-total-wrap" style="display:none;border-top:1px solid rgba(56,189,248,0.25);padding-top:12px;margin-top:12px;display:none;justify-content:space-between;align-items:center">' +
+          '<span style="font-size:14px;font-weight:700;color:var(--text)">Total</span>' +
+          '<span style="font-size:24px;font-weight:800;color:#10b981" id="dr-total">R0</span>' +
+        '</div>' +
+        '<div id="dr-time" style="font-size:12px;color:var(--muted);margin-top:8px"></div>' +
+      '</div>' +
+
+      '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="drGoToBooking()">Continue to Booking →</button>' +
+    '</div>' +
+
+    '<div id="dr-step2" style="display:none">' +
+      '<button onclick="drBackToServices()" style="background:none;border:none;color:#38bdf8;cursor:pointer;font-size:13px;font-family:var(--font);margin-bottom:14px;padding:0">← Back to services</button>' +
+      '<div class="cv-sec-title">3. Your Device &amp; Contact Details</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>Your Full Name *</label><input type="text" id="dr-name" placeholder="e.g. Thabo Nkosi"></div>' +
+        '<div class="form-group"><label>Phone Number *</label><input type="tel" id="dr-phone" placeholder="e.g. 072 123 4567"></div>' +
+      '</div>' +
+      '<div class="form-group"><label>Email Address *</label><input type="email" id="dr-email" placeholder="you@email.com"></div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>Device Make &amp; Model *</label><input type="text" id="dr-model" placeholder="e.g. Samsung Galaxy A07"></div>' +
+        '<div class="form-group"><label>Android Version (if known)</label><input type="text" id="dr-android" placeholder="e.g. Android 14"></div>' +
+      '</div>' +
+      '<div class="form-group"><label>What is the problem? *</label><textarea id="dr-issue" rows="3" placeholder="e.g. Phone is very slow, storage always full, freezes when updating"></textarea></div>' +
+
+      '<div class="cv-sec-title">4. Service Agreement</div>' +
+      '<div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:16px;margin-bottom:14px">' +
+        '<div id="dr-warnings" style="font-size:12px;color:var(--muted);line-height:1.7"></div>' +
+      '</div>' +
+      '<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:10px">' +
+        '<input type="checkbox" id="dr-agree-own" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer;margin-top:2px;flex-shrink:0">' +
+        '<span style="font-size:12px;color:var(--muted);line-height:1.6">I confirm this device belongs to me and I can provide proof of ownership (ID and purchase proof). I understand Sky Blueprint does not service stolen devices.</span>' +
+      '</label>' +
+      '<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:10px">' +
+        '<input type="checkbox" id="dr-agree-backup" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer;margin-top:2px;flex-shrink:0">' +
+        '<span style="font-size:12px;color:var(--muted);line-height:1.6">I have backed up my important data, or I accept the risk of data loss. Sky Blueprint is not responsible for data lost during servicing.</span>' +
+      '</label>' +
+      '<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:18px">' +
+        '<input type="checkbox" id="dr-agree-risk" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer;margin-top:2px;flex-shrink:0">' +
+        '<span style="font-size:12px;color:var(--muted);line-height:1.6">I have read and understood the effects of the services I selected, listed above.</span>' +
+      '</label>' +
+
+      '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="submitDeviceRepair()">Submit Booking Request</button>' +
+      '<p style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px">We contact you within 24 hours to confirm. Payment is made when you drop off or we collect the device.</p>' +
+    '</div>' +
+
+    '<div id="dr-success" style="display:none">' +
+      '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:16px;padding:32px;text-align:center">' +
+        '<h3 style="color:#10b981;font-size:22px;margin-bottom:10px">Booking Request Sent!</h3>' +
+        '<p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:20px">We have received your request and will contact you within <strong style="color:var(--text)">24 hours</strong> to confirm your booking and arrange drop-off or collection.</p>' +
+        '<div id="dr-success-summary" style="background:rgba(56,189,248,0.06);border-radius:12px;padding:16px;text-align:left;margin-bottom:16px"></div>' +
+        '<p style="font-size:14px;color:var(--muted)">Questions? Call us: <strong style="color:#38bdf8">065 601 3544</strong></p>' +
+      '</div>' +
+    '</div>' +
+    '</div>';
+
+  drRenderServices();
+  drRenderAddons();
 }
-function quickAI(q) { document.getElementById('ci').value=q; sendAI(); }
-async function sendAI() {
-  const inp = document.getElementById('ci');
-  const msg = inp.value.trim();
-  if (!msg) return;
-  inp.value = '';
-  const cw = document.getElementById('cw');
-  cw.innerHTML += `<div class="chat-bubble user">${msg}</div><div class="chat-bubble bot" id="ai-typing">Thinking...</div>`;
-  cw.scrollTop = cw.scrollHeight;
-  aiHistory.push({role:'user',content:msg});
-  try {
-    const res = await fetch(BACKEND_URL + '/api/ai-mentor', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ messages: aiHistory, mode: 'mentor' })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'AI service error');
-    const reply = data.reply || 'Sorry, I could not respond. Please try again.';
-    aiHistory.push({role:'assistant',content:reply});
-    document.getElementById('ai-typing').outerHTML = `<div class="chat-bubble bot">${reply.replace(/\n/g,'<br>')}</div>`;
-  } catch(e) {
-    document.getElementById('ai-typing').outerHTML = `<div class="chat-bubble bot">⚠️ ${e.message || 'Connection error. Please check your internet and try again.'}</div>`;
+
+function drRenderServices() {
+  var wrap = document.getElementById('dr-services');
+  if (!wrap) return;
+  wrap.innerHTML = DR_SERVICES.map(function(s){
+    return '<label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid var(--border,rgba(255,255,255,0.1));border-radius:12px;padding:14px;margin-bottom:10px">' +
+      '<input type="checkbox" class="dr-service" value="' + s.id + '" onchange="drUpdateQuote()" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer;margin-top:2px;flex-shrink:0">' +
+      '<span style="flex:1;min-width:0">' +
+        '<span style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:4px">' +
+          '<strong style="color:var(--text);font-size:14px">' + s.name + (s.warn ? ' <span style="font-size:10px;background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:8px;font-weight:700">READ EFFECTS</span>' : '') + '</strong>' +
+          '<strong style="color:#10b981;font-size:15px;white-space:nowrap">R' + s.price + '</strong>' +
+        '</span>' +
+        '<span style="display:block;font-size:12px;color:var(--muted);line-height:1.6">' + s.desc + '</span>' +
+        '<span style="display:block;font-size:11px;color:#64748b;margin-top:4px">' + s.time + (s.reversible ? ' · Reversible with factory reset' : ' · Not reversible') + '</span>' +
+      '</span></label>';
+  }).join('');
+}
+
+function drRenderAddons() {
+  var wrap = document.getElementById('dr-addons');
+  if (!wrap) return;
+  wrap.innerHTML = DR_ADDONS.map(function(a){
+    return '<label style="display:flex;align-items:center;gap:12px;cursor:pointer;background:rgba(255,255,255,0.02);border:1px solid var(--border,rgba(255,255,255,0.08));border-radius:10px;padding:11px 14px;margin-bottom:8px">' +
+      '<input type="checkbox" class="dr-addon" value="' + a.id + '" onchange="drUpdateQuote()" style="width:17px;height:17px;accent-color:#38bdf8;cursor:pointer;flex-shrink:0">' +
+      '<span style="flex:1;font-size:13px;color:var(--text)">' + a.name + '</span>' +
+      '<strong style="color:#38bdf8;font-size:13px">+R' + a.price + '</strong>' +
+      '</label>';
+  }).join('');
+}
+
+function drGetSelection() {
+  var services = [], addons = [], total = 0, minutes = 0;
+  document.querySelectorAll('.dr-service:checked').forEach(function(cb){
+    var s = DR_SERVICES.find(function(x){ return x.id === cb.value; });
+    if (s) { services.push(s); total += s.price; minutes += parseInt(s.time, 10) || 0; }
+  });
+  document.querySelectorAll('.dr-addon:checked').forEach(function(cb){
+    var a = DR_ADDONS.find(function(x){ return x.id === cb.value; });
+    if (a) { addons.push(a); total += a.price; }
+  });
+  return { services: services, addons: addons, total: total, minutes: minutes };
+}
+
+function drUpdateQuote() {
+  var sel = drGetSelection();
+  var lines = document.getElementById('dr-lines');
+  var totalWrap = document.getElementById('dr-total-wrap');
+  var totalEl = document.getElementById('dr-total');
+  var timeEl = document.getElementById('dr-time');
+
+  if (!sel.services.length && !sel.addons.length) {
+    lines.innerHTML = '<p style="color:var(--muted);font-size:13px;margin:0">Select a service above to see your price.</p>';
+    totalWrap.style.display = 'none';
+    timeEl.textContent = '';
+    return;
   }
-  cw.scrollTop = cw.scrollHeight;
+
+  lines.innerHTML = sel.services.concat(sel.addons).map(function(item){
+    return '<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">' +
+      '<span style="color:var(--muted)">' + item.name + '</span>' +
+      '<span style="color:var(--text);font-weight:600">R' + item.price + '</span></div>';
+  }).join('');
+  totalWrap.style.display = 'flex';
+  totalEl.textContent = 'R' + sel.total.toLocaleString();
+  timeEl.textContent = sel.minutes ? 'Estimated time: about ' + sel.minutes + ' minutes' : '';
 }
+
+function drGoToBooking() {
+  var sel = drGetSelection();
+  if (!sel.services.length) { alert('Please choose at least one service.'); return; }
+
+  // Build honest, service-specific effect warnings
+  var warns = ['<strong style="color:#f59e0b">Please read carefully — effects of the services you selected:</strong><br>'];
+  sel.services.forEach(function(s){
+    if (s.id === 'knoxapps') {
+      warns.push('<br><strong style="color:var(--text)">Samsung Knox Apps Removal:</strong><br>' +
+        '• Secure Folder will stop working and any data inside it will be lost.<br>' +
+        '• Some banking apps may detect the change and refuse to run.<br>' +
+        '• Samsung Pay may stop working.<br>' +
+        '• This disables the Knox apps only — it does not remove Knox from the hardware.<br>' +
+        '• Reversible: a factory reset restores these apps.');
+    }
+    if (s.id === 'odin') {
+      warns.push('<br><strong style="color:var(--text)">Firmware Flash / Unbrick:</strong><br>' +
+        '• <strong style="color:#f87171">All data on the device will be erased.</strong><br>' +
+        '• This may permanently void your Samsung warranty (Knox warranty bit).<br>' +
+        '• Samsung Pay and Secure Folder may stop working permanently.<br>' +
+        '• This cannot be undone.');
+    }
+    if (s.id === 'reset') {
+      warns.push('<br><strong style="color:var(--text)">Factory Reset:</strong><br>' +
+        '• <strong style="color:#f87171">All apps, photos and data will be erased.</strong><br>' +
+        '• You must know the Google account details to sign back in afterwards.');
+    }
+    if (s.id === 'bloat') {
+      warns.push('<br><strong style="color:var(--text)">Bloatware Removal:</strong><br>' +
+        '• Selected apps are removed for your user profile.<br>' +
+        '• Reversible: a factory reset restores them.');
+    }
+  });
+  document.getElementById('dr-warnings').innerHTML = warns.join('');
+
+  document.getElementById('dr-step1').style.display = 'none';
+  document.getElementById('dr-step2').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  // Pre-fill from the logged-in account
+  if (currentUser) {
+    var n = document.getElementById('dr-name');
+    var e = document.getElementById('dr-email');
+    var p = document.getElementById('dr-phone');
+    if (n && !n.value) n.value = ((currentUser.fname||'') + ' ' + (currentUser.lname||'')).trim();
+    if (e && !e.value) e.value = currentUser.email || '';
+    if (p && !p.value) p.value = currentUser.phone || '';
+  }
+}
+
+function drBackToServices() {
+  document.getElementById('dr-step2').style.display = 'none';
+  document.getElementById('dr-step1').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function submitDeviceRepair() {
+  var name  = (document.getElementById('dr-name')  || {value:''}).value.trim();
+  var phone = (document.getElementById('dr-phone') || {value:''}).value.trim();
+  var email = (document.getElementById('dr-email') || {value:''}).value.trim();
+  var model = (document.getElementById('dr-model') || {value:''}).value.trim();
+  var android = (document.getElementById('dr-android') || {value:''}).value.trim();
+  var issue = (document.getElementById('dr-issue') || {value:''}).value.trim();
+
+  if (!name || !phone || !email || !model || !issue) {
+    alert('Please fill in all required fields marked with *');
+    return;
+  }
+  if (!document.getElementById('dr-agree-own').checked ||
+      !document.getElementById('dr-agree-backup').checked ||
+      !document.getElementById('dr-agree-risk').checked) {
+    alert('Please tick all three agreement boxes to continue.');
+    return;
+  }
+
+  var sel = drGetSelection();
+  var order = {
+    type: 'device-repair',
+    name: name, phone: phone, email: email,
+    device: model, androidVersion: android || 'Not specified',
+    issue: issue,
+    services: sel.services.map(function(s){ return s.name + ' (R' + s.price + ')'; }).join(', '),
+    addons: sel.addons.map(function(a){ return a.name + ' (R' + a.price + ')'; }).join(', ') || 'None',
+    total: 'R' + sel.total.toLocaleString(),
+    estimatedTime: sel.minutes + ' minutes',
+    agreedOwnership: true, agreedBackup: true, agreedRisks: true,
+    bookedAt: new Date().toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })
+  };
+
+  fetch(BACKEND_URL + '/api/device-repair', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(order)
+  }).catch(function(){});
+
+  document.getElementById('dr-success-summary').innerHTML =
+    '<div style="font-size:12px;font-weight:700;color:#38bdf8;margin-bottom:10px">BOOKING SUMMARY</div>' +
+    '<div style="font-size:13px;color:var(--muted);line-height:1.9">' +
+    '<div><strong style="color:var(--text)">Device:</strong> ' + model + '</div>' +
+    '<div><strong style="color:var(--text)">Services:</strong> ' + order.services + '</div>' +
+    (sel.addons.length ? '<div><strong style="color:var(--text)">Add-ons:</strong> ' + order.addons + '</div>' : '') +
+    '<div><strong style="color:var(--text)">Total:</strong> <span style="color:#10b981;font-weight:700">' + order.total + '</span></div>' +
+    '</div>';
+
+  document.getElementById('dr-step2').style.display = 'none';
+  document.getElementById('dr-success').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
 
 // ── CV Builder ──
 // ── Multi-job work experience (works for one job or many) ──
@@ -6498,17 +6725,17 @@ var TOOL_LANDINGS = {
     price: 'Launching soon — included in your R55/month plan (≈ $3 USD)',
     action: "requireAuth('find-phone')", cta: 'Get Notified — Sign Up'
   },
-  'ai-mentor': {
-    title: 'AI Business Mentor',
-    tag: 'Never get stuck again — get a real business plan and expert advice in minutes, any time of day.',
+  'device-repair': {
+    title: 'Device Repair & Optimization',
+    tag: 'Slow phone? Storage always full? We fix Android and Samsung devices properly — no guesswork.',
     benefits: [
-      '24/7 business coaching that never sleeps',
-      'Step-by-step guidance on registering, funding and growing your business in SA',
-      'Ask anything — from CIPC registration to marketing your spaza shop'
+      'Remove bloatware and free up storage on slow phones',
+      'Recover stuck, frozen or boot-looping Samsung devices',
+      'Honest pricing from R100 — you see the full quote before you book'
     ],
-    steps: ['Open the mentor', 'Ask your business question', 'Get a clear, practical plan instantly'],
-    price: 'Included in your R55/month plan (≈ $3 USD)',
-    action: "requireAuth('ai-mentor')", cta: 'Ask My Mentor'
+    steps: ['Choose your services and see the price', 'Fill in your device details', 'We contact you within 24 hours'],
+    price: 'Services from R100 — pay on drop-off, not upfront',
+    action: "requireAuth('device-repair')", cta: 'Get My Quote'
   },
   'cv-builder': {
     title: 'CV Builder & Jobs',
@@ -6828,7 +7055,7 @@ async function showToolMenu() {
     { label: 'Website Builder', action: function() { guideTool('website-builder'); } },
     { label: 'Email Cleaner', action: function() { guideTool('email-cleaner'); } },
     { label: 'Find My Phone', action: function() { guideTool('find-phone'); } },
-    { label: 'AI Business Mentor', action: function() { guideTool('ai-mentor'); } },
+    { label: 'Device Repair & Optimization', action: function() { guideTool('device-repair'); } },
     { label: 'CV Builder & Jobs', action: function() { guideTool('cv-builder'); } },
     { label: 'SA Map (Free)', action: function() { guideTool('sa-map'); } },
     { label: '❓ I have another question', action: function() {
@@ -6845,7 +7072,7 @@ async function guideTool(tool) {
     'website-builder': guideWebsite,
     'email-cleaner': guideEmail,
     'find-phone': guidePhone,
-    'ai-mentor': guideAI,
+    'device-repair': guideDeviceRepair,
     'cv-builder': guideCV,
     'sa-map': guideMap,
   };
@@ -6955,24 +7182,21 @@ async function guidePhoneTrack() {
 }
 
 // ── AI BUSINESS MENTOR ──
-async function guideAI() {
-  await guideMsg('Let me open the AI Business Mentor!');
-  requireAuth('ai-mentor');
-  await guideMsg('The AI Business Mentor is your <strong>24/7 South African business coach</strong>. It knows everything about:<br><br>✅ CIPC business registration (R175 fee at cipc.co.za)<br>✅ SARS tax and eFiling<br>✅ SMME funding (SEFA, IDC, NEF, Khula)<br>✅ BEE/BBBEE compliance<br>✅ Load shedding business strategies<br>✅ Marketing on social media<br>✅ Writing a business plan<br>✅ Starting any type of business in SA<br><br>Just type your question in the chat box at the bottom and press Send!<br><br>Here are some questions to get you started:');
+async function guideDeviceRepair() {
+  await guideMsg('Let me open Device Repair & Optimization!');
+  requireAuth('device-repair');
+  await guideMsg('This tool books <strong>professional Android and Samsung device servicing</strong>.<br><br>What we can do:<br><br>Remove bloatware to free up storage and speed up a slow phone<br>Clear cache and junk files<br>Recover phones that are stuck, frozen or boot-looping<br>Firmware flashing (Odin) for bricked Samsung devices<br>Full phone diagnostics with a written report<br><br>You choose your services, see the exact price, then book. You only pay when you drop the device off.');
   guideOptions([
-    { label: 'How do I register my business?', action: async function() {
-      await guideMsg('Type that question in the AI chat box and press Send. The AI will explain exactly how to register at CIPC — the cost, the steps and how long it takes.<br><br>Tip: You can ask follow up questions too — like "What about tax?" or "Do I need BEE compliance?"');
+    { label: 'My phone is very slow', action: async function() {
+      await guideMsg('Start with <strong>Bloatware Removal (R400)</strong> and <strong>Cache & System Cleanup (R350)</strong>.<br><br>Together these remove unwanted pre-installed apps and clear junk files. Most slow phones improve a lot from this alone.<br><br>Tick both services in the tool to see your combined price.');
     }},
-    { label: 'How do I get funding in SA?', action: async function() {
-      await guideMsg('Type that in the chat! The AI will tell you about SEFA, IDC, NEF, the DTI and other funding sources for small businesses in South Africa — including which ones you qualify for based on your business type.');
+    { label: 'My phone is stuck or frozen', action: async function() {
+      await guideMsg('If the phone still switches on but freezes, try <strong>Factory Reset (R300)</strong>.<br><br>If it will not boot at all, or is stuck on the Samsung logo, you need <strong>Firmware Flash / Unbrick (R900)</strong>.<br><br>Important: both of these erase all data on the phone, so back up anything you can first.');
     }},
-    { label: 'How do I write a business plan?', action: async function() {
-      await guideMsg('Ask the AI to write a business plan for you! Just type: "Help me write a business plan for [your business type]" and it will create a full professional plan for you.');
+    { label: 'What about Knox and warranty?', action: async function() {
+      await guideMsg('Good question, and I will be straight with you.<br><br><strong>Knox Apps Removal (R450)</strong> disables the Samsung Knox background apps. Your Secure Folder will stop working and some banking apps may refuse to run. It is reversible with a factory reset.<br><br><strong>Firmware flashing</strong> can permanently void your Samsung warranty and cannot be undone.<br><br>The tool shows you these effects before you agree to anything.');
     }},
-    { label: '✏️ I want to ask my own question', action: async function() {
-      await guideMsg('Go ahead! Type anything in the AI chat box below the chat window. The mentor knows everything about South African business. I am here if you need me! ');
-      guideOptions([{ label: '⬅️ Back to tools', action: showToolMenu }]);
-    }}
+    { label: 'Back to tools', action: showToolMenu }
   ]);
 }
 
