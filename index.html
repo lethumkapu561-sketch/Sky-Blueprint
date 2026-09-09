@@ -26,7 +26,7 @@
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=3"><link rel="icon" type="image/svg+xml" href="favicon.svg?v=3"><link rel="apple-touch-icon" href="apple-touch-icon.png?v=3"><link rel="shortcut icon" href="favicon.ico?v=3">
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -38,60 +38,45 @@
      Once dismissed it is REMOVED from the DOM (not just hidden),
      so it can never block a click.
 ═══════════════════════════════════════════════════════════ -->
-<div id="sb-splash" style="position:fixed;inset:0;background:#060914;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease">
-  <!-- Cinematic blinking eye — blinks, then opens to reveal the site -->
-  <svg id="sb-eye" width="240" height="150" viewBox="0 0 200 120" style="max-width:70vw">
-    <defs>
-      <linearGradient id="sbIris" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#38bdf8"/>
-        <stop offset="100%" stop-color="#6366f1"/>
-      </linearGradient>
-      <radialGradient id="sbGlow" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
-      </radialGradient>
-      <clipPath id="sbEyeClip">
-        <path d="M20,60 Q100,10 180,60 Q100,110 20,60 Z"/>
-      </clipPath>
-    </defs>
+<div id="sb-splash" style="position:fixed;inset:0;background:#05070d;z-index:99999;overflow:hidden;transition:opacity 0.9s ease">
 
-    <!-- soft glow behind the eye -->
-    <ellipse cx="100" cy="60" rx="95" ry="55" fill="url(#sbGlow)"/>
+  <!-- Your real photo as the base layer -->
+  <div id="sb-photo" style="position:absolute;inset:0;background:url('eye-bg.jpg') center/cover no-repeat;animation:sbSlowZoom 5s ease-out forwards"></div>
 
-    <!-- eye socket -->
-    <path d="M20,60 Q100,10 180,60 Q100,110 20,60 Z" fill="#0b1120" stroke="#38bdf8" stroke-width="1.5" opacity="0.9"/>
+  <!-- The blue eye, revealed as the lid opens.
+       Positioned to sit exactly where the eye is in the photo:
+       centre 48.7% across, 40% down, tilted 4.1 degrees. -->
+  <div id="sb-eyeball" style="position:absolute;left:48.7%;top:40%;width:62%;transform:translate(-50%,-50%) rotate(4.1deg);opacity:0;animation:sbEyeReveal 3.4s ease-out 0.7s forwards">
+    <div style="position:relative;width:100%;clip-path:ellipse(50% 0% at 50% 50%);animation:sbLidOpen 3.4s ease-in-out 0.7s forwards">
+      <img src="eye-open.png" alt="" style="width:100%;display:block">
+    </div>
+    <!-- blue glow bleeding out from the lens -->
+    <div style="position:absolute;left:50%;top:50%;width:34%;padding-bottom:34%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.55),rgba(37,99,235,0.18) 55%,transparent 72%);filter:blur(22px);animation:sbGlowPulse 3s ease-in-out 2s infinite"></div>
+  </div>
 
-    <!-- iris + pupil, clipped inside the eye shape -->
-    <g clip-path="url(#sbEyeClip)">
-      <circle cx="100" cy="60" r="30" fill="url(#sbIris)">
-        <animate attributeName="r" values="30;31;30" dur="3s" repeatCount="indefinite"/>
-      </circle>
-      <circle cx="100" cy="60" r="13" fill="#060914"/>
-      <circle cx="110" cy="49" r="6" fill="#ffffff" opacity="0.9"/>
-      <circle cx="93" cy="70" r="2.5" fill="#ffffff" opacity="0.45"/>
-    </g>
+  <!-- Cinematic vignette -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 48.7% 40%, transparent 30%, rgba(0,0,0,0.55) 70%, rgba(0,0,0,0.92) 100%);pointer-events:none"></div>
 
-    <!-- eyelid: closed -> blink -> blink -> open wide and stay -->
-    <path d="M20,60 Q100,10 180,60 Q100,110 20,60 Z" fill="#060914">
-      <animate attributeName="d"
-        values="M20,60 Q100,10 180,60 Q100,10 20,60 Z;
-                M20,60 Q100,10 180,60 Q100,110 20,60 Z;
-                M20,60 Q100,10 180,60 Q100,20 20,60 Z;
-                M20,60 Q100,10 180,60 Q100,110 20,60 Z;
-                M20,60 Q100,10 180,60 Q100,110 20,60 Z"
-        keyTimes="0;0.25;0.42;0.58;1"
-        dur="2s" repeatCount="1" fill="freeze"/>
-    </path>
-
-    <!-- upper lash line for a more human look -->
-    <path d="M20,60 Q100,10 180,60" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
-  </svg>
-
-  <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-top:22px;opacity:0;animation:sbFadeUp 0.8s ease 1.1s forwards">Sky Blueprint</div>
-  <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:12px;color:#38bdf8;letter-spacing:2px;margin-top:6px;opacity:0;animation:sbFadeUp 0.8s ease 1.4s forwards">YOUR DIGITAL LIFE, UNIFIED</div>
+  <!-- Branding -->
+  <div style="position:absolute;left:0;right:0;bottom:11%;text-align:center;pointer-events:none">
+    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.4px;text-shadow:0 2px 24px rgba(0,0,0,0.9);opacity:0;animation:sbFadeUp 1s ease 2.6s forwards">Sky Blueprint</div>
+    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:11px;color:#38bdf8;letter-spacing:4px;margin-top:10px;text-shadow:0 2px 16px rgba(0,0,0,0.9);opacity:0;animation:sbFadeUp 1s ease 3s forwards">YOUR DIGITAL LIFE, UNIFIED</div>
+  </div>
 
   <style>
-    @keyframes sbFadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    /* Lid opens: closed -> open -> blink -> open wide and stay */
+    @keyframes sbLidOpen {
+      0%   { clip-path: ellipse(50% 0%  at 50% 50%); }
+      26%  { clip-path: ellipse(50% 46% at 50% 50%); }
+      40%  { clip-path: ellipse(50% 8%  at 50% 50%); }
+      56%  { clip-path: ellipse(50% 50% at 50% 50%); }
+      100% { clip-path: ellipse(50% 50% at 50% 50%); }
+    }
+    @keyframes sbEyeReveal { 0% { opacity:0; } 12% { opacity:1; } 100% { opacity:1; } }
+    @keyframes sbSlowZoom  { from { transform:scale(1.14); } to { transform:scale(1); } }
+    @keyframes sbGlowPulse { 0%,100% { opacity:0.75; } 50% { opacity:1; } }
+    @keyframes sbFadeUp    { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
+    @media (max-width:600px){ #sb-eyeball { width:82% !important; } }
   </style>
 </div>
 <script>
@@ -109,9 +94,15 @@
   // The eye animation runs for 2s (blink, blink, open). Let it finish before
   // dismissing, otherwise people never see the effect. The failsafe below
   // still guarantees the splash can never get stuck.
-  if (document.readyState === 'complete') { setTimeout(killSplash, 2100); }
-  else { window.addEventListener('load', function(){ setTimeout(killSplash, 2100); }); }
-  setTimeout(killSplash, 3200); // hard failsafe — always fires
+  // Eye animation runs 2.6s (blink, blink, open), then the text fades in.
+  // Let it complete before dismissing. The failsafe below still guarantees
+  // the splash can never get stuck and block clicks.
+  // Sequence: photo fades in, eye opens (0.7s), blinks, opens wide,
+  // branding fades in at 2.6s. Dismiss at 4.2s so the whole thing is seen.
+  // The hard failsafe below guarantees it can never get stuck.
+  if (document.readyState === 'complete') { setTimeout(killSplash, 4200); }
+  else { window.addEventListener('load', function(){ setTimeout(killSplash, 4200); }); }
+  setTimeout(killSplash, 5500); // hard failsafe — always fires
   document.addEventListener('click', killSplash, { once:true, capture:true });
   document.addEventListener('touchstart', killSplash, { once:true, capture:true });
 
@@ -975,7 +966,7 @@ function showPolicy(type) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<script src="app.js?v=13"></script>
+<script src="app.js?v=15"></script>
 
 <!-- ══════════════════════════════════════
      SKY BLUEPRINT AI GUIDE ASSISTANT
