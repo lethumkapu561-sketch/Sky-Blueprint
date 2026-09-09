@@ -4168,12 +4168,29 @@ function compTab(type, elem) {
       '<p style="font-size:13px;color:#10b981;font-weight:600;margin-bottom:4px">Compressed on our secure server — nothing freezes on your device</p>' +
       '<p style="font-size:12px;color:var(--muted);line-height:1.6">Works for videos up to 200MB and up to 4 minutes long. Output is capped at 720p for reliable processing. Compression happens on our server, so nothing freezes your phone.</p>' +
       '</div>' +
-      '<div class="form-group"><label>Target file size</label>' +
+      '<div class="form-group"><label>Compression method</label>' +
+      '<select id="comp-video-mode" onchange="compToggleVideoMode()" style="width:100%;box-sizing:border-box">' +
+      '<option value="size" selected>Target a file size — get an exact size</option>' +
+      '<option value="quality">Target a quality level — keeps it looking good</option>' +
+      '</select></div>' +
+      '<div class="form-group" id="comp-size-wrap"><label>Target file size</label>' +
       '<select id="comp-video-target" style="width:100%;box-sizing:border-box">' +
       '<option value="5">5 MB (smaller, lower quality)</option>' +
       '<option value="10" selected>10 MB (good balance)</option>' +
       '<option value="20">20 MB (better quality)</option>' +
       '<option value="50">50 MB (best quality)</option>' +
+      '</select></div>' +
+      '<div class="form-group" id="comp-quality-wrap" style="display:none"><label>Quality level</label>' +
+      '<select id="comp-video-crf" style="width:100%;box-sizing:border-box">' +
+      '<option value="20">High quality (bigger file)</option>' +
+      '<option value="26" selected>Good quality (recommended)</option>' +
+      '<option value="32">Lower quality (much smaller file)</option>' +
+      '</select>' +
+      '<p style="font-size:11px;color:var(--muted);margin-top:6px">Quality mode keeps the video looking consistent. The final size depends on how much movement is in your video.</p></div>' +
+      '<div class="form-group"><label>Video format</label>' +
+      '<select id="comp-video-codec" style="width:100%;box-sizing:border-box">' +
+      '<option value="h264" selected>H.264 — works everywhere, fast (recommended)</option>' +
+      '<option value="h265">H.265 — smaller files, but slower and clips under 90s only</option>' +
       '</select></div>' +
       '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
       '<p style="color:#fff;font-weight:600;margin-bottom:6px">Compress a Video</p>' +
@@ -4303,6 +4320,12 @@ function audioBufferToWav(buffer) {
   return out.buffer;
 }
 
+function compToggleVideoMode() {
+  var mode = document.getElementById('comp-video-mode').value;
+  document.getElementById('comp-size-wrap').style.display = (mode === 'size') ? 'block' : 'none';
+  document.getElementById('comp-quality-wrap').style.display = (mode === 'quality') ? 'block' : 'none';
+}
+
 function handleVideoCompress() {
   if (!requirePaidAction('compress and download')) return;
   var input = document.getElementById('comp-video-input');
@@ -4316,6 +4339,9 @@ function handleVideoCompress() {
   }
 
   var targetMB = (document.getElementById('comp-video-target') || {value:'10'}).value;
+  var mode = (document.getElementById('comp-video-mode') || {value:'size'}).value;
+  var crf = (document.getElementById('comp-video-crf') || {value:'26'}).value;
+  var codec = (document.getElementById('comp-video-codec') || {value:'h264'}).value;
 
   // Live elapsed-time counter so the UI never looks frozen, even on a slow server
   var startedAt = Date.now();
@@ -4333,6 +4359,9 @@ function handleVideoCompress() {
   var formData = new FormData();
   formData.append('video', file);
   formData.append('targetMB', targetMB);
+  formData.append('mode', mode);
+  formData.append('crf', crf);
+  formData.append('codec', codec);
   var origSize = file.size;
 
   // Match the server's 12-minute hard timeout, with a little buffer on top
