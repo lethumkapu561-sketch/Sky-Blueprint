@@ -694,13 +694,29 @@ function renderWebsiteBuilder(el) {
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;background:linear-gradient(135deg,rgba(168,85,247,0.06),rgba(99,102,241,0.05));border:1px solid rgba(168,85,247,0.25);border-radius:12px;padding:16px">
           <input type="checkbox" id="wb-premium" onchange="updateWbPrice()" style="width:18px;height:18px;accent-color:#a855f7;cursor:pointer;margin-top:2px">
           <span style="flex:1">
-            <strong style="color:#fff;font-size:14px">Upgrade to Premium — R3,500 all-inclusive</strong><br>
-            <span style="font-size:12px;color:var(--muted);line-height:1.7;display:block;margin-top:6px">
-              Everything done for you: up to 5 pages, online payment setup (Paystack), custom favicon, .co.za domain (1st year free), business email setup, and 1 month priority support. No extra fees.
+            <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <strong style="color:#fff;font-size:14px">Premium All-Inclusive — R4,500</strong>
+              <span style="font-size:9px;background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:0.5px">BEST VALUE</span>
+            </span>
+            <span style="font-size:12px;color:var(--muted);line-height:1.8;display:block;margin-top:8px">
+              <strong style="color:#e2e8f0">Everything you cannot easily do yourself — we handle all of it:</strong><br>
+              ✓ Up to 5 professional pages, designed for your business<br>
+              ✓ .co.za domain registered &amp; connected — <strong style="color:#a855f7">first year free</strong><br>
+              ✓ Online payment setup (Paystack) so you can take money on your site<br>
+              ✓ Business email setup (you@yourbusiness.co.za)<br>
+              ✓ Custom favicon, logo placement &amp; brand colours<br>
+              ✓ <strong style="color:#a855f7">Google Business Profile setup</strong> — so customers find you on Google Maps &amp; Search<br>
+              ✓ <strong style="color:#a855f7">10 custom ad images designed for you</strong> — professional graphics ready to post or promote<br>
+              ✓ <strong style="color:#a855f7">3 months website monitoring</strong> — we check it stays online and working<br>
+              ✓ <strong style="color:#a855f7">Unlimited edits for 3 months</strong> — change prices, photos, text, anything<br>
+              ✓ WhatsApp chat button so customers message you instantly<br>
+              ✓ Product/service photo editing &amp; optimisation for the web<br>
+              ✓ Google Search listing setup so your site can be found<br>
+              ✓ 3 months priority support — we answer you first
             </span>
           </span>
         </label>
-        <p style="font-size:10px;color:#64748b;margin-top:6px">Leave unticked for our standard R450 website build (you can still add a domain & favicon below).</p>
+        <p style="font-size:10px;color:#64748b;margin-top:6px">Leave unticked for our standard R450 website build (you can still add a domain &amp; favicon below).</p>
       </div>
 
       <!-- DOMAIN & PRICING -->
@@ -746,7 +762,7 @@ function renderWebsiteBuilder(el) {
           <span style="color:var(--muted)" id="wb-base-label">Website Design & Build (72 hours)</span>
           <span style="color:#fff;font-weight:600" id="wb-base-price">R450</span>
         </div>
-        <div id="wb-premium-row" style="display:none;margin-bottom:9px;font-size:11px;color:#a855f7;line-height:1.6">✓ 5 pages · Paystack setup · favicon · .co.za domain (1st yr) · business email · priority support</div>
+        <div id="wb-premium-row" style="display:none;margin-bottom:9px;font-size:11px;color:#a855f7;line-height:1.6">✓ 5 pages · .co.za domain (1st yr) · Paystack · business email · favicon · Google Business Profile · 10 custom ad images · Google Search listing · 3 months monitoring · unlimited edits · WhatsApp button · priority support</div>
         <div id="wb-domain-row" style="display:none;justify-content:space-between;margin-bottom:9px;font-size:13px">
           <span style="color:var(--muted)" id="wb-domain-label">Domain</span>
           <span style="color:#38bdf8;font-weight:600" id="wb-domain-price">R0</span>
@@ -844,15 +860,15 @@ function updateWbPrice() {
   var faviconFee = (favicon && favicon.checked) ? 50 : 0;
 
   if (isPremium) {
-    // Premium is R3,500 all-inclusive (domain + favicon included)
+    // Premium is R4,500 all-inclusive (domain + favicon + ads + monitoring included)
     extra = 0; faviconFee = 0;
     if (baseLabel) baseLabel.textContent = 'Premium Package (all-inclusive)';
-    if (basePrice) basePrice.textContent = 'R3,500';
+    if (basePrice) basePrice.textContent = 'R4,500';
     if (premRow) premRow.style.display = 'block';
     if (ownWrap) ownWrap.style.display = 'none';
     if (row) row.style.display = 'none';
     if (favRow) favRow.style.display = 'none';
-    if (total) total.textContent = 'R3,500';
+    if (total) total.textContent = 'R4,500';
     return;
   }
 
@@ -907,12 +923,12 @@ function submitWebsiteOrder() {
   var domainExtra = { none:0, com:300, coza:500, net:300, org:300, own:0 }[domain] || 0;
   var faviconFee = faviconChecked ? 50 : 0;
   var grandTotal;
-  if (isPremium) { grandTotal = 3500; domainExtra = 0; faviconFee = 0; }
+  if (isPremium) { grandTotal = 4500; domainExtra = 0; faviconFee = 0; }
   else { grandTotal = 450 + domainExtra + faviconFee; }
 
   var order = {
     name:name, phone:phone, email:email,
-    package: isPremium ? 'PREMIUM (R3,500 all-inclusive)' : 'Standard (R450 build)',
+    package: isPremium ? 'PREMIUM (R4,500 all-inclusive: 5 pages, .co.za domain 1yr, Paystack setup, business email, favicon/branding, Google Business Profile, 10 custom ad images, Google Search listing, 3mo monitoring, unlimited edits 3mo, WhatsApp button, photo editing, 3mo priority support)' : 'Standard (R450 build)',
     business:biz, city:city, category:cat,
     description:desc, colorTheme:colorNames[color]||color,
     domain: isPremium ? '.co.za domain (included in Premium)' : domainLabels[domain],
