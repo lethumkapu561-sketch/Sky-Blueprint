@@ -2337,68 +2337,167 @@ function downloadCVWord() {
   if (!requirePaidAction('download your CV')) return;
   if (!window._cvData) { alert('Please build your CV first.'); return; }
   var d = window._cvData;
-  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  // Build a Word-compatible HTML document (opens & edits perfectly in MS Word, Google Docs, LibreOffice)
-  var html =
-    '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
-    '<head><meta charset="utf-8"><title>CV</title>' +
-    '<style>' +
-    'body{font-family:Calibri,Arial,sans-serif;color:#1e293b;font-size:11pt;line-height:1.4}' +
-    'h1{font-size:22pt;color:#0f172a;margin:0 0 2pt 0}' +
-    '.role{font-size:12pt;color:#b45309;margin:0 0 10pt 0;font-weight:bold}' +
-    '.contact{font-size:10pt;color:#475569;margin-bottom:14pt}' +
-    'h2{font-size:13pt;color:#0f172a;border-bottom:1.5pt solid #d4af37;padding-bottom:2pt;margin:14pt 0 6pt 0}' +
-    'p{margin:0 0 8pt 0}' +
-    '.skill{display:inline-block;margin:0 4pt 4pt 0}' +
-    '</style></head><body>' +
-    (d.photo ? '<img src="' + d.photo + '" width="110" height="110" style="border-radius:50%;float:right;margin:0 0 10pt 14pt">' : '') +
-    '<h1>' + esc(d.fn) + ' ' + esc(d.ln) + '</h1>' +
-    (d.jt ? '<p class="role">' + esc(d.jt) + '</p>' : '') +
-    '<p class="contact">' + esc(d.em) + ' &nbsp;|&nbsp; ' + esc(d.ph) + (d.ci ? ' &nbsp;|&nbsp; ' + esc(d.ci) : '') + '</p>';
+  // Build a REAL .docx file (proper Word format, fully editable) using the
+  // docx library. Falls back to the older HTML-based .doc only if the
+  // library has not loaded yet.
+  if (!window.docx || !window.docx.Document) {
+    return downloadCVWordFallback();
+  }
 
-  if (d.sum) html += '<h2>Professional Summary</h2><p>' + esc(d.sum) + '</p>';
-  if (d.qual) html += '<h2>Education &amp; Qualifications</h2><p>' + esc(d.qual) + '</p>';
+  var D = window.docx;
+  var NAVY = '0F172A', GOLD = 'B45309', SLATE = '475569', BLUE = '2563EB';
 
-  var jobListW = (d.jobs && d.jobs.length) ? d.jobs : (d.jt || d.co ? [{title:d.jt, co:d.co, start:'', end:''}] : []);
-  if (jobListW.length) {
-    html += '<h2>Work Experience</h2>';
-    jobListW.forEach(function(job){
-      if (job.title) html += '<p style="margin-bottom:1pt"><b>' + esc(job.title) + '</b></p>';
-      if (job.co) html += '<p style="margin-bottom:8pt;color:#b45309">' + esc(job.co) + ((job.start || job.end) ? '  (' + esc([job.start, job.end].filter(Boolean).join(' - ')) + ')' : '') + '</p>';
+  function heading(text) {
+    return new D.Paragraph({
+      spacing: { before: 260, after: 100 },
+      border: { bottom: { color: GOLD, space: 2, style: D.BorderStyle.SINGLE, size: 8 } },
+      children: [ new D.TextRun({ text: text.toUpperCase(), bold: true, size: 24, color: NAVY, font: 'Calibri' }) ]
     });
-    if (d.exp) html += '<p>' + esc(String(d.exp)) + (String(d.exp).match(/year|month/i) ? '' : ' years') + ' total experience</p>';
+  }
+  function body(text, opts) {
+    opts = opts || {};
+    return new D.Paragraph({
+      spacing: { after: opts.after === undefined ? 90 : opts.after },
+      children: [ new D.TextRun({ text: text, size: opts.size || 21, color: opts.color || '1E293B', bold: !!opts.bold, italics: !!opts.italics, font: 'Calibri' }) ]
+    });
+  }
+  function bullet(text) {
+    return new D.Paragraph({
+      bullet: { level: 0 },
+      spacing: { after: 60 },
+      children: [ new D.TextRun({ text: text, size: 21, color: '1E293B', font: 'Calibri' }) ]
+    });
+  }
+
+  var kids = [];
+
+  // ---- Name ----
+  kids.push(new D.Paragraph({
+    spacing: { after: 60 },
+    children: [ new D.TextRun({ text: ((d.fn || '') + ' ' + (d.ln || '')).trim(), bold: true, size: 52, color: NAVY, font: 'Calibri' }) ]
+  }));
+  if (d.jt) {
+    kids.push(new D.Paragraph({
+      spacing: { after: 120 },
+      children: [ new D.TextRun({ text: d.jt, size: 26, color: GOLD, font: 'Calibri' }) ]
+    }));
+  }
+  // ---- Contact line ----
+  var contact = [d.em, d.ph, d.ci].filter(Boolean).join('  |  ');
+  if (contact) {
+    kids.push(new D.Paragraph({
+      spacing: { after: 200 },
+      border: { bottom: { color: 'CBD5E1', space: 6, style: D.BorderStyle.SINGLE, size: 6 } },
+      children: [ new D.TextRun({ text: contact, size: 20, color: SLATE, font: 'Calibri' }) ]
+    }));
+  }
+
+  if (d.sum) { kids.push(heading('Professional Summary')); kids.push(body(d.sum)); }
+  if (d.qual) { kids.push(heading('Education & Qualifications')); kids.push(body(d.qual)); }
+
+  // ---- Work experience (supports multiple jobs) ----
+  var jobs = (d.jobs && d.jobs.length) ? d.jobs : ((d.jt || d.co) ? [{ title: d.jt, co: d.co, start: '', end: '' }] : []);
+  if (jobs.length) {
+    kids.push(heading('Work Experience'));
+    jobs.forEach(function(job){
+      if (job.title) {
+        kids.push(new D.Paragraph({
+          spacing: { after: 20 },
+          children: [ new D.TextRun({ text: job.title, bold: true, size: 22, color: NAVY, font: 'Calibri' }) ]
+        }));
+      }
+      if (job.co) {
+        var dates = (job.start || job.end) ? '   (' + [job.start, job.end].filter(Boolean).join(' – ') + ')' : '';
+        kids.push(new D.Paragraph({
+          spacing: { after: 120 },
+          children: [ new D.TextRun({ text: job.co + dates, size: 20, color: GOLD, font: 'Calibri' }) ]
+        }));
+      }
+    });
+    if (d.exp) kids.push(body(String(d.exp) + (String(d.exp).match(/year|month/i) ? '' : ' years') + ' total experience', { color: SLATE, size: 20 }));
   }
 
   if (d.sk) {
-    html += '<h2>Skills</h2><p>';
-    var skills = String(d.sk).split(/[,\n]/).filter(function(s){ return s.trim(); });
-    html += skills.map(function(s){ return '&#8226; ' + esc(s.trim()); }).join('&nbsp;&nbsp;&nbsp;');
-    html += '</p>';
+    kids.push(heading('Skills'));
+    String(d.sk).split(/[,\n]/).map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(s){ kids.push(bullet(s)); });
   }
   if (d.certs) {
-    html += '<h2>Certifications &amp; Licenses</h2>';
-    String(d.certs).split('\n').filter(Boolean).forEach(function(c){ html += '<p style="margin-bottom:3pt">&#8226; ' + esc(c.trim()) + '</p>'; });
+    kids.push(heading('Certifications & Licenses'));
+    String(d.certs).split('\n').filter(Boolean).forEach(function(c){ kids.push(bullet(c.trim())); });
   }
-  if (d.langs) html += '<h2>Languages</h2><p>' + esc(d.langs) + '</p>';
+  if (d.langs) { kids.push(heading('Languages')); kids.push(body(d.langs)); }
   if (d.awards) {
-    html += '<h2>Awards &amp; Achievements</h2>';
-    String(d.awards).split('\n').filter(Boolean).forEach(function(a){ html += '<p style="margin-bottom:3pt">&#8226; ' + esc(a.trim()) + '</p>'; });
+    kids.push(heading('Awards & Achievements'));
+    String(d.awards).split('\n').filter(Boolean).forEach(function(a){ kids.push(bullet(a.trim())); });
   }
   if (d.pubs) {
-    html += '<h2>Publications &amp; Research</h2>';
-    String(d.pubs).split('\n').filter(Boolean).forEach(function(p){ html += '<p style="margin-bottom:3pt;color:#475569;font-size:9.5pt">' + esc(p.trim()) + '</p>'; });
+    kids.push(heading('Publications & Research'));
+    String(d.pubs).split('\n').filter(Boolean).forEach(function(p){ kids.push(body(p.trim(), { size: 20, color: SLATE })); });
   }
-  html += '</body></html>';
 
+  kids.push(heading('References'));
+  kids.push(body('Available on request', { color: SLATE }));
+
+  kids.push(new D.Paragraph({
+    spacing: { before: 300 },
+    alignment: D.AlignmentType.CENTER,
+    children: [ new D.TextRun({ text: 'Created with Sky Blueprint · skyblueprint.company', size: 16, color: '94A3B8', italics: true, font: 'Calibri' }) ]
+  }));
+
+  var doc = new D.Document({
+    sections: [{
+      properties: { page: { margin: { top: 720, right: 720, bottom: 720, left: 720 } } },
+      children: kids
+    }]
+  });
+
+  D.Packer.toBlob(doc).then(function(blob){
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (window._cvName || ((d.fn || 'My') + '_' + (d.ln || 'CV'))) + '.docx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }).catch(function(){
+    downloadCVWordFallback();
+  });
+}
+
+// Older HTML-based .doc export, kept only as a safety net
+function downloadCVWordFallback() {
+  var d = window._cvData;
+  if (!d) return;
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+    '<head><meta charset="utf-8"><title>CV</title><style>body{font-family:Calibri,Arial,sans-serif;color:#1e293b;font-size:11pt;line-height:1.4}h1{font-size:22pt;color:#0f172a;margin:0 0 2pt}h2{font-size:13pt;color:#0f172a;border-bottom:1.5pt solid #d4af37;padding-bottom:2pt;margin:14pt 0 6pt}p{margin:0 0 8pt}</style></head><body>' +
+    '<h1>' + esc(d.fn) + ' ' + esc(d.ln) + '</h1>' +
+    (d.jt ? '<p style="color:#b45309;font-weight:bold">' + esc(d.jt) + '</p>' : '') +
+    '<p style="font-size:10pt;color:#475569">' + esc([d.em, d.ph, d.ci].filter(Boolean).join('  |  ')) + '</p>';
+  if (d.sum) html += '<h2>Professional Summary</h2><p>' + esc(d.sum) + '</p>';
+  if (d.qual) html += '<h2>Education &amp; Qualifications</h2><p>' + esc(d.qual) + '</p>';
+  var jobs = (d.jobs && d.jobs.length) ? d.jobs : ((d.jt || d.co) ? [{title:d.jt, co:d.co, start:'', end:''}] : []);
+  if (jobs.length) {
+    html += '<h2>Work Experience</h2>';
+    jobs.forEach(function(job){
+      if (job.title) html += '<p style="margin-bottom:1pt"><b>' + esc(job.title) + '</b></p>';
+      if (job.co) html += '<p style="margin-bottom:8pt;color:#b45309">' + esc(job.co) + ((job.start||job.end) ? '  (' + esc([job.start,job.end].filter(Boolean).join(' - ')) + ')' : '') + '</p>';
+    });
+  }
+  if (d.sk) html += '<h2>Skills</h2><p>' + String(d.sk).split(/[,\n]/).filter(function(s){return s.trim();}).map(function(s){ return '&#8226; ' + esc(s.trim()); }).join('&nbsp;&nbsp;&nbsp;') + '</p>';
+  if (d.certs) { html += '<h2>Certifications &amp; Licenses</h2>'; String(d.certs).split('\n').filter(Boolean).forEach(function(c){ html += '<p>&#8226; ' + esc(c.trim()) + '</p>'; }); }
+  if (d.langs) html += '<h2>Languages</h2><p>' + esc(d.langs) + '</p>';
+  if (d.awards) { html += '<h2>Awards &amp; Achievements</h2>'; String(d.awards).split('\n').filter(Boolean).forEach(function(a){ html += '<p>&#8226; ' + esc(a.trim()) + '</p>'; }); }
+  if (d.pubs) { html += '<h2>Publications &amp; Research</h2>'; String(d.pubs).split('\n').filter(Boolean).forEach(function(p){ html += '<p>' + esc(p.trim()) + '</p>'; }); }
+  html += '<h2>References</h2><p>Available on request</p></body></html>';
   var blob = new Blob(['\ufeff', html], { type: 'application/msword' });
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
   a.download = (window._cvName || (d.fn + '_' + d.ln + '_CV')) + '.doc';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
@@ -3135,6 +3234,7 @@ function showMatchingJobs(data, name, loc, jobTitle) {
       links: [
         { name: 'Indeed Internships', url: 'https://za.indeed.com/jobs?q=internship+'+q+'&l='+l, color: '#2164f3' },
         { name: 'LinkedIn Internships', url: 'https://www.linkedin.com/jobs/search/?keywords=internship+'+q+'&location='+l+'&f_JT=I', color: '#0077b5' },
+        { name: 'Pnet Internships', url: 'https://www.pnet.co.za/jobs/internship/', color: '#e84c3d' },
         { name: 'StudentRoom SA', url: 'https://www.studentroom.co.za/internships', color: '#10b981' },
         { name: 'GradSA', url: 'https://www.grad.ac.za/internships', color: '#f59e0b' },
       ]
