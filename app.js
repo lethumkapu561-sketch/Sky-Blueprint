@@ -4241,12 +4241,17 @@ function renderCompressor(el) {
   el.innerHTML =
     '<div class="tool-screen">' +
     '<h2>File Compressor</h2>' +
-    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Make your images, audio and short videos smaller — right on your device.</p>' +
-    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Private & secure. Your files never leave your device.</p>' +
+    '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Compress, trim, convert and resize your own files — ready for WhatsApp, Instagram or TikTok.</p>' +
+    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Images and audio are processed on your device. Video tools run on our secure server, then the file is deleted.</p>' +
     '<div class="pdf-tabs" style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">' +
     '<div class="tab active" onclick="compTab(\'image\',this)">Image</div>' +
     '<div class="tab" onclick="compTab(\'audio\',this)">Audio</div>' +
-    '<div class="tab" onclick="compTab(\'video\',this)">Video</div>' +
+    '<div class="tab" onclick="compTab(\'video\',this)">Compress Video</div>' +
+    '<div class="tab" onclick="compTab(\'trim\',this)">Trim Video</div>' +
+    '<div class="tab" onclick="compTab(\'whatsapp\',this)">WhatsApp Ready</div>' +
+    '<div class="tab" onclick="compTab(\'gif\',this)">Video to GIF</div>' +
+    '<div class="tab" onclick="compTab(\'audioex\',this)">Extract Audio</div>' +
+    '<div class="tab" onclick="compTab(\'resize\',this)">Resize for Social</div>' +
     '</div>' +
     '<div id="comp-body"></div>' +
     '</div>';
@@ -4278,7 +4283,7 @@ function compTab(type, elem) {
       '<button class="btn-primary" onclick="document.getElementById(\'comp-audio-input\').click()">Choose Audio File</button>' +
       '</div>' +
       '<div id="comp-audio-result"></div>';
-  } else {
+  } else if (type === 'video') {
     body.innerHTML =
       '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
       '<p style="font-size:13px;color:#10b981;font-weight:600;margin-bottom:4px">Compressed on our secure server — nothing freezes on your device</p>' +
@@ -4315,6 +4320,102 @@ function compTab(type, elem) {
       '<button class="btn-primary" onclick="document.getElementById(\'comp-video-input\').click()">Choose Video</button>' +
       '</div>' +
       '<div id="comp-video-result"></div>';
+
+  } else if (type === 'trim') {
+    body.innerHTML =
+      '<div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
+      '<p style="font-size:13px;color:#38bdf8;font-weight:600;margin-bottom:4px">Cut out just the part you need</p>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.6">Perfect for WhatsApp status (30 second limit) or trimming a long recording down to the good bit.</p>' +
+      '</div>' +
+      '<div class="form-row">' +
+      '<div class="form-group"><label>Start at (seconds)</label><input type="number" id="trim-start" value="0" min="0" step="0.5"></div>' +
+      '<div class="form-group"><label>End at (seconds)</label><input type="number" id="trim-end" placeholder="e.g. 30" min="1" step="0.5"></div>' +
+      '</div>' +
+      '<p style="font-size:11px;color:var(--muted);margin-bottom:14px">Leave "End at" blank to keep everything from your start point to the end.</p>' +
+      '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Trim a Video</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Up to 200MB</p>' +
+      '<input type="file" id="trim-input" accept="video/*" onchange="handleVideoTrim()" style="display:none">' +
+      '<button class="btn-primary" onclick="document.getElementById(\'trim-input\').click()">Choose Video</button>' +
+      '</div>' +
+      '<div id="trim-result"></div>';
+
+  } else if (type === 'whatsapp') {
+    body.innerHTML =
+      '<div style="background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.25);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
+      '<p style="font-size:13px;color:#25d366;font-weight:600;margin-bottom:4px">One click — ready to send</p>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.6">We compress your video to fit WhatsApp properly, so it sends fast and still looks clear.</p>' +
+      '</div>' +
+      '<div class="form-group"><label>Where are you sending it?</label>' +
+      '<select id="wa-target" style="width:100%;box-sizing:border-box">' +
+      '<option value="status" selected>WhatsApp Status (max 30 seconds)</option>' +
+      '<option value="chat">Direct chat (keeps full length)</option>' +
+      '</select></div>' +
+      '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Make it WhatsApp Ready</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Up to 200MB</p>' +
+      '<input type="file" id="wa-input" accept="video/*" onchange="handleWhatsAppVideo()" style="display:none">' +
+      '<button class="btn-primary" onclick="document.getElementById(\'wa-input\').click()">Choose Video</button>' +
+      '</div>' +
+      '<div id="wa-result"></div>';
+
+  } else if (type === 'gif') {
+    body.innerHTML =
+      '<div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
+      '<p style="font-size:13px;color:#a855f7;font-weight:600;margin-bottom:4px">Turn a clip into a GIF</p>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.6">GIFs play automatically and loop — great for sharing a short funny or useful moment.</p>' +
+      '</div>' +
+      '<div class="form-row">' +
+      '<div class="form-group"><label>Start at (seconds)</label><input type="number" id="gif-start" value="0" min="0" step="0.5"></div>' +
+      '<div class="form-group"><label>How long (max 15s)</label><input type="number" id="gif-length" value="5" min="1" max="15" step="0.5"></div>' +
+      '</div>' +
+      '<div class="form-group"><label>Size</label>' +
+      '<select id="gif-width" style="width:100%;box-sizing:border-box">' +
+      '<option value="320">Small (320px) — smallest file</option>' +
+      '<option value="480" selected>Medium (480px) — recommended</option>' +
+      '<option value="640">Large (640px) — bigger file</option>' +
+      '</select></div>' +
+      '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Make a GIF</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Keep it short — GIFs get large quickly</p>' +
+      '<input type="file" id="gif-input" accept="video/*" onchange="handleVideoGif()" style="display:none">' +
+      '<button class="btn-primary" onclick="document.getElementById(\'gif-input\').click()">Choose Video</button>' +
+      '</div>' +
+      '<div id="gif-result"></div>';
+
+  } else if (type === 'audioex') {
+    body.innerHTML =
+      '<div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
+      '<p style="font-size:13px;color:#f59e0b;font-weight:600;margin-bottom:4px">Pull the sound out of a video</p>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.6">Get the audio as an MP3 — useful for a recorded talk, sermon, lecture, interview or song you filmed yourself.</p>' +
+      '</div>' +
+      '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Extract Audio as MP3</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Up to 200MB · high quality 192kbps</p>' +
+      '<input type="file" id="audioex-input" accept="video/*" onchange="handleExtractAudio()" style="display:none">' +
+      '<button class="btn-primary" onclick="document.getElementById(\'audioex-input\').click()">Choose Video</button>' +
+      '</div>' +
+      '<div id="audioex-result"></div>';
+
+  } else if (type === 'resize') {
+    body.innerHTML =
+      '<div style="background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.2);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
+      '<p style="font-size:13px;color:#ec4899;font-weight:600;margin-bottom:4px">Fit any social platform</p>' +
+      '<p style="font-size:12px;color:var(--muted);line-height:1.6">We crop from the centre so your subject stays in frame, then resize to the right shape.</p>' +
+      '</div>' +
+      '<div class="form-group"><label>Choose the shape</label>' +
+      '<select id="resize-shape" style="width:100%;box-sizing:border-box">' +
+      '<option value="vertical" selected>Vertical 9:16 — TikTok, Reels, WhatsApp Status</option>' +
+      '<option value="square">Square 1:1 — Instagram feed, Facebook</option>' +
+      '<option value="wide">Wide 16:9 — YouTube, websites</option>' +
+      '</select></div>' +
+      '<div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<p style="color:#fff;font-weight:600;margin-bottom:6px">Resize for Social Media</p>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:14px">Up to 200MB</p>' +
+      '<input type="file" id="resize-input" accept="video/*" onchange="handleVideoResize()" style="display:none">' +
+      '<button class="btn-primary" onclick="document.getElementById(\'resize-input\').click()">Choose Video</button>' +
+      '</div>' +
+      '<div id="resize-result"></div>';
   }
 }
 
@@ -4440,6 +4541,122 @@ function compToggleVideoMode() {
   var mode = document.getElementById('comp-video-mode').value;
   document.getElementById('comp-size-wrap').style.display = (mode === 'size') ? 'block' : 'none';
   document.getElementById('comp-quality-wrap').style.display = (mode === 'quality') ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════
+// VIDEO TOOLKIT — trim, WhatsApp, GIF, audio, resize
+// All run server-side so nothing freezes the phone.
+// ═══════════════════════════════════════════
+
+// Shared: upload a video to an endpoint, show progress, offer the download
+function runVideoTool(opts) {
+  var input = document.getElementById(opts.inputId);
+  var file = input && input.files[0];
+  if (!file) return;
+  var result = document.getElementById(opts.resultId);
+
+  if (file.size > 200 * 1048576) {
+    result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">File too large (' + fmtSize(file.size) + ')</p><p style="color:var(--muted);font-size:12px;margin-top:6px">Please choose a video under 200MB.</p></div>';
+    return;
+  }
+
+  var startedAt = Date.now();
+  result.innerHTML =
+    '<div style="text-align:center;padding:20px">' +
+    '<div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:14px"></div>' +
+    '<p style="color:var(--muted)">' + opts.busyText + '</p>' +
+    '<p style="color:#38bdf8;font-size:12px;margin-top:6px" id="' + opts.resultId + '-elapsed">0s elapsed</p>' +
+    '</div>';
+  var timer = setInterval(function(){
+    var el = document.getElementById(opts.resultId + '-elapsed');
+    if (el) el.textContent = Math.round((Date.now() - startedAt) / 1000) + 's elapsed';
+  }, 1000);
+
+  var fd = new FormData();
+  fd.append('video', file);
+  Object.keys(opts.fields || {}).forEach(function(k){ fd.append(k, opts.fields[k]); });
+
+  var controller = new AbortController();
+  var clientTimeout = setTimeout(function(){ controller.abort(); }, 730000);
+  var origSize = file.size;
+
+  fetch(BACKEND_URL + opts.endpoint, { method: 'POST', body: fd, signal: controller.signal })
+    .then(function(r){
+      clearTimeout(clientTimeout); clearInterval(timer);
+      if (!r.ok) return r.json().then(function(d){ throw new Error(d.error || 'Processing failed'); });
+      return r.blob();
+    })
+    .then(function(blob){
+      var url = URL.createObjectURL(blob);
+      var base = (file.name.replace(/\.[^.]+$/, '') || 'video');
+      var fname = base + opts.suffix;
+      var saved = origSize > blob.size ? Math.round((1 - blob.size / origSize) * 100) : 0;
+      result.innerHTML =
+        '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:18px;text-align:center">' +
+        '<p style="color:#10b981;font-weight:700;font-size:15px;margin-bottom:10px">' + opts.doneText + '</p>' +
+        '<p style="font-size:13px;color:var(--muted);margin-bottom:4px">Original: ' + fmtSize(origSize) + '</p>' +
+        '<p style="font-size:13px;color:#fff;margin-bottom:14px">New file: ' + fmtSize(blob.size) + (saved > 0 ? '  (' + saved + '% smaller)' : '') + '</p>' +
+        '<a href="' + url + '" download="' + fname + '" class="btn-primary" style="text-decoration:none;display:inline-block">' + opts.buttonText + '</a>' +
+        '</div>';
+    })
+    .catch(function(err){
+      clearTimeout(clientTimeout); clearInterval(timer);
+      var msg = (err.name === 'AbortError')
+        ? 'This is taking longer than our server allows. Please try a shorter clip.'
+        : (err.message || 'Please try again or use a different file.');
+      result.innerHTML = '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;text-align:center"><p style="color:#f87171;font-weight:600">Could not process this video</p><p style="color:var(--muted);font-size:12px;margin-top:6px">' + msg + '</p></div>';
+    });
+}
+
+function handleVideoTrim() {
+  if (!requirePaidAction('trim a video')) return;
+  var start = (document.getElementById('trim-start') || {value:'0'}).value;
+  var end = (document.getElementById('trim-end') || {value:''}).value;
+  runVideoTool({
+    inputId:'trim-input', resultId:'trim-result', endpoint:'/api/video-trim',
+    fields:{ start: start || '0', end: end || '' },
+    busyText:'Trimming your video...', doneText:'Trimmed!', suffix:'-trimmed.mp4', buttonText:'Download Trimmed Video'
+  });
+}
+
+function handleWhatsAppVideo() {
+  if (!requirePaidAction('prepare a video for WhatsApp')) return;
+  var target = (document.getElementById('wa-target') || {value:'status'}).value;
+  runVideoTool({
+    inputId:'wa-input', resultId:'wa-result', endpoint:'/api/video-whatsapp',
+    fields:{ target: target },
+    busyText:'Making it WhatsApp ready...', doneText:'Ready to send on WhatsApp!', suffix:'-whatsapp.mp4', buttonText:'Download for WhatsApp'
+  });
+}
+
+function handleVideoGif() {
+  if (!requirePaidAction('make a GIF')) return;
+  var start = (document.getElementById('gif-start') || {value:'0'}).value;
+  var length = (document.getElementById('gif-length') || {value:'5'}).value;
+  var width = (document.getElementById('gif-width') || {value:'480'}).value;
+  runVideoTool({
+    inputId:'gif-input', resultId:'gif-result', endpoint:'/api/video-gif',
+    fields:{ start: start || '0', length: length || '5', width: width || '480' },
+    busyText:'Creating your GIF...', doneText:'GIF created!', suffix:'.gif', buttonText:'Download GIF'
+  });
+}
+
+function handleExtractAudio() {
+  if (!requirePaidAction('extract audio')) return;
+  runVideoTool({
+    inputId:'audioex-input', resultId:'audioex-result', endpoint:'/api/video-audio',
+    busyText:'Extracting the audio...', doneText:'Audio extracted!', suffix:'.mp3', buttonText:'Download MP3'
+  });
+}
+
+function handleVideoResize() {
+  if (!requirePaidAction('resize a video')) return;
+  var shape = (document.getElementById('resize-shape') || {value:'vertical'}).value;
+  runVideoTool({
+    inputId:'resize-input', resultId:'resize-result', endpoint:'/api/video-resize',
+    fields:{ shape: shape },
+    busyText:'Resizing your video...', doneText:'Resized!', suffix:'-' + shape + '.mp4', buttonText:'Download Resized Video'
+  });
 }
 
 function handleVideoCompress() {
