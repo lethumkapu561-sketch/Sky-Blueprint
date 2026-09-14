@@ -2183,6 +2183,18 @@ function pickCVFormat(fmt, el) {
   if (el) el.classList.add('cv-fmt-active');
 }
 
+// Correct wording for the qualification level. In South Africa you
+// matriculate from Matric, complete a grade or certificate, and only
+// graduate from a diploma or degree. Saying "Graduated" on Grade 11
+// is wrong and looks unprofessional to an employer.
+function qualYearLabel(qualKey, year) {
+  if (!year) return '';
+  var k = String(qualKey || '').toLowerCase();
+  if (k === 'matric') return 'Matriculated ' + year;
+  if (['diploma','degree','honours','masters','phd'].indexOf(k) > -1) return 'Graduated ' + year;
+  return 'Completed ' + year; // grades 9-11, N4-N6 certificates
+}
+
 function buildAndMatchCV() {
   if (!window._cvFormat) window._cvFormat = 'navy';
   var fn   = (document.getElementById('cv-fn')   || {value:''}).value.trim();
@@ -2269,19 +2281,24 @@ function buildAndMatchCV() {
 (sum ? '<div class="section"><div class="sec-title">Personal Profile</div><div class="profile-text">' + sum + '</div></div>' : '') +
 '<div class="section"><div class="sec-title">Education</div>' +
 '<div class="edu-qual">' + qualLabel + '</div>' +
-'<div class="edu-meta">' + [inst, yr ? 'Graduated '+yr : ''].filter(Boolean).join(' • ') + '</div></div>' +
-((jt||co) ? '<div class="section"><div class="sec-title">Work Experience</div>' +
-  '<div class="exp-title">' + (jt||'') + '</div>' +
-  (co ? '<div class="exp-co">' + co + '</div>' : '') +
-  ((sd||ed) ? '<div class="exp-date">' + [sd,ed].filter(Boolean).join(' - ') + '</div>' : '') +
-  (exp && exp !== '0' ? '<div class="exp-date">' + exp + ' years experience</div>' : '') +
+'<div class="edu-meta">' + [inst, qualYearLabel(qual, yr)].filter(Boolean).join(' • ') + '</div></div>' +
+(jobs.length ? '<div class="section"><div class="sec-title">Work Experience</div>' +
+  jobs.map(function(job){
+    return '<div style="margin-bottom:14px">' +
+      (job.title ? '<div class="exp-title">' + job.title + '</div>' : '') +
+      (job.co ? '<div class="exp-co">' + job.co + '</div>' : '') +
+      ((job.start||job.end) ? '<div class="exp-date">' + [job.start,job.end].filter(Boolean).join(' - ') + '</div>' : '') +
+      '</div>';
+  }).join('') +
+  (exp && exp !== '0' ? '<div class="exp-date">' + exp + ' years total experience</div>' : '') +
   '</div>' : '') +
 '<div class="footer">Sky Blueprint — Your Digital Life, Unified</div>' +
 '</div>' +
 
 '</div>' +
 '<div class="no-print" style="text-align:center;padding:20px;background:#060914">' +
-'<button onclick="window.print()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Save as PDF</button>' +
+'<p style="color:#94a3b8;font-size:13px;margin-bottom:12px">This is a preview. Close this tab and use the <strong style="color:#fff">Save as PDF</strong> or <strong style="color:#fff">Save as Word</strong> buttons for a clean professional file with no browser headers.</p>' +
+'<button onclick="window.close()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Close Preview</button>' +
 '</div></body></html>';
 
   // CRITICAL: set the global so download/print/preview work
@@ -2302,7 +2319,7 @@ function buildAndMatchCV() {
     '</div>';
 
   // Store CV data for cover letter
-  window._cvData = { fn:fn, ln:ln, em:em, ph:ph, ci:ci, qual:qualLabel, jt:jt, co:co, sk:sk, sum:sum, exp:exp, photo:(window._cvPhoto||''), jobs:jobs, certs:certs, langs:langs, awards:awards, pubs:pubs };
+  window._cvData = { fn:fn, ln:ln, em:em, ph:ph, ci:ci, qual:qualLabel, qualKey:qual, inst:inst, yr:yr, yrLabel:qualYearLabel(qual, yr), jt:jt, co:co, sk:sk, sum:sum, exp:exp, photo:(window._cvPhoto||''), jobs:jobs, certs:certs, langs:langs, awards:awards, pubs:pubs };
   attachCoverLetterHandler();
 
   // Now match jobs
@@ -2394,7 +2411,12 @@ function downloadCVWord() {
   }
 
   if (d.sum) { kids.push(heading('Professional Summary')); kids.push(body(d.sum)); }
-  if (d.qual) { kids.push(heading('Education & Qualifications')); kids.push(body(d.qual)); }
+  if (d.qual) {
+    kids.push(heading('Education & Qualifications'));
+    kids.push(new D.Paragraph({ spacing:{after:20}, children:[ new D.TextRun({ text:d.qual, bold:true, size:22, color:NAVY, font:'Calibri' }) ] }));
+    var eduMeta = [d.inst, d.yrLabel].filter(Boolean).join('  ·  ');
+    if (eduMeta) kids.push(body(eduMeta, { size:20, color:SLATE }));
+  }
 
   // ---- Work experience (supports multiple jobs) ----
   var jobs = (d.jobs && d.jobs.length) ? d.jobs : ((d.jt || d.co) ? [{ title: d.jt, co: d.co, start: '', end: '' }] : []);
@@ -2477,7 +2499,11 @@ function downloadCVWordFallback() {
     (d.jt ? '<p style="color:#b45309;font-weight:bold">' + esc(d.jt) + '</p>' : '') +
     '<p style="font-size:10pt;color:#475569">' + esc([d.em, d.ph, d.ci].filter(Boolean).join('  |  ')) + '</p>';
   if (d.sum) html += '<h2>Professional Summary</h2><p>' + esc(d.sum) + '</p>';
-  if (d.qual) html += '<h2>Education &amp; Qualifications</h2><p>' + esc(d.qual) + '</p>';
+  if (d.qual) {
+    html += '<h2>Education &amp; Qualifications</h2><p style="margin-bottom:2pt"><b>' + esc(d.qual) + '</b></p>';
+    var em2 = [d.inst, d.yrLabel].filter(Boolean).join('  \u00b7  ');
+    if (em2) html += '<p style="color:#475569;font-size:10pt">' + esc(em2) + '</p>';
+  }
   var jobs = (d.jobs && d.jobs.length) ? d.jobs : ((d.jt || d.co) ? [{title:d.jt, co:d.co, start:'', end:''}] : []);
   if (jobs.length) {
     html += '<h2>Work Experience</h2>';
@@ -2598,7 +2624,14 @@ function downloadCVSingleCol(d, fmt, jsPDFLib) {
 
   // ---------- SECTIONS ----------
   if (d.sum) { heading('Professional Profile'); body(d.sum, 10, TEXT, 3); }
-  if (d.qual) { heading('Education'); body(d.qual, 10, TEXT, 3); }
+  if (d.qual) {
+    heading('Education');
+    if (y > PH - 22) { doc.addPage(); y = 20; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
+    doc.text(d.qual, mx, y); y += 5;
+    var eduMeta = [d.inst, d.yrLabel].filter(Boolean).join('   ·   ');
+    if (eduMeta) body(eduMeta, 9.5, MUTE, 3); else y += 2;
+  }
   if (d.sk) {
     heading('Skills');
     var skills = String(d.sk).split(/[,\n]/).map(function(s){return s.trim();}).filter(Boolean);
@@ -2825,7 +2858,9 @@ function downloadCVReal(jsPDFLib) {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.text(d.qual, mx, my);
-    my += 12;
+    my += 5;
+    var eduMetaN = [d.inst, d.yrLabel].filter(Boolean).join('   ·   ');
+    if (eduMetaN) { mainText(eduMetaN, 8.5, MUTE, 4); } else { my += 7; }
   }
 
   // WORK EXPERIENCE — one or more jobs, oldest formatting kept for a single job
@@ -3073,7 +3108,8 @@ function generateCoverLetter() {
 '<div class="footer">Created with Sky Blueprint — Your Digital Life, Unified</div>' +
 '</div>' +
 '<div class="no-print" style="text-align:center;padding:20px;background:#f5f5f5">' +
-'<button onclick="window.print()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Save as PDF</button>' +
+'<p style="color:#94a3b8;font-size:13px;margin-bottom:12px">This is a preview. Close this tab and use the <strong style="color:#fff">Save as PDF</strong> or <strong style="color:#fff">Save as Word</strong> buttons for a clean professional file with no browser headers.</p>' +
+'<button onclick="window.close()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Close Preview</button>' +
 '</div></body></html>';
 
   window._clHTML = clHTML;
