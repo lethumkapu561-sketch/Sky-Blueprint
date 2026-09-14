@@ -137,13 +137,13 @@ function updateDashBanner() {
     banner.style.borderColor = 'rgba(16,185,129,0.3)';
   } else if (u.plan === 'cancelled') {
     banner.innerHTML = '<strong>Plan Ended</strong> — Re-subscribe to use the tools again. ' +
-      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
+      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
     banner.style.background = 'rgba(239,68,68,0.08)';
     banner.style.borderColor = 'rgba(239,68,68,0.3)';
   } else {
     // No free trial - subscribe to unlock
     banner.innerHTML = '<strong>Subscribe to unlock all tools</strong> — just R55/month, cancel anytime. ' +
-      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
+      '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:8px">Subscribe R55/month</button>';
     banner.style.background = 'rgba(245,158,11,0.08)';
     banner.style.borderColor = 'rgba(245,158,11,0.3)';
   }
@@ -245,7 +245,7 @@ function doSignup() {
     var banner = document.getElementById('trial-banner');
     if (banner) {
       banner.innerHTML = '<strong>Account Created!</strong> Subscribe to unlock all tools. ' +
-        '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">Subscribe R55/month</button>';
+        '<button onclick="startPaystack(\'monthly\')" style="background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-left:6px">Subscribe R55/month</button>';
       banner.style.background = 'rgba(16,185,129,0.08)';
       banner.style.borderColor = 'rgba(16,185,129,0.3)';
     }
@@ -290,7 +290,7 @@ function showAccount() {
   } else {
     var joined = u.joined || Date.now();
     var daysLeft = Math.max(0, 7 - Math.floor((Date.now() - joined) / (1000*60*60*24)));
-    statusHTML = '<div style="display:inline-block;background:rgba(56,189,248,0.15);color:#38bdf8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">TRIAL — ' + daysLeft + ' DAYS LEFT</div>';
+    statusHTML = '<div style="display:inline-block;background:rgba(56,189,248,0.15);color:#00C4CC;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">TRIAL — ' + daysLeft + ' DAYS LEFT</div>';
   }
 
   var joinedDate = u.joined ? new Date(u.joined).toLocaleDateString('en-ZA', {year:'numeric',month:'long',day:'numeric'}) : 'Recently';
@@ -301,7 +301,7 @@ function showAccount() {
     // Profile card
     '<div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.08));border:1px solid rgba(56,189,248,0.2);border-radius:16px;padding:24px;margin-bottom:20px">' +
     '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">' +
-    '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#6366f1);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff">' + (u.fname ? u.fname.charAt(0).toUpperCase() : 'U') + '</div>' +
+    '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#00C4CC,#8B3DFF);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff">' + (u.fname ? u.fname.charAt(0).toUpperCase() : 'U') + '</div>' +
     '<div><div style="font-size:20px;font-weight:800;color:#fff">' + (u.fname||'') + ' ' + (u.lname||'') + '</div>' +
     '<div style="margin-top:6px">' + statusHTML + '</div></div>' +
     '</div>' +
@@ -321,7 +321,7 @@ function showAccount() {
   if (u.plan === 'trial' || !u.plan) {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Upgrade now to keep all your tools after your trial ends.</p>' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:10px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>';
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>';
   } else if (u.plan === 'monthly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Your monthly plan is active. R55 is debited on your subscription date each month.</p>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
@@ -368,12 +368,12 @@ function cancelPlan() {
     '<p style="color:var(--muted);font-size:13px;text-align:center;line-height:1.7;margin-bottom:20px">We are sorry to see you go. To stop your R55/month charges, follow these quick steps — your subscription is managed securely by Paystack.</p>' +
 
     '<div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:12px;padding:18px;margin-bottom:18px">' +
-    '<div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px">How to cancel (takes 1 minute):</div>' +
+    '<div style="font-size:13px;font-weight:700;color:#00C4CC;margin-bottom:12px">How to cancel (takes 1 minute):</div>' +
     '<div style="display:flex;flex-direction:column;gap:12px">' +
-    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#38bdf8">1.</strong> Open your email inbox (' + (currentUser ? currentUser.email : 'your email') + ')</div>' +
-    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#38bdf8">2.</strong> Search for the email: <em style="color:#fff">"Your subscription is now active"</em> from Paystack</div>' +
-    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#38bdf8">3.</strong> Click the <strong style="color:#fff">"Manage Subscription"</strong> button inside it</div>' +
-    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#38bdf8">4.</strong> Click <strong style="color:#f87171">"Cancel Subscription"</strong> and confirm</div>' +
+    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#00C4CC">1.</strong> Open your email inbox (' + (currentUser ? currentUser.email : 'your email') + ')</div>' +
+    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#00C4CC">2.</strong> Search for the email: <em style="color:#fff">"Your subscription is now active"</em> from Paystack</div>' +
+    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#00C4CC">3.</strong> Click the <strong style="color:#fff">"Manage Subscription"</strong> button inside it</div>' +
+    '<div style="font-size:13px;color:#e2e8f0"><strong style="color:#00C4CC">4.</strong> Click <strong style="color:#f87171">"Cancel Subscription"</strong> and confirm</div>' +
     '</div></div>' +
 
     '<p style="font-size:12px;color:#64748b;line-height:1.6;margin-bottom:18px">You can also click "Manage Subscription" in any payment reminder email Paystack sends you before each charge. After cancelling, you keep access until your current paid month ends.</p>' +
@@ -382,7 +382,7 @@ function cancelPlan() {
     '<button style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px" onclick="showAccount()">← Keep My Subscription</button>' +
 
     '<div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);text-align:center">' +
-    '<p style="font-size:12px;color:#64748b">Need help? Contact us: <strong style="color:#38bdf8">065 601 3544</strong></p>' +
+    '<p style="font-size:12px;color:#64748b">Need help? Contact us: <strong style="color:#00C4CC">065 601 3544</strong></p>' +
     '</div>' +
     '</div></div>';
 }
@@ -445,10 +445,10 @@ function showTrialExpired() {
       '<div class="tool-screen" style="text-align:center;padding:40px 20px">' +
       '<div style="font-size:56px;margin-bottom:16px"></div>' +
       '<h2 style="color:#fff;margin-bottom:10px">Subscribe to Unlock This Tool</h2>' +
-      '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all premium Sky Blueprint tools for just <strong style="color:#38bdf8">R55/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
+      '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all premium Sky Blueprint tools for just <strong style="color:#00C4CC">R55/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
       '<div style="max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:10px">' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px;margin-top:6px" onclick="openTool(\'sa-map\')">Use SA Map (Free)</button>' +
       '</div></div>';
     showPage('tool');
@@ -470,10 +470,10 @@ function requirePaidAction(actionLabel) {
   modal.innerHTML =
     '<div style="background:#0f1629;border:1px solid rgba(56,189,248,0.2);border-radius:20px;padding:28px;max-width:400px;width:100%;text-align:center" onclick="event.stopPropagation()">' +
     '<h3 style="color:#fff;font-size:19px;margin-bottom:10px">Subscribe to ' + (actionLabel || 'continue') + '</h3>' +
-    '<p style="color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6">You can build and preview for free. To ' + (actionLabel || 'use this') + ', subscribe to Sky Blueprint — just <strong style="color:#38bdf8">R55/month</strong>, cancel anytime.</p>' +
+    '<p style="color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6">You can build and preview for free. To ' + (actionLabel || 'use this') + ', subscribe to Sky Blueprint — just <strong style="color:#00C4CC">R55/month</strong>, cancel anytime.</p>' +
     '<div style="display:flex;flex-direction:column;gap:10px">' +
     '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-    '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
+    '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
     '<button style="width:100%;box-sizing:border-box;background:transparent;border:none;color:var(--muted);padding:8px;font-family:var(--font);cursor:pointer;font-size:13px" onclick="document.getElementById(\'pay-action-modal\').remove()">Maybe later</button>' +
     '</div></div>';
   document.body.appendChild(modal);
@@ -532,7 +532,7 @@ function renderWebsiteBuilder(el) {
   <div class="tool-screen">
     <h2>Website Builder</h2>
     <p style="color:var(--muted);font-size:14px;margin-bottom:20px">
-      Fill in your business details. We build your professional website in <strong style="color:#38bdf8">72 hours</strong> and deliver it directly to you.
+      Fill in your business details. We build your professional website in <strong style="color:#00C4CC">72 hours</strong> and deliver it directly to you.
     </p>
 
     <div id="wb-form">
@@ -696,7 +696,7 @@ function renderWebsiteBuilder(el) {
           <span style="flex:1">
             <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
               <strong style="color:#fff;font-size:14px">Premium All-Inclusive — R4,500</strong>
-              <span style="font-size:9px;background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:0.5px">BEST VALUE</span>
+              <span style="font-size:9px;background:linear-gradient(135deg,#a855f7,#8B3DFF);color:#fff;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:0.5px">BEST VALUE</span>
             </span>
             <span style="font-size:12px;color:var(--muted);line-height:1.8;display:block;margin-top:8px">
               <strong style="color:#e2e8f0">Everything you cannot easily do yourself — we handle all of it:</strong><br>
@@ -744,20 +744,20 @@ function renderWebsiteBuilder(el) {
         <p style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:12px">
           You can buy your own domain and hosting directly from <strong style="color:#a78bfa">Hostinger</strong> — our trusted partner. It is affordable, reliable, and you keep full control of your domain. Great if you want everything in your own name.
         </p>
-        <a href="https://www.hostinger.com?REFERRALCODE=XONLETHUMW3C" target="_blank" rel="noopener" style="display:inline-block;background:linear-gradient(135deg,#673ab7,#38bdf8);color:#fff;text-decoration:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;font-family:var(--font)">Get Hostinger Hosting & Domain →</a>
+        <a href="https://www.hostinger.com?REFERRALCODE=XONLETHUMW3C" target="_blank" rel="noopener" style="display:inline-block;background:linear-gradient(135deg,#673ab7,#00C4CC);color:#fff;text-decoration:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;font-family:var(--font)">Get Hostinger Hosting & Domain →</a>
       </div>
 
       <!-- FAVICON ADD-ON -->
       <div class="form-group">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.15);border-radius:10px;padding:14px">
-          <input type="checkbox" id="wb-favicon" onchange="updateWbPrice()" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer">
+          <input type="checkbox" id="wb-favicon" onchange="updateWbPrice()" style="width:18px;height:18px;accent-color:#00C4CC;cursor:pointer">
           <span style="flex:1"><strong style="color:#fff;font-size:13px">Add a custom favicon</strong><br><span style="font-size:11px;color:var(--muted)">Your business logo icon in the browser tab — looks professional (+R50 once-off)</span></span>
         </label>
       </div>
 
       <!-- PRICE SUMMARY -->
       <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.06));border:1px solid rgba(56,189,248,0.25);border-radius:16px;padding:22px;margin:16px 0">
-        <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">Order Summary</div>
+        <div style="font-size:13px;font-weight:700;color:#00C4CC;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">Order Summary</div>
         <div id="wb-base-row" style="display:flex;justify-content:space-between;margin-bottom:9px;font-size:13px">
           <span style="color:var(--muted)" id="wb-base-label">Website Design & Build (72 hours)</span>
           <span style="color:#fff;font-weight:600" id="wb-base-price">R450</span>
@@ -765,11 +765,11 @@ function renderWebsiteBuilder(el) {
         <div id="wb-premium-row" style="display:none;margin-bottom:9px;font-size:11px;color:#a855f7;line-height:1.6">✓ 5 pages · .co.za domain (1st yr) · Paystack · business email · favicon · Google Business Profile · 10 custom ad images · Google Search listing · 3 months monitoring · unlimited edits · WhatsApp button · priority support</div>
         <div id="wb-domain-row" style="display:none;justify-content:space-between;margin-bottom:9px;font-size:13px">
           <span style="color:var(--muted)" id="wb-domain-label">Domain</span>
-          <span style="color:#38bdf8;font-weight:600" id="wb-domain-price">R0</span>
+          <span style="color:#00C4CC;font-weight:600" id="wb-domain-price">R0</span>
         </div>
         <div id="wb-favicon-row" style="display:none;justify-content:space-between;margin-bottom:9px;font-size:13px">
           <span style="color:var(--muted)">Custom favicon icon</span>
-          <span style="color:#38bdf8;font-weight:600">R50</span>
+          <span style="color:#00C4CC;font-weight:600">R50</span>
         </div>
         <div style="border-top:1px solid rgba(56,189,248,0.25);padding-top:12px;margin-top:6px;display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:14px;font-weight:700;color:#fff">Total Once-Off</span>
@@ -816,7 +816,7 @@ function renderWebsiteBuilder(el) {
         <h3 style="color:#10b981;font-size:22px;margin-bottom:10px">Application Submitted!</h3>
         <p style="color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.7">Your website application has been sent to Sky Blueprint. We will contact you within <strong style="color:#fff">24 hours</strong> to confirm all details and begin building your website.</p>
         <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:12px;padding:20px;margin-bottom:20px;text-align:left">
-          <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px">What happens next:</div>
+          <div style="font-size:13px;font-weight:700;color:#00C4CC;margin-bottom:12px">What happens next:</div>
           <div style="display:flex;flex-direction:column;gap:10px">
             <div style="font-size:13px;color:var(--muted)"><strong style="color:#fff">Now</strong> — Application received by Sky Blueprint</div>
             <div style="font-size:13px;color:var(--muted)"><strong style="color:#fff">Within 24 hours</strong> — We call you to confirm all details</div>
@@ -824,7 +824,7 @@ function renderWebsiteBuilder(el) {
             <div style="font-size:13px;color:var(--muted)"><strong style="color:#fff">Hour 72</strong> — Website is live and delivered to you!</div>
           </div>
         </div>
-        <div style="font-size:14px;color:var(--muted)">Contact us anytime: <strong style="color:#38bdf8">065 601 3544</strong></div>
+        <div style="font-size:14px;color:var(--muted)">Contact us anytime: <strong style="color:#00C4CC">065 601 3544</strong></div>
       </div>
     </div>
   </div>`;
@@ -956,7 +956,7 @@ function renderEmailCleaner(el) {
   <div class="tool-screen">
     <h2>AI Email Secretary</h2>
     <p style="color:var(--muted);font-size:14px;margin-bottom:6px">Your AI secretary that manages your inbox while you work.</p>
-    <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">"Turn 500 emails into 5 important tasks."</p>
+    <p style="font-size:12px;color:#00C4CC;margin-bottom:20px;font-style:italic">"Turn 500 emails into 5 important tasks."</p>
 
     <div class="tab-bar">
       <div class="tab active" onclick="emailTab('connect',this)">Connect</div>
@@ -1004,7 +1004,7 @@ function renderEmailCleaner(el) {
           <input type="password" id="ec-pass" placeholder="Your password" style="width:100%;box-sizing:border-box;padding-right:44px">
           <button type="button" onclick="togglePass('ec-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
-          <div id="pass-hint" style="font-size:11px;color:#38bdf8;margin-top:6px;display:none"></div>
+          <div id="pass-hint" style="font-size:11px;color:#00C4CC;margin-top:6px;display:none"></div>
         </div>
         <button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="scanEmails()">
           Scan My Inbox with AI
@@ -1020,7 +1020,7 @@ function renderEmailCleaner(el) {
     <!-- SUMMARY TAB -->
     <div id="et-summary" style="display:none">
       <div style="text-align:center;padding:40px 20px;color:var(--muted)">
-        <div style="margin-bottom:14px"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg></div>
+        <div style="margin-bottom:14px"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg></div>
         <p>Connect your email first to see your Daily Summary</p>
       </div>
     </div>
@@ -1050,7 +1050,7 @@ function emailTab(tab, el) {
 
 function selectProvider(provider, card) {
   document.querySelectorAll('.email-provider-card').forEach(function(c){ c.style.borderColor='rgba(255,255,255,0.08)'; });
-  card.style.borderColor = '#38bdf8';
+  card.style.borderColor = '#00C4CC';
   window._emailProvider = provider;
   document.getElementById('email-form').style.display = 'block';
 
@@ -1078,11 +1078,11 @@ function scanEmails() {
   // Show engaging scanning animation with live status steps
   document.getElementById('et-connect').innerHTML +=
     '<div id="ec-scanning" style="text-align:center;padding:30px 20px;margin-top:16px;background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.15);border-radius:16px">' +
-    '<div style="display:inline-block;width:44px;height:44px;border:3px solid rgba(56,189,248,0.15);border-top-color:#38bdf8;border-radius:50%;animation:spin 0.9s linear infinite;margin-bottom:16px"></div>' +
-    '<div id="ec-scan-step" style="font-size:15px;font-weight:700;color:#38bdf8;margin-bottom:8px;min-height:22px">Connecting securely to your inbox...</div>' +
+    '<div style="display:inline-block;width:44px;height:44px;border:3px solid rgba(56,189,248,0.15);border-top-color:#00C4CC;border-radius:50%;animation:spin 0.9s linear infinite;margin-bottom:16px"></div>' +
+    '<div id="ec-scan-step" style="font-size:15px;font-weight:700;color:#00C4CC;margin-bottom:8px;min-height:22px">Connecting securely to your inbox...</div>' +
     '<div style="font-size:12px;color:var(--muted)">Your password is used only for this scan — never stored.</div>' +
     '<div style="margin-top:16px;height:5px;background:rgba(56,189,248,0.1);border-radius:3px;overflow:hidden">' +
-    '<div style="height:100%;background:linear-gradient(90deg,#38bdf8,#6366f1);border-radius:3px;animation:progress 30s linear forwards"></div>' +
+    '<div style="height:100%;background:linear-gradient(90deg,#00C4CC,#8B3DFF);border-radius:3px;animation:progress 30s linear forwards"></div>' +
     '</div></div>';
 
   // Rotate through live status messages so it feels alive
@@ -1250,7 +1250,7 @@ function buildDailySummary(cats, email) {
   var total = cats.urgent.length + cats.important.length + cats.canwait.length + cats.low.length;
 
   var html = '<div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:20px;margin-bottom:16px">' +
-    '<div style="font-size:11px;color:#38bdf8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">AI Secretary Daily Summary</div>' +
+    '<div style="font-size:11px;color:#00C4CC;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">AI Secretary Daily Summary</div>' +
     '<div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:16px">' + now + '</div>' +
     '<div style="font-size:13px;color:var(--muted);margin-bottom:16px">Scanned <strong style="color:#fff">' + total + ' emails</strong> in your inbox. Here is what matters today:</div>';
 
@@ -1444,7 +1444,7 @@ function renderFindPhone(el) {
       We are putting the finishing touches on Find My Phone to make it powerful and reliable. This tool needs a dedicated mobile app to track, ring and lock your device — and we are building it properly so it works perfectly when it launches.
     </p>
     <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:14px;padding:20px;max-width:440px;margin:0 auto 24px;text-align:left">
-      <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px">What it will do when it launches:</div>
+      <div style="font-size:13px;font-weight:700;color:#00C4CC;margin-bottom:12px">What it will do when it launches:</div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <div style="font-size:13px;color:var(--muted)">Track your phone live on a South African map</div>
         <div style="font-size:13px;color:var(--muted)">Make it ring loudly — even on silent</div>
@@ -1626,7 +1626,7 @@ function renderDeviceRepair(el) {
     '<div class="tool-screen">' +
     '<h2>Device Repair &amp; Optimization</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Professional Android and Samsung device servicing — speed up a slow phone, remove bloatware, or recover a stuck device.</p>' +
-    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Proof of ownership required. We do not service stolen devices.</p>' +
+    '<p style="font-size:12px;color:#00C4CC;margin-bottom:20px;font-style:italic">Proof of ownership required. We do not service stolen devices.</p>' +
 
     '<div id="dr-step1">' +
       '<div class="cv-sec-title">1. Choose Your Services</div>' +
@@ -1636,7 +1636,7 @@ function renderDeviceRepair(el) {
       '<div id="dr-addons"></div>' +
 
       '<div id="dr-summary" style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(99,102,241,0.06));border:1px solid rgba(56,189,248,0.25);border-radius:16px;padding:20px;margin:20px 0">' +
-        '<div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px;letter-spacing:1px">YOUR QUOTE</div>' +
+        '<div style="font-size:13px;font-weight:700;color:#00C4CC;margin-bottom:12px;letter-spacing:1px">YOUR QUOTE</div>' +
         '<div id="dr-lines"><p style="color:var(--muted);font-size:13px;margin:0">Select a service above to see your price.</p></div>' +
         '<div id="dr-total-wrap" style="display:none;border-top:1px solid rgba(56,189,248,0.25);padding-top:12px;margin-top:12px;display:none;justify-content:space-between;align-items:center">' +
           '<span style="font-size:14px;font-weight:700;color:var(--text)">Total</span>' +
@@ -1649,7 +1649,7 @@ function renderDeviceRepair(el) {
     '</div>' +
 
     '<div id="dr-step2" style="display:none">' +
-      '<button onclick="drBackToServices()" style="background:none;border:none;color:#38bdf8;cursor:pointer;font-size:13px;font-family:var(--font);margin-bottom:14px;padding:0">← Back to services</button>' +
+      '<button onclick="drBackToServices()" style="background:none;border:none;color:#00C4CC;cursor:pointer;font-size:13px;font-family:var(--font);margin-bottom:14px;padding:0">← Back to services</button>' +
       '<div class="cv-sec-title">3. Your Device &amp; Contact Details</div>' +
       '<div class="form-row">' +
         '<div class="form-group"><label>Your Full Name *</label><input type="text" id="dr-name" placeholder="e.g. Thabo Nkosi"></div>' +
@@ -1667,15 +1667,15 @@ function renderDeviceRepair(el) {
         '<div id="dr-warnings" style="font-size:12px;color:var(--muted);line-height:1.7"></div>' +
       '</div>' +
       '<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:10px">' +
-        '<input type="checkbox" id="dr-agree-own" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer;margin-top:2px;flex-shrink:0">' +
+        '<input type="checkbox" id="dr-agree-own" style="width:18px;height:18px;accent-color:#00C4CC;cursor:pointer;margin-top:2px;flex-shrink:0">' +
         '<span style="font-size:12px;color:var(--muted);line-height:1.6">I confirm this device belongs to me and I can provide proof of ownership (ID and purchase proof). I understand Sky Blueprint does not service stolen devices.</span>' +
       '</label>' +
       '<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:10px">' +
-        '<input type="checkbox" id="dr-agree-backup" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer;margin-top:2px;flex-shrink:0">' +
+        '<input type="checkbox" id="dr-agree-backup" style="width:18px;height:18px;accent-color:#00C4CC;cursor:pointer;margin-top:2px;flex-shrink:0">' +
         '<span style="font-size:12px;color:var(--muted);line-height:1.6">I have backed up my important data, or I accept the risk of data loss. Sky Blueprint is not responsible for data lost during servicing.</span>' +
       '</label>' +
       '<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:18px">' +
-        '<input type="checkbox" id="dr-agree-risk" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer;margin-top:2px;flex-shrink:0">' +
+        '<input type="checkbox" id="dr-agree-risk" style="width:18px;height:18px;accent-color:#00C4CC;cursor:pointer;margin-top:2px;flex-shrink:0">' +
         '<span style="font-size:12px;color:var(--muted);line-height:1.6">I have read and understood the effects of the services I selected, listed above.</span>' +
       '</label>' +
 
@@ -1688,7 +1688,7 @@ function renderDeviceRepair(el) {
         '<h3 style="color:#10b981;font-size:22px;margin-bottom:10px">Booking Request Sent!</h3>' +
         '<p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:20px">We have received your request and will contact you within <strong style="color:var(--text)">24 hours</strong> to confirm your booking and arrange drop-off or collection.</p>' +
         '<div id="dr-success-summary" style="background:rgba(56,189,248,0.06);border-radius:12px;padding:16px;text-align:left;margin-bottom:16px"></div>' +
-        '<p style="font-size:14px;color:var(--muted)">Questions? Call us: <strong style="color:#38bdf8">065 601 3544</strong></p>' +
+        '<p style="font-size:14px;color:var(--muted)">Questions? Call us: <strong style="color:#00C4CC">065 601 3544</strong></p>' +
       '</div>' +
     '</div>' +
     '</div>';
@@ -1702,7 +1702,7 @@ function drRenderServices() {
   if (!wrap) return;
   wrap.innerHTML = DR_SERVICES.map(function(s){
     return '<label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid var(--border,rgba(255,255,255,0.1));border-radius:12px;padding:14px;margin-bottom:10px">' +
-      '<input type="checkbox" class="dr-service" value="' + s.id + '" onchange="drUpdateQuote()" style="width:18px;height:18px;accent-color:#38bdf8;cursor:pointer;margin-top:2px;flex-shrink:0">' +
+      '<input type="checkbox" class="dr-service" value="' + s.id + '" onchange="drUpdateQuote()" style="width:18px;height:18px;accent-color:#00C4CC;cursor:pointer;margin-top:2px;flex-shrink:0">' +
       '<span style="flex:1;min-width:0">' +
         '<span style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:4px">' +
           '<strong style="color:var(--text);font-size:14px">' + s.name + (s.warn ? ' <span style="font-size:10px;background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:8px;font-weight:700">READ EFFECTS</span>' : '') + '</strong>' +
@@ -1719,9 +1719,9 @@ function drRenderAddons() {
   if (!wrap) return;
   wrap.innerHTML = DR_ADDONS.map(function(a){
     return '<label style="display:flex;align-items:center;gap:12px;cursor:pointer;background:rgba(255,255,255,0.02);border:1px solid var(--border,rgba(255,255,255,0.08));border-radius:10px;padding:11px 14px;margin-bottom:8px">' +
-      '<input type="checkbox" class="dr-addon" value="' + a.id + '" onchange="drUpdateQuote()" style="width:17px;height:17px;accent-color:#38bdf8;cursor:pointer;flex-shrink:0">' +
+      '<input type="checkbox" class="dr-addon" value="' + a.id + '" onchange="drUpdateQuote()" style="width:17px;height:17px;accent-color:#00C4CC;cursor:pointer;flex-shrink:0">' +
       '<span style="flex:1;font-size:13px;color:var(--text)">' + a.name + '</span>' +
-      '<strong style="color:#38bdf8;font-size:13px">+R' + a.price + '</strong>' +
+      '<strong style="color:#00C4CC;font-size:13px">+R' + a.price + '</strong>' +
       '</label>';
   }).join('');
 }
@@ -1858,7 +1858,7 @@ function submitDeviceRepair() {
   }).catch(function(){});
 
   document.getElementById('dr-success-summary').innerHTML =
-    '<div style="font-size:12px;font-weight:700;color:#38bdf8;margin-bottom:10px">BOOKING SUMMARY</div>' +
+    '<div style="font-size:12px;font-weight:700;color:#00C4CC;margin-bottom:10px">BOOKING SUMMARY</div>' +
     '<div style="font-size:13px;color:var(--muted);line-height:1.9">' +
     '<div><strong style="color:var(--text)">Device:</strong> ' + model + '</div>' +
     '<div><strong style="color:var(--text)">Services:</strong> ' + order.services + '</div>' +
@@ -1974,7 +1974,7 @@ function renderCVBuilder(el) {
       <div class="cv-sec-title">Work Experience</div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Add as many jobs as you have. If this is your first job, that is completely fine — skip this section.</p>
       <div id="cv-jobs-container"></div>
-      <button type="button" onclick="addJobEntry()" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:16px">+ Add a Job</button>
+      <button type="button" onclick="addJobEntry()" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:16px">+ Add a Job</button>
 
       <div class="form-group"><label>Years of Experience Total</label>
         <select id="cv-exp">
@@ -1988,30 +1988,37 @@ function renderCVBuilder(el) {
       </div>
 
       <div class="cv-sec-title">Professional Summary</div>
-      <div class="form-group"><textarea id="cv-sum" placeholder="Brief description of your skills and what you are looking for..."></textarea></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px">2-4 sentences in your own words about who you are and what you offer. <strong style="color:#f59e0b">Do not paste a job advert here</strong> — employers can tell.</p>
+      <div class="form-group">
+        <textarea id="cv-sum" spellcheck="true" oninput="cvSummaryCounter()" placeholder="e.g. Reliable and hardworking packer with 2 years of retail experience. Known for working fast, keeping shelves neat and helping customers politely. Looking to grow with a company that values dependable staff."></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:8px">
+          <span id="cv-sum-count" style="font-size:11px;color:var(--muted)">0 words</span>
+          <button type="button" onclick="cvHelpMeWrite()" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.35);color:#00C4CC;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">Help me write this</button>
+        </div>
+      </div>
 
       <div class="cv-sec-title">Skills</div>
-      <div class="form-group"><input type="text" id="cv-sk" placeholder="Microsoft Office, Customer Service, Driving Licence, Python..."></div>
+      <div class="form-group"><input type="text" id="cv-sk" spellcheck="true" placeholder="Microsoft Office, Customer Service, Driving Licence, Python..."></div>
 
       <div class="cv-sec-title">More Sections <span style="font-size:11px;color:var(--muted);font-weight:400">(all optional — fill in whatever applies to you)</span></div>
 
       <div class="form-group"><label>Certifications &amp; Licenses</label>
-        <p style="font-size:11px;color:#38bdf8;margin-bottom:6px">One per line. Anything from a trade certificate to a professional license — e.g. "Forklift Operator License", "Code 10 Drivers License", "HPCSA Registration"</p>
+        <p style="font-size:11px;color:#00C4CC;margin-bottom:6px">One per line. Anything from a trade certificate to a professional license — e.g. "Forklift Operator License", "Code 10 Drivers License", "HPCSA Registration"</p>
         <textarea id="cv-certs" rows="3" placeholder="Forklift Operator License - 2022&#10;First Aid Level 1"></textarea>
       </div>
 
       <div class="form-group"><label>Languages</label>
-        <p style="font-size:11px;color:#38bdf8;margin-bottom:6px">Comma separated</p>
+        <p style="font-size:11px;color:#00C4CC;margin-bottom:6px">Comma separated</p>
         <input type="text" id="cv-langs" placeholder="isiZulu, English, Afrikaans">
       </div>
 
       <div class="form-group"><label>Awards &amp; Achievements</label>
-        <p style="font-size:11px;color:#38bdf8;margin-bottom:6px">One per line — school, work or community achievements</p>
+        <p style="font-size:11px;color:#00C4CC;margin-bottom:6px">One per line — school, work or community achievements</p>
         <textarea id="cv-awards" rows="2" placeholder="Employee of the Month - March 2024"></textarea>
       </div>
 
       <div class="form-group"><label>Publications &amp; Research</label>
-        <p style="font-size:11px;color:#38bdf8;margin-bottom:6px">For academic or research roles — leave blank if not applicable</p>
+        <p style="font-size:11px;color:#00C4CC;margin-bottom:6px">For academic or research roles — leave blank if not applicable</p>
         <textarea id="cv-pubs" rows="2" placeholder="e.g. Nkosi, S. (2023). Title of paper. Journal Name."></textarea>
       </div>
 
@@ -2037,7 +2044,7 @@ function renderCVBuilder(el) {
         </div>
         <div class="cv-fmt-card" data-fmt="modern" onclick="pickCVFormat('modern',this)">
           <div style="height:46px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;margin-bottom:8px;overflow:hidden">
-            <div style="height:14px;background:linear-gradient(90deg,#2563eb,#38bdf8)"></div>
+            <div style="height:14px;background:linear-gradient(90deg,#7C3AED,#00C4CC)"></div>
             <div style="padding:5px"><div style="height:2px;width:70%;background:#cbd5e1;margin-bottom:3px"></div><div style="height:2px;width:85%;background:#cbd5e1"></div></div>
           </div>
           <div style="font-size:13px;font-weight:700;color:#e2e8f0">Modern</div>
@@ -2108,8 +2115,8 @@ function renderCoverLetterTab() {
   box.innerHTML =
     '<div class="cv-sec-title">Create Your Cover Letter</div>' +
     '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">Fill in your name and details in the "Build My CV" tab first. Then complete these fields and we create a professional cover letter that matches your CV.</p>' +
-    '<div style="background:rgba(56,189,248,0.06);border-left:3px solid #38bdf8;border-radius:8px;padding:12px 14px;margin-bottom:16px">' +
-    '<div style="font-size:11px;font-weight:700;color:#38bdf8;margin-bottom:6px">EXPERT TIPS (from 200+ HR managers):</div>' +
+    '<div style="background:rgba(56,189,248,0.06);border-left:3px solid #00C4CC;border-radius:8px;padding:12px 14px;margin-bottom:16px">' +
+    '<div style="font-size:11px;font-weight:700;color:#00C4CC;margin-bottom:6px">EXPERT TIPS (from 200+ HR managers):</div>' +
     '<div style="font-size:11px;color:var(--muted);line-height:1.6">• Tailor it to THIS job — generic letters get ignored<br>• Show what VALUE you bring, not just what you did<br>• Explain WHY this specific company<br>• Never lie — 86% of HR catch it</div>' +
     '</div>' +
     '<div class="form-group"><label>Company Name *</label><input type="text" id="cl-company" placeholder="e.g. Shoprite Holdings"></div>' +
@@ -2187,6 +2194,162 @@ function pickCVFormat(fmt, el) {
 // matriculate from Matric, complete a grade or certificate, and only
 // graduate from a diploma or degree. Saying "Graduated" on Grade 11
 // is wrong and looks unprofessional to an employer.
+// ═══════════════════════════════════════════
+// CV QUALITY TOOLS — word counter, writing help, health check
+// ═══════════════════════════════════════════
+
+function cvSummaryCounter() {
+  var el = document.getElementById('cv-sum');
+  var out = document.getElementById('cv-sum-count');
+  if (!el || !out) return;
+  var words = el.value.trim() ? el.value.trim().split(/\s+/).length : 0;
+  var msg = words + ' word' + (words === 1 ? '' : 's');
+  var colour = 'var(--muted)';
+  if (words > 0 && words < 20) { msg += ' — aim for 30-70 words'; colour = '#f59e0b'; }
+  else if (words >= 20 && words <= 90) { msg += ' — good length'; colour = '#10b981'; }
+  else if (words > 90) { msg += ' — consider trimming, employers skim'; colour = '#f59e0b'; }
+  out.textContent = msg;
+  out.style.color = colour;
+}
+
+// Starter profiles by work type — the person edits these into their own words.
+var CV_PROFILE_STARTERS = {
+  general: 'Reliable and hardworking [job title] with [X] years of experience. Known for [strength, e.g. working fast and paying attention to detail]. Comfortable working in a team or on my own. Looking for an opportunity to grow with a company that values dependable staff.',
+  retail: 'Friendly and dependable retail worker with [X] years of experience in a busy store environment. Experienced in serving customers, handling stock and keeping the floor neat and well presented. Calm under pressure during busy periods and always punctual.',
+  admin: 'Organised and detail-focused administrator with [X] years of experience. Skilled in filing, data capturing, answering phones and assisting walk-in clients. Comfortable with Microsoft Word and Excel, and known for keeping records accurate and up to date.',
+  driver: 'Responsible driver with a valid Code [10/14] licence and [X] years of accident-free driving. Familiar with routes across [your area] and experienced in safe loading, on-time delivery and keeping accurate trip records.',
+  security: 'Alert and disciplined security officer with a valid PSIRA Grade [C/B] registration and [X] years of experience. Experienced in access control, patrolling, writing incident reports and keeping people and property safe.',
+  general_worker: 'Strong, willing and reliable general worker with [X] years of experience. Experienced in cleaning, packing, loading and assisting where needed. Never afraid of hard work, always on time, and quick to learn new tasks.',
+  student: 'Motivated [Grade 12 / graduate] school leaver eager to start my career and learn on the job. Quick to pick up new skills, respectful and dependable. Looking for a first opportunity where I can prove myself and grow with the company.',
+  professional: 'Experienced [profession] with [X] years in [industry]. Skilled in [key skill 1] and [key skill 2], with a track record of [achievement, e.g. improving team output or managing key clients]. Seeking a role where I can apply my experience and continue developing.'
+};
+
+function cvHelpMeWrite() {
+  var existing = document.getElementById('cv-write-modal');
+  if (existing) existing.remove();
+  var modal = document.createElement('div');
+  modal.id = 'cv-write-modal';
+  modal.className = 'modal-overlay';
+  modal.onclick = function(e){ if (e.target === modal) modal.remove(); };
+  var opts = [
+    ['general_worker','General worker / labourer'],
+    ['retail','Retail / shop assistant / cashier'],
+    ['admin','Admin / office / reception'],
+    ['driver','Driver / delivery'],
+    ['security','Security officer'],
+    ['student','School leaver / first job'],
+    ['professional','Professional / office career'],
+    ['general','Something else']
+  ];
+  modal.innerHTML =
+    '<div style="background:var(--bg,#0f1629);border:1px solid var(--border,rgba(56,189,248,0.2));border-radius:20px;padding:24px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto" onclick="event.stopPropagation()">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
+        '<h3 style="color:var(--text,#fff);font-size:18px;margin:0">Help me write my summary</h3>' +
+        '<button onclick="document.getElementById(\'cv-write-modal\').remove()" style="background:none;border:none;color:var(--muted,#94a3b8);font-size:20px;cursor:pointer;padding:0 0 0 10px">&#10005;</button>' +
+      '</div>' +
+      '<p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:16px">Pick the closest match. We will put a starting summary in the box — then <strong style="color:var(--text)">change the [brackets] to your own details</strong>. Employers can spot a copied summary, so make it sound like you.</p>' +
+      opts.map(function(o){
+        return '<button onclick="cvInsertStarter(\'' + o[0] + '\')" style="width:100%;box-sizing:border-box;text-align:left;background:rgba(255,255,255,0.03);border:1px solid var(--border,rgba(255,255,255,0.1));color:var(--text,#e2e8f0);border-radius:10px;padding:13px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);margin-bottom:8px">' + o[1] + '</button>';
+      }).join('') +
+    '</div>';
+  document.body.appendChild(modal);
+}
+
+function cvInsertStarter(key) {
+  var el = document.getElementById('cv-sum');
+  if (el) {
+    el.value = CV_PROFILE_STARTERS[key] || CV_PROFILE_STARTERS.general;
+    cvSummaryCounter();
+    el.focus();
+  }
+  var m = document.getElementById('cv-write-modal');
+  if (m) m.remove();
+}
+
+// Checks the CV for the real problems that make employers bin it.
+function cvHealthCheck(d) {
+  var issues = [], wins = [];
+
+  var sum = String(d.sum || '');
+  // The exact problem seen on a real customer CV: pasted job-advert text with links
+  if (/https?:\/\/|www\./i.test(sum)) issues.push({ level:'bad', text:'Your summary contains a web link. This usually means text was pasted from a website or job advert — employers notice this immediately. Rewrite it in your own words.' });
+  if (/\[\d+\]/.test(sum)) issues.push({ level:'bad', text:'Your summary contains reference markers like [1]. Remove these — they come from copied text.' });
+  var words = sum.trim() ? sum.trim().split(/\s+/).length : 0;
+  if (words === 0) issues.push({ level:'warn', text:'You have no professional summary. This is the first thing an employer reads — add 2-4 sentences about yourself.' });
+  else if (words < 15) issues.push({ level:'warn', text:'Your summary is very short (' + words + ' words). Aim for 30-70 words so it says something meaningful.' });
+  else if (words > 110) issues.push({ level:'warn', text:'Your summary is long (' + words + ' words). Employers skim — trim it to the strongest points.' });
+  else wins.push('Summary is a good length');
+
+  // Sentences that run together without spacing after a full stop
+  if (/[a-z]\.[A-Z]/.test(sum)) issues.push({ level:'warn', text:'Some sentences in your summary run together without a space after the full stop. Add spaces so it reads cleanly.' });
+
+  if (!d.em) issues.push({ level:'bad', text:'No email address. Employers cannot contact you without it.' });
+  if (!d.ph) issues.push({ level:'bad', text:'No phone number. Most South African employers phone first.' });
+  if (d.em && d.ph) wins.push('Contact details complete');
+
+  var skills = String(d.sk || '').split(/[,\n]/).map(function(s){ return s.trim(); }).filter(Boolean);
+  if (skills.length === 0) issues.push({ level:'warn', text:'No skills listed. Add at least 4-6 — they help you pass automated CV screening.' });
+  else if (skills.length < 4) issues.push({ level:'warn', text:'Only ' + skills.length + ' skill(s) listed. Add a few more, including any licences or certificates.' });
+  else wins.push(skills.length + ' skills listed');
+
+  var jobs = d.jobs || [];
+  if (jobs.length === 0) {
+    if (d.exp && d.exp !== '0') issues.push({ level:'warn', text:'You said you have experience but listed no jobs. Use "+ Add a Job" so employers can see where you worked.' });
+  } else {
+    var noDates = jobs.filter(function(j){ return !j.start && !j.end; }).length;
+    if (noDates) issues.push({ level:'warn', text:noDates + ' job(s) have no dates. Employers look for dates to understand your history.' });
+    else wins.push(jobs.length + ' job(s) with dates');
+  }
+
+  if (!d.inst && d.qual) issues.push({ level:'warn', text:'No school or institution name given for your qualification.' });
+  if (!d.langs) issues.push({ level:'info', text:'Consider adding your languages — a real advantage in South Africa.' });
+  if (!d.photo) issues.push({ level:'info', text:'No photo added. Optional, but a neat photo can help for customer-facing roles.' });
+
+  var nameStr = ((d.fn || '') + ' ' + (d.ln || '')).trim();
+  if (nameStr && nameStr === nameStr.toUpperCase() && nameStr.length > 3) issues.push({ level:'info', text:'Your name is in ALL CAPITALS. Normal capitalisation usually looks more professional.' });
+
+  return { issues: issues, wins: wins };
+}
+
+function renderCVHealthCheck(d) {
+  var r = cvHealthCheck(d);
+  var bad = r.issues.filter(function(i){ return i.level === 'bad'; });
+  var warn = r.issues.filter(function(i){ return i.level === 'warn'; });
+  var info = r.issues.filter(function(i){ return i.level === 'info'; });
+  var score = Math.max(0, 100 - (bad.length * 20) - (warn.length * 8) - (info.length * 2));
+  var colour = score >= 80 ? '#10b981' : score >= 55 ? '#f59e0b' : '#f87171';
+  var verdict = score >= 80 ? 'Strong CV — ready to send' : score >= 55 ? 'Good start — fix the points below' : 'Needs work before you apply';
+
+  var html =
+    '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border,rgba(255,255,255,0.1));border-radius:14px;padding:18px;margin-bottom:16px">' +
+    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">' +
+      '<div style="width:56px;height:56px;border-radius:50%;border:3px solid ' + colour + ';display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+        '<span style="font-size:17px;font-weight:800;color:' + colour + '">' + score + '</span>' +
+      '</div>' +
+      '<div style="flex:1;min-width:140px">' +
+        '<div style="font-size:14px;font-weight:700;color:' + colour + '">' + verdict + '</div>' +
+        '<div style="font-size:11px;color:var(--muted)">CV Health Check</div>' +
+      '</div>' +
+    '</div>';
+
+  if (bad.length || warn.length || info.length) {
+    html += '<div style="display:flex;flex-direction:column;gap:8px">';
+    bad.concat(warn).concat(info).forEach(function(i){
+      var c = i.level === 'bad' ? '#f87171' : i.level === 'warn' ? '#f59e0b' : '#64748b';
+      var label = i.level === 'bad' ? 'FIX' : i.level === 'warn' ? 'IMPROVE' : 'TIP';
+      html += '<div style="display:flex;gap:9px;align-items:flex-start">' +
+        '<span style="font-size:9px;font-weight:800;color:' + c + ';border:1px solid ' + c + ';border-radius:5px;padding:2px 5px;flex-shrink:0;margin-top:1px">' + label + '</span>' +
+        '<span style="font-size:12px;color:var(--muted);line-height:1.6">' + i.text + '</span></div>';
+    });
+    html += '</div>';
+  }
+  if (r.wins.length) {
+    html += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border,rgba(255,255,255,0.08));font-size:11px;color:#10b981">Good: ' + r.wins.join(' · ') + '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
 function qualYearLabel(qualKey, year) {
   if (!year) return '';
   var k = String(qualKey || '').toLowerCase();
@@ -2242,23 +2405,23 @@ function buildAndMatchCV() {
 '.page{max-width:820px;margin:0 auto;background:#060914;display:flex;min-height:100vh;}' +
 '.sidebar{width:230px;background:linear-gradient(180deg,#0d1f3c,#1a1040);padding:32px 22px;}' +
 '.main{flex:1;padding:32px 30px;}' +
-'.photo{width:100px;height:100px;border-radius:50%;border:3px solid #38bdf8;object-fit:cover;display:block;margin:0 auto 16px;}' +
-'.avatar{width:100px;height:100px;border-radius:50%;border:3px solid #38bdf8;background:#1e3a5f;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 16px;}' +
+'.photo{width:100px;height:100px;border-radius:50%;border:3px solid #00C4CC;object-fit:cover;display:block;margin:0 auto 16px;}' +
+'.avatar{width:100px;height:100px;border-radius:50%;border:3px solid #00C4CC;background:#1e3a5f;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 16px;}' +
 '.name{font-size:17pt;font-weight:700;color:#fff;text-align:center;line-height:1.2;}' +
-'.role{font-size:10pt;color:#38bdf8;text-align:center;margin-bottom:20px;}' +
-'.sb-title{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#38bdf8;margin:18px 0 10px;padding-bottom:4px;border-bottom:1px solid rgba(56,189,248,0.3);}' +
+'.role{font-size:10pt;color:#00C4CC;text-align:center;margin-bottom:20px;}' +
+'.sb-title{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#00C4CC;margin:18px 0 10px;padding-bottom:4px;border-bottom:1px solid rgba(56,189,248,0.3);}' +
 '.sb-item{font-size:9.5pt;color:#b0c4d8;margin-bottom:7px;word-break:break-word;}' +
 '.skill{font-size:9.5pt;color:#cbd5e1;margin-bottom:8px;padding-left:14px;position:relative;}' +
-'.skill:before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;border-radius:50%;background:#38bdf8;}' +
-'.sec-title{font-size:11pt;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#38bdf8;margin:0 0 12px;padding-bottom:5px;border-bottom:2px solid rgba(56,189,248,0.4);}' +
+'.skill:before{content:"";position:absolute;left:0;top:6px;width:6px;height:6px;border-radius:50%;background:#00C4CC;}' +
+'.sec-title{font-size:11pt;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#00C4CC;margin:0 0 12px;padding-bottom:5px;border-bottom:2px solid rgba(56,189,248,0.4);}' +
 '.section{margin-bottom:24px;}' +
 '.profile-text{font-size:10.5pt;color:#94a3b8;line-height:1.7;}' +
 '.edu-qual{font-size:12pt;font-weight:700;color:#fff;}' +
 '.edu-meta{font-size:9.5pt;color:#64748b;margin-top:3px;}' +
 '.exp-title{font-size:12pt;font-weight:700;color:#fff;}' +
-'.exp-co{font-size:10pt;color:#38bdf8;font-weight:600;margin:2px 0 4px;}' +
+'.exp-co{font-size:10pt;color:#00C4CC;font-weight:600;margin:2px 0 4px;}' +
 '.exp-date{font-size:9pt;color:#64748b;}' +
-'.footer{margin-top:auto;padding-top:20px;border-top:1px solid rgba(56,189,248,0.2);text-align:center;font-size:8.5pt;color:#38bdf8;font-weight:600;}' +
+'.footer{margin-top:auto;padding-top:20px;border-top:1px solid rgba(56,189,248,0.2);text-align:center;font-size:8.5pt;color:#00C4CC;font-weight:600;}' +
 '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.no-print{display:none!important;}}' +
 '@media(max-width:600px){.page{flex-direction:column;}.sidebar{width:100%;}}' +
 '</style></head><body><div class="page">' +
@@ -2298,28 +2461,40 @@ function buildAndMatchCV() {
 '</div>' +
 '<div class="no-print" style="text-align:center;padding:20px;background:#060914">' +
 '<p style="color:#94a3b8;font-size:13px;margin-bottom:12px">This is a preview. Close this tab and use the <strong style="color:#fff">Save as PDF</strong> or <strong style="color:#fff">Save as Word</strong> buttons for a clean professional file with no browser headers.</p>' +
-'<button onclick="window.close()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Close Preview</button>' +
+'<button onclick="window.close()" style="background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Close Preview</button>' +
 '</div></body></html>';
 
   // CRITICAL: set the global so download/print/preview work
   window._cvHTML = cvHTML;
   window._cvName = (fn + '_' + ln + '_CV').replace(/\s+/g,'_');
 
-  // Show success + download buttons
+  // Store CV data FIRST so the health check can read it
+  window._cvData = { fn:fn, ln:ln, em:em, ph:ph, ci:ci, qual:qualLabel, qualKey:qual, inst:inst, yr:yr, yrLabel:qualYearLabel(qual, yr), jt:jt, co:co, sk:sk, sum:sum, exp:exp, photo:(window._cvPhoto||''), jobs:jobs, certs:certs, langs:langs, awards:awards, pubs:pubs };
+
+  // Show success + health check + download buttons
   document.getElementById('cv-msg').innerHTML =
     '<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:18px">' +
     '<strong style="color:var(--green);display:block;margin-bottom:12px;font-size:16px">✅ CV Built for ' + fn + ' ' + ln + '!</strong>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
     '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as PDF</button>' +
-    '<button onclick="downloadCVWord()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as Word (editable)</button>' +
-    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
+    '<button onclick="downloadCVWord()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#7C3AED,#1d4ed8);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as Word (editable)</button>' +
+    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
     '</div>' +
     '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
-    '<p style="font-size:11px;color:#64748b;margin:0">"Save as PDF" works on phone & PC — when the print screen opens, choose <strong>Save as PDF</strong>. Then share on WhatsApp or email.</p>' +
+    '<p style="font-size:11px;color:#64748b;margin:0">Both downloads give you a clean professional file with no browser headers. Share it on WhatsApp or email, or edit the Word version anytime.</p>' +
     '</div>';
 
-  // Store CV data for cover letter
-  window._cvData = { fn:fn, ln:ln, em:em, ph:ph, ci:ci, qual:qualLabel, qualKey:qual, inst:inst, yr:yr, yrLabel:qualYearLabel(qual, yr), jt:jt, co:co, sk:sk, sum:sum, exp:exp, photo:(window._cvPhoto||''), jobs:jobs, certs:certs, langs:langs, awards:awards, pubs:pubs };
+  // Health check lives in its OWN container, because showMatchingJobs()
+  // later overwrites #cv-msg entirely and was wiping this out.
+  var hc = document.getElementById('cv-health');
+  if (!hc) {
+    hc = document.createElement('div');
+    hc.id = 'cv-health';
+    var msgEl = document.getElementById('cv-msg');
+    if (msgEl && msgEl.parentNode) msgEl.parentNode.insertBefore(hc, msgEl.nextSibling);
+  }
+  hc.innerHTML = renderCVHealthCheck(window._cvData);
+
   attachCoverLetterHandler();
 
   // Now match jobs
@@ -2363,7 +2538,7 @@ function downloadCVWord() {
   }
 
   var D = window.docx;
-  var NAVY = '0F172A', GOLD = 'B45309', SLATE = '475569', BLUE = '2563EB';
+  var NAVY = '0F172A', GOLD = 'B45309', SLATE = '475569', BLUE = '7C3AED';
 
   function heading(text) {
     return new D.Paragraph({
@@ -3010,8 +3185,8 @@ function createCoverLetter() {
     '<div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:14px;padding:20px">' +
     '<strong style="color:#a855f7;display:block;margin-bottom:6px;font-size:16px">Create Your Cover Letter</strong>' +
     '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">A cover letter should be tailored to the exact job. Fill in these details and we build a professional one that matches your CV.</p>' +
-    '<div style="background:rgba(56,189,248,0.06);border-left:3px solid #38bdf8;border-radius:8px;padding:12px 14px;margin-bottom:16px">' +
-    '<div style="font-size:11px;font-weight:700;color:#38bdf8;margin-bottom:6px">EXPERT TIPS (from 200+ HR managers):</div>' +
+    '<div style="background:rgba(56,189,248,0.06);border-left:3px solid #00C4CC;border-radius:8px;padding:12px 14px;margin-bottom:16px">' +
+    '<div style="font-size:11px;font-weight:700;color:#00C4CC;margin-bottom:6px">EXPERT TIPS (from 200+ HR managers):</div>' +
     '<div style="font-size:11px;color:var(--muted);line-height:1.6">• Tailor it to THIS job — generic letters get ignored<br>• Show what VALUE you bring, not just what you did<br>• Explain WHY this specific company<br>• Never lie — 86% of HR catch it</div>' +
     '</div>' +
     '<div class="form-group"><label>Company Name *</label><input type="text" id="cl-company" placeholder="e.g. Shoprite Holdings"></div>' +
@@ -3079,7 +3254,7 @@ function generateCoverLetter() {
 '*{margin:0;padding:0;box-sizing:border-box}' +
 'body{font-family:Inter,Arial,sans-serif;color:#1a1a2e;background:#fff;line-height:1.7;font-size:11pt}' +
 '.page{max-width:800px;margin:0 auto;padding:50px 60px}' +
-'.header{border-bottom:3px solid #38bdf8;padding-bottom:20px;margin-bottom:30px}' +
+'.header{border-bottom:3px solid #00C4CC;padding-bottom:20px;margin-bottom:30px}' +
 '.name{font-size:24pt;font-weight:700;color:#0d1f3c}' +
 '.contact{font-size:10pt;color:#555;margin-top:8px}' +
 '.date{margin:24px 0;color:#555;font-size:10pt}' +
@@ -3087,7 +3262,7 @@ function generateCoverLetter() {
 '.body-text{margin-bottom:16px;text-align:justify}' +
 '.signature{margin-top:32px}' +
 '.sig-name{font-weight:700;color:#0d1f3c;font-size:13pt;margin-top:4px}' +
-'.footer{margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;text-align:center;font-size:9pt;color:#38bdf8;font-weight:600}' +
+'.footer{margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;text-align:center;font-size:9pt;color:#00C4CC;font-weight:600}' +
 '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}}' +
 '</style></head><body><div class="page">' +
 '<div class="header">' +
@@ -3109,7 +3284,7 @@ function generateCoverLetter() {
 '</div>' +
 '<div class="no-print" style="text-align:center;padding:20px;background:#f5f5f5">' +
 '<p style="color:#94a3b8;font-size:13px;margin-bottom:12px">This is a preview. Close this tab and use the <strong style="color:#fff">Save as PDF</strong> or <strong style="color:#fff">Save as Word</strong> buttons for a clean professional file with no browser headers.</p>' +
-'<button onclick="window.close()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Close Preview</button>' +
+'<button onclick="window.close()" style="background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:700;cursor:pointer">Close Preview</button>' +
 '</div></body></html>';
 
   window._clHTML = clHTML;
@@ -3138,7 +3313,7 @@ function generateCoverLetter() {
     '<p style="font-size:12px;color:var(--muted);margin-bottom:14px">Tailored for <strong style="color:#fff">' + role + '</strong> at <strong style="color:#fff">' + company + '</strong></p>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
     '<button onclick="downloadCoverLetter()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as PDF</button>' +
-    '<button onclick="previewCoverLetter()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
+    '<button onclick="previewCoverLetter()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
     '</div>' +
     '<div style="background:rgba(139,92,246,0.08);border-radius:8px;padding:12px;margin-top:12px">' +
     '<p style="font-size:11px;color:#c4b5fd;margin:0;line-height:1.6"><strong>Expert tip:</strong> Read your cover letter out loud before sending. Make sure it explains WHY you want this specific job — recruiters can tell when it is generic!</p>' +
@@ -3265,7 +3440,7 @@ function showMatchingJobs(data, name, loc, jobTitle) {
     internship: {
       label: 'Internships',
       icon: '',
-      color: '#6366f1',
+      color: '#8B3DFF',
       desc: 'Gain experience and build your career',
       links: [
         { name: 'Indeed Internships', url: 'https://za.indeed.com/jobs?q=internship+'+q+'&l='+l, color: '#2164f3' },
@@ -3340,8 +3515,8 @@ function showMatchingJobs(data, name, loc, jobTitle) {
     '<strong style="color:var(--green);display:block;margin-bottom:12px;font-size:16px">✅ CV Built for ' + (name||'You') + '!</strong>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
     '<button onclick="downloadCV()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as PDF</button>' +
-    '<button onclick="downloadCVWord()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as Word (editable)</button>' +
-    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
+    '<button onclick="downloadCVWord()" style="flex:1;min-width:130px;background:linear-gradient(135deg,#7C3AED,#1d4ed8);color:#fff;border:none;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Save as Word (editable)</button>' +
+    '<button onclick="previewCV()" style="flex:1;min-width:120px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:8px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' +
     '</div>' +
     '<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center"><span style="font-size:13px;color:#c4b5fd;font-weight:600">Want a matching cover letter? Tap the <strong style="color:#fff">"Cover Letter"</strong> tab at the top!</span></div>' +
     '<p style="font-size:11px;color:#64748b;margin-bottom:14px">"Save as PDF" works on phone & PC. Then share on WhatsApp or email when applying.</p>' +
@@ -3414,7 +3589,7 @@ function renderCustomerManager(el) {
     '<div class="tool-screen">' +
     '<h2>Customer Manager</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Keep all your customers in one place — contacts, notes and purchase history.</p>' +
-    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Private and secure. Only you can see your customer list.</p>' +
+    '<p style="font-size:12px;color:#00C4CC;margin-bottom:20px;font-style:italic">Private and secure. Only you can see your customer list.</p>' +
     '<button class="btn-primary" style="margin-bottom:20px" onclick="openCustomerForm()">+ Add New Customer</button>' +
     '<div id="cm-search-wrap" style="margin-bottom:16px;display:none"><input type="text" id="cm-search" placeholder="🔍 Search customers by name..." oninput="filterCustomers()" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px;color:#fff;font-family:var(--font);font-size:14px"></div>' +
     '<div id="cm-list"><p style="color:var(--muted);text-align:center;padding:30px">Loading your customers...</p></div>' +
@@ -3473,14 +3648,14 @@ function renderCustomerList(list) {
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
         '<div style="flex:1;min-width:0">' +
         '<div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:4px">' + escapeHtml(c.name) + '</div>' +
-        (c.phone ? '<div style="font-size:13px;color:#38bdf8;margin-bottom:2px">' + escapeHtml(c.phone) + '</div>' : '') +
+        (c.phone ? '<div style="font-size:13px;color:#00C4CC;margin-bottom:2px">' + escapeHtml(c.phone) + '</div>' : '') +
         (c.email ? '<div style="font-size:12px;color:var(--muted);margin-bottom:2px;word-break:break-all">' + escapeHtml(c.email) + '</div>' : '') +
         (c.lastPurchase ? '<div style="font-size:12px;color:#10b981;margin-top:4px">' + escapeHtml(c.lastPurchase) + '</div>' : '') +
         (c.notes ? '<div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px">' + escapeHtml(c.notes) + '</div>' : '') +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:6px">' +
         (c.phone ? '<a href="https://wa.me/' + c.phone.replace(/[^0-9]/g,'').replace(/^0/,'27') + '" target="_blank" style="background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.3);color:#25d366;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;text-decoration:none;text-align:center;white-space:nowrap">WhatsApp</a>' : '') +
-        '<button onclick="editCustomer(\'' + c.id + '\')" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)">Edit</button>' +
+        '<button onclick="editCustomer(\'' + c.id + '\')" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)">Edit</button>' +
         '<button onclick="deleteCustomer(\'' + c.id + '\',\'' + escapeHtml(c.name).replace(/\'/g,"") + '\')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)">Delete</button>' +
         '</div>' +
         '</div>' +
@@ -3567,10 +3742,10 @@ function renderImageEditor(el) {
     '<div class="tool-screen">' +
     '<h2>Image &amp; Document Editor</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Add movable text, draw, paint, white-out, erase, add shapes. Works on photos and document scans.</p>' +
-    '<p style="font-size:12px;color:#38bdf8;margin-bottom:18px;font-style:italic">Everything happens on your device. Your files stay private.</p>' +
+    '<p style="font-size:12px;color:#00C4CC;margin-bottom:18px;font-style:italic">Everything happens on your device. Your files stay private.</p>' +
     '<div id="ie-start">' +
     '<div id="ie-drop" style="background:rgba(255,255,255,0.03);border:2px dashed rgba(56,189,248,0.35);border-radius:16px;padding:40px 20px;text-align:center;transition:all 0.2s">' +
-    '<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+    '<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
     '<p style="color:#fff;font-weight:600;margin-bottom:6px;font-size:15px">Drop an image here, or click to choose</p>' +
     '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">JPG, PNG, or a photo/scan of a document</p>' +
     '<input type="file" id="ie-file" accept="image/*" onchange="ieLoadImage(this)" style="display:none">' +
@@ -3636,7 +3811,7 @@ function renderImageEditor(el) {
       '<div class="ie-bar">' +
         '<button onclick="ieRotateCanvas()" class="ie-toolbtn">Rotate Image 90°</button>' +
         '<button onclick="ieEnhancePhoto()" class="ie-toolbtn" style="background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.35);color:#10b981">Enhance Photo</button>' +
-        '<button onclick="ieCleanScan()" class="ie-toolbtn" style="background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.35);color:#38bdf8">Document B&amp;W</button>' +
+        '<button onclick="ieCleanScan()" class="ie-toolbtn" style="background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.35);color:#00C4CC">Document B&amp;W</button>' +
         '<button onclick="ieUndo()" class="ie-toolbtn">Undo</button>' +
         '<button onclick="ieClear()" class="ie-toolbtn">Reset</button>' +
         '<button onclick="ieDownload()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Download</button>' +
@@ -3661,7 +3836,7 @@ function renderImageEditor(el) {
 var IE_COLORS = ['#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#ffffff',
   '#ff0000','#e11d48','#dc2626','#ea580c','#f59e0b','#eab308','#facc15',
   '#84cc16','#22c55e','#16a34a','#059669','#10b981','#14b8a6','#06b6d4',
-  '#0ea5e9','#3b82f6','#2563eb','#4f46e5','#6366f1','#7c3aed','#8b5cf6',
+  '#00A8B5','#3b82f6','#7C3AED','#4f46e5','#8B3DFF','#7c3aed','#8b5cf6',
   '#a855f7','#c026d3','#d946ef','#ec4899','#f43f5e','#78350f','#92400e','#1e3a8a'];
 
 function ieBuildPalette() {
@@ -3675,7 +3850,7 @@ function ieBuildPalette() {
 function ieSetupDrop() {
   var drop = document.getElementById('ie-drop');
   if (!drop) return;
-  drop.ondragover = function(e){ e.preventDefault(); drop.style.background = 'rgba(56,189,248,0.12)'; drop.style.borderColor = '#38bdf8'; };
+  drop.ondragover = function(e){ e.preventDefault(); drop.style.background = 'rgba(56,189,248,0.12)'; drop.style.borderColor = '#00C4CC'; };
   drop.ondragleave = function(e){ e.preventDefault(); drop.style.background = 'rgba(255,255,255,0.03)'; drop.style.borderColor = 'rgba(56,189,248,0.35)'; };
   drop.ondrop = function(e){
     e.preventDefault();
@@ -3780,7 +3955,7 @@ function ieSetTool(tool) {
   ['select','brush','white','erase','line','rect','circle','fill'].forEach(function(t){
     var b = document.getElementById('ie-tool-' + t);
     if (b) {
-      if (t === tool) { b.style.background = 'linear-gradient(135deg,#38bdf8,#6366f1)'; b.style.color = '#fff'; b.style.borderColor = 'transparent'; }
+      if (t === tool) { b.style.background = 'linear-gradient(135deg,#00C4CC,#8B3DFF)'; b.style.color = '#fff'; b.style.borderColor = 'transparent'; }
       else { b.style.background = 'rgba(255,255,255,0.06)'; b.style.color = '#e2e8f0'; b.style.borderColor = 'rgba(255,255,255,0.12)'; }
     }
   });
@@ -3914,14 +4089,14 @@ function ieToggleBold() {
   if (!ieState.activeText) return;
   ieState.activeText.bold = !ieState.activeText.bold;
   ieState.activeText.el.style.fontWeight = ieState.activeText.bold ? '800' : 'normal';
-  document.getElementById('ie-bold-btn').style.background = ieState.activeText.bold ? 'linear-gradient(135deg,#38bdf8,#6366f1)' : 'rgba(255,255,255,0.06)';
+  document.getElementById('ie-bold-btn').style.background = ieState.activeText.bold ? 'linear-gradient(135deg,#00C4CC,#8B3DFF)' : 'rgba(255,255,255,0.06)';
 }
 
 function ieToggleItalic() {
   if (!ieState.activeText) return;
   ieState.activeText.italic = !ieState.activeText.italic;
   ieState.activeText.el.style.fontStyle = ieState.activeText.italic ? 'italic' : 'normal';
-  document.getElementById('ie-italic-btn').style.background = ieState.activeText.italic ? 'linear-gradient(135deg,#38bdf8,#6366f1)' : 'rgba(255,255,255,0.06)';
+  document.getElementById('ie-italic-btn').style.background = ieState.activeText.italic ? 'linear-gradient(135deg,#00C4CC,#8B3DFF)' : 'rgba(255,255,255,0.06)';
 }
 
 function ieDeleteActiveText() {
@@ -4278,7 +4453,7 @@ function renderCompressor(el) {
     '<div class="tool-screen">' +
     '<h2>File Compressor</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Compress, trim, convert and resize your own files — ready for WhatsApp, Instagram or TikTok.</p>' +
-    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Images and audio are processed on your device. Video tools run on our secure server, then the file is deleted.</p>' +
+    '<p style="font-size:12px;color:#00C4CC;margin-bottom:20px;font-style:italic">Images and audio are processed on your device. Video tools run on our secure server, then the file is deleted.</p>' +
     '<div class="pdf-tabs" style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">' +
     '<div class="tab active" onclick="compTab(\'image\',this)">Image</div>' +
     '<div class="tab" onclick="compTab(\'audio\',this)">Audio</div>' +
@@ -4360,7 +4535,7 @@ function compTab(type, elem) {
   } else if (type === 'trim') {
     body.innerHTML =
       '<div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:14px 16px;margin-bottom:16px">' +
-      '<p style="font-size:13px;color:#38bdf8;font-weight:600;margin-bottom:4px">Cut out just the part you need</p>' +
+      '<p style="font-size:13px;color:#00C4CC;font-weight:600;margin-bottom:4px">Cut out just the part you need</p>' +
       '<p style="font-size:12px;color:var(--muted);line-height:1.6">Perfect for WhatsApp status (30 second limit) or trimming a long recording down to the good bit.</p>' +
       '</div>' +
       '<div class="form-row">' +
@@ -4599,9 +4774,9 @@ function runVideoTool(opts) {
   var startedAt = Date.now();
   result.innerHTML =
     '<div style="text-align:center;padding:20px">' +
-    '<div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:14px"></div>' +
+    '<div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(56,189,248,0.2);border-top-color:#00C4CC;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:14px"></div>' +
     '<p style="color:var(--muted)">' + opts.busyText + '</p>' +
-    '<p style="color:#38bdf8;font-size:12px;margin-top:6px" id="' + opts.resultId + '-elapsed">0s elapsed</p>' +
+    '<p style="color:#00C4CC;font-size:12px;margin-top:6px" id="' + opts.resultId + '-elapsed">0s elapsed</p>' +
     '</div>';
   var timer = setInterval(function(){
     var el = document.getElementById(opts.resultId + '-elapsed');
@@ -4716,9 +4891,9 @@ function handleVideoCompress() {
   var startedAt = Date.now();
   result.innerHTML =
     '<div style="text-align:center;padding:20px">' +
-    '<div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:14px"></div>' +
+    '<div style="display:inline-block;width:32px;height:32px;border:3px solid rgba(56,189,248,0.2);border-top-color:#00C4CC;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:14px"></div>' +
     '<p style="color:var(--muted)">Compressing your video on our server...</p>' +
-    '<p style="color:#38bdf8;font-size:12px;margin-top:6px" id="comp-video-elapsed">0s elapsed</p>' +
+    '<p style="color:#00C4CC;font-size:12px;margin-top:6px" id="comp-video-elapsed">0s elapsed</p>' +
     '</div>';
   var elapsedTimer = setInterval(function(){
     var el = document.getElementById('comp-video-elapsed');
@@ -4776,7 +4951,7 @@ function renderPDFTools(el) {
     '<div class="tool-screen">' +
     '<h2>PDF Tools</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Convert your files to PDF instantly — right in your browser.</p>' +
-    '<p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Fast, private and secure. Your files never leave your device.</p>' +
+    '<p style="font-size:12px;color:#00C4CC;margin-bottom:20px;font-style:italic">Fast, private and secure. Your files never leave your device.</p>' +
 
     '<div class="tab-bar" style="flex-wrap:wrap">' +
     '<div class="tab active" onclick="pdfTab(\'merge\',this)">Merge PDF</div>' +
@@ -4799,7 +4974,7 @@ function renderPDFTools(el) {
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
     '<input type="file" id="merge-files" accept=".pdf" multiple onchange="handleMergeFiles(this)" style="display:none">' +
     '<button class="btn-primary" onclick="document.getElementById(\'merge-files\').click()">Choose PDF Files</button>' +
-    '<p id="merge-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '<p id="merge-filename" style="font-size:12px;color:#00C4CC;margin-top:10px"></p>' +
     '</div>' +
     '<div id="merge-result"></div>' +
     '</div>' +
@@ -4811,10 +4986,10 @@ function renderPDFTools(el) {
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
     '<input type="file" id="split-file" accept=".pdf" onchange="handleSplitFile(this)" style="display:none">' +
     '<button class="btn-primary" onclick="document.getElementById(\'split-file\').click()">Choose PDF File</button>' +
-    '<p id="split-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '<p id="split-filename" style="font-size:12px;color:#00C4CC;margin-top:10px"></p>' +
     '</div>' +
     '<div class="form-group"><label>Pages to keep</label>' +
-    '<p style="font-size:11px;color:#38bdf8;margin-bottom:6px">Examples: 1-3 (a range), or 1,3,5 (specific pages), or 2-4,7</p>' +
+    '<p style="font-size:11px;color:#00C4CC;margin-bottom:6px">Examples: 1-3 (a range), or 1,3,5 (specific pages), or 2-4,7</p>' +
     '<input type="text" id="split-range" placeholder="e.g. 1-3"></div>' +
     '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="doSplitPDF()">Split PDF</button>' +
     '<div id="split-result" style="margin-top:12px"></div>' +
@@ -4827,7 +5002,7 @@ function renderPDFTools(el) {
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
     '<input type="file" id="rotate-file" accept=".pdf" onchange="handleRotateFile(this)" style="display:none">' +
     '<button class="btn-primary" onclick="document.getElementById(\'rotate-file\').click()">Choose PDF File</button>' +
-    '<p id="rotate-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '<p id="rotate-filename" style="font-size:12px;color:#00C4CC;margin-top:10px"></p>' +
     '</div>' +
     '<div class="form-group"><label>Rotation</label>' +
     '<select id="rotate-angle" style="width:100%;box-sizing:border-box">' +
@@ -4846,10 +5021,10 @@ function renderPDFTools(el) {
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
     '<input type="file" id="remove-file" accept=".pdf" onchange="handleRemoveFile(this)" style="display:none">' +
     '<button class="btn-primary" onclick="document.getElementById(\'remove-file\').click()">Choose PDF File</button>' +
-    '<p id="remove-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '<p id="remove-filename" style="font-size:12px;color:#00C4CC;margin-top:10px"></p>' +
     '</div>' +
     '<div class="form-group"><label>Pages to delete</label>' +
-    '<p style="font-size:11px;color:#38bdf8;margin-bottom:6px">Examples: 2 (one page), or 2,5,9, or 3-6</p>' +
+    '<p style="font-size:11px;color:#00C4CC;margin-bottom:6px">Examples: 2 (one page), or 2,5,9, or 3-6</p>' +
     '<input type="text" id="remove-range" placeholder="e.g. 2,5"></div>' +
     '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="doRemovePages()">Delete Pages</button>' +
     '<div id="remove-result" style="margin-top:12px"></div>' +
@@ -4862,7 +5037,7 @@ function renderPDFTools(el) {
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
     '<input type="file" id="numbers-file" accept=".pdf" onchange="handleNumbersFile(this)" style="display:none">' +
     '<button class="btn-primary" onclick="document.getElementById(\'numbers-file\').click()">Choose PDF File</button>' +
-    '<p id="numbers-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '<p id="numbers-filename" style="font-size:12px;color:#00C4CC;margin-top:10px"></p>' +
     '</div>' +
     '<div class="form-group"><label>Position</label>' +
     '<select id="numbers-pos" style="width:100%;box-sizing:border-box">' +
@@ -4881,7 +5056,7 @@ function renderPDFTools(el) {
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
     '<input type="file" id="watermark-file" accept=".pdf" onchange="handleWatermarkFile(this)" style="display:none">' +
     '<button class="btn-primary" onclick="document.getElementById(\'watermark-file\').click()">Choose PDF File</button>' +
-    '<p id="watermark-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '<p id="watermark-filename" style="font-size:12px;color:#00C4CC;margin-top:10px"></p>' +
     '</div>' +
     '<div class="form-group"><label>Watermark text</label><input type="text" id="watermark-text" placeholder="e.g. CONFIDENTIAL"></div>' +
     '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="doAddWatermark()">Add Watermark</button>' +
@@ -4895,7 +5070,7 @@ function renderPDFTools(el) {
     '<div style="border:2px dashed rgba(56,189,248,0.3);border-radius:12px;padding:30px;text-align:center;margin-bottom:16px">' +
     '<input type="file" id="topics-file" accept=".pdf" onchange="handlePdfToImages(this)" style="display:none">' +
     '<button class="btn-primary" onclick="document.getElementById(\'topics-file\').click()">Choose PDF File</button>' +
-    '<p id="topics-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '<p id="topics-filename" style="font-size:12px;color:#00C4CC;margin-top:10px"></p>' +
     '</div>' +
     '<div id="topics-result"></div>' +
     '</div>' +
@@ -4908,7 +5083,7 @@ function renderPDFTools(el) {
     '<input type="file" id="csv-file" accept=".csv,.xlsx,.xls" onchange="handleCSVFile(this)" style="display:none">' +
     '<div style="font-size:40px;margin-bottom:10px"></div>' +
     '<button class="btn-primary" onclick="document.getElementById(\'csv-file\').click()">Choose CSV / Excel File</button>' +
-    '<p id="csv-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '<p id="csv-filename" style="font-size:12px;color:#00C4CC;margin-top:10px"></p>' +
     '</div>' +
     '<div id="csv-result"></div>' +
     '</div>' +
@@ -4921,7 +5096,7 @@ function renderPDFTools(el) {
     '<input type="file" id="img-file" accept="image/*" multiple onchange="handleImageFiles(this)" style="display:none">' +
     '<div style="font-size:40px;margin-bottom:10px"></div>' +
     '<button class="btn-primary" onclick="document.getElementById(\'img-file\').click()">Choose Images</button>' +
-    '<p id="img-filename" style="font-size:12px;color:#38bdf8;margin-top:10px"></p>' +
+    '<p id="img-filename" style="font-size:12px;color:#00C4CC;margin-top:10px"></p>' +
     '</div>' +
     '<div id="img-result"></div>' +
     '</div>' +
@@ -4939,7 +5114,7 @@ function renderPDFTools(el) {
     '<option value="a5">A5 — common in South Africa</option>' +
     '</select></div>' +
     '<div class="form-group"><label>Your manuscript</label>' +
-    '<p style="font-size:11px;color:#38bdf8;margin-bottom:6px">Start each chapter on a line beginning with # — for example:<br><span style="color:var(--muted)"># Chapter 1: The Idea</span></p>' +
+    '<p style="font-size:11px;color:#00C4CC;margin-bottom:6px">Start each chapter on a line beginning with # — for example:<br><span style="color:var(--muted)"># Chapter 1: The Idea</span></p>' +
     '<textarea id="bk-text" rows="12" placeholder="# Chapter 1: The Idea\nIt all started when...\n\n# Chapter 2: The First Sale\nThe next morning..." style="width:100%;box-sizing:border-box"></textarea></div>' +
     '<button class="btn-primary" style="width:100%;box-sizing:border-box" onclick="formatManuscript()">Create My Book PDF</button>' +
     '<div id="bk-result" style="margin-top:12px"></div>' +
@@ -5103,7 +5278,7 @@ function _pdfErr(elId, msg) {
 }
 function _pdfBusy(elId, msg) {
   var el = document.getElementById(elId);
-  if (el) el.innerHTML = '<div style="text-align:center;padding:18px"><div style="display:inline-block;width:26px;height:26px;border:3px solid rgba(56,189,248,0.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px"></div><p style="color:var(--muted);font-size:13px;margin:0">' + (msg || 'Working...') + '</p></div>';
+  if (el) el.innerHTML = '<div style="text-align:center;padding:18px"><div style="display:inline-block;width:26px;height:26px;border:3px solid rgba(56,189,248,0.2);border-top-color:#00C4CC;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px"></div><p style="color:var(--muted);font-size:13px;margin:0">' + (msg || 'Working...') + '</p></div>';
 }
 function _pdfDone(elId, bytes, filename, note) {
   var blob = new Blob([bytes], { type: 'application/pdf' });
@@ -5358,7 +5533,7 @@ async function handlePdfToImages(input) {
       var dataUrl = canvas.toDataURL('image/png');
       html += '<div style="text-align:center">' +
         '<img src="' + dataUrl + '" style="width:100%;border:1px solid var(--border,rgba(255,255,255,0.1));border-radius:8px;margin-bottom:6px">' +
-        '<a href="' + dataUrl + '" download="page-' + i + '.png" style="font-size:12px;color:#38bdf8;text-decoration:none;font-weight:600">Download page ' + i + '</a>' +
+        '<a href="' + dataUrl + '" download="page-' + i + '.png" style="font-size:12px;color:#00C4CC;text-decoration:none;font-weight:600">Download page ' + i + '</a>' +
         '</div>';
     }
     html += '</div>';
@@ -5486,16 +5661,16 @@ function textToPDF() {
 
 function renderTemplates(el) {
   var templates = [
-    { id:'invoice', name:'Professional Invoice', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-2-1.5L14 22l-2-1.5L10 22l-2-1.5L6 22z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>', price:99, cat:'Business', img:'Professional_Invoice_Template-1.png', desc:'Auto-calculates line totals, subtotal, VAT and total. Includes your banking details.' },
-    { id:'quote', name:'Quotation Template', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 2h6v4H9zM8 10h8M8 14h8M8 18h5"/></svg>', price:99, cat:'Business', img:'Quotation_Template-1.png', desc:'Professional quotes with terms & conditions. Send before invoicing.' },
-    { id:'stock', name:'Stock / Inventory Tracker', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 9-5 9 5-9 5-9-5z"/><path d="M3 8v9l9 5 9-5V8M12 13v9"/></svg>', price:149, cat:'Business', img:'Stock_Inventory_Tracker-1.png', desc:'Tracks products, flags LOW/OUT of stock automatically, shows total stock value.' },
-    { id:'bizbudget', name:'Business Budget / Cash Flow', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 2.5-2c1.5 0 2.5 1 2.5 2s-1 1.5-2.5 2-2.5 1-2.5 2 1 2 2.5 2 2.5-1 2.5-2M12 6v2M12 16v2"/></svg>', price:149, cat:'Business', img:'Business_Budget_Planner-1.png', desc:'Income vs expenses, budgeted vs actual, auto money-left calculation.' },
-    { id:'wages', name:'Staff Wage Register', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 6a3 3 0 0 1 0 6M21 20c0-2-1-4-3-4.5"/></svg>', price:149, cat:'Business', img:'Staff_Wage_Register-1.png', desc:'Enter hours & rate — auto-calculates gross, deductions and net pay per employee.' },
-    { id:'monthly', name:'Monthly Budget Planner', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>', price:59, cat:'Personal', img:'Monthly_Budget_Planner-1.png', desc:'Simple personal budget. Money in vs out. Perfect for families.' },
-    { id:'marksheet', name:'School Mark Sheet', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13l2 2 4-4"/></svg>', price:89, cat:'School', img:'School_Mark_Sheet-1.png', desc:'Auto-calculates totals, averages, PASS/FAIL and class average.' },
-    { id:'attendance', name:'Class Attendance Register', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m8 15 2 2 4-4"/></svg>', price:89, cat:'School', img:'Class_Attendance_Register-1.png', desc:'Mark P/A/L/S daily. Auto-counts attendance percentage per learner.' },
-    { id:'merchant-agreement', name:'Merchant Agreement Sheet', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>', price:100, cat:'Business', img:'SkyBlueprint_Merchant_Agreement_Sheet-1.png', desc:'Professional merchant onboarding form — company, bank, directors and business profile. Ready for payment providers.' },
-    { id:'instore-details', name:'In-Store Details Sheet', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5M4 9h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM9 21v-6h6v6"/></svg>', price:100, cat:'Business', img:'SkyBlueprint_Instore_Details_Sheet-1.png', desc:'Capture head office, store branches, bank accounts and POS terminals in one clean sheet.' }
+    { id:'invoice', name:'Professional Invoice', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-2-1.5L14 22l-2-1.5L10 22l-2-1.5L6 22z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>', price:99, cat:'Business', img:'Professional_Invoice_Template-1.png', desc:'Auto-calculates line totals, subtotal, VAT and total. Includes your banking details.' },
+    { id:'quote', name:'Quotation Template', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 2h6v4H9zM8 10h8M8 14h8M8 18h5"/></svg>', price:99, cat:'Business', img:'Quotation_Template-1.png', desc:'Professional quotes with terms & conditions. Send before invoicing.' },
+    { id:'stock', name:'Stock / Inventory Tracker', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 9-5 9 5-9 5-9-5z"/><path d="M3 8v9l9 5 9-5V8M12 13v9"/></svg>', price:149, cat:'Business', img:'Stock_Inventory_Tracker-1.png', desc:'Tracks products, flags LOW/OUT of stock automatically, shows total stock value.' },
+    { id:'bizbudget', name:'Business Budget / Cash Flow', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 2.5-2c1.5 0 2.5 1 2.5 2s-1 1.5-2.5 2-2.5 1-2.5 2 1 2 2.5 2 2.5-1 2.5-2M12 6v2M12 16v2"/></svg>', price:149, cat:'Business', img:'Business_Budget_Planner-1.png', desc:'Income vs expenses, budgeted vs actual, auto money-left calculation.' },
+    { id:'wages', name:'Staff Wage Register', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 6a3 3 0 0 1 0 6M21 20c0-2-1-4-3-4.5"/></svg>', price:149, cat:'Business', img:'Staff_Wage_Register-1.png', desc:'Enter hours & rate — auto-calculates gross, deductions and net pay per employee.' },
+    { id:'monthly', name:'Monthly Budget Planner', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>', price:59, cat:'Personal', img:'Monthly_Budget_Planner-1.png', desc:'Simple personal budget. Money in vs out. Perfect for families.' },
+    { id:'marksheet', name:'School Mark Sheet', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13l2 2 4-4"/></svg>', price:89, cat:'School', img:'School_Mark_Sheet-1.png', desc:'Auto-calculates totals, averages, PASS/FAIL and class average.' },
+    { id:'attendance', name:'Class Attendance Register', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m8 15 2 2 4-4"/></svg>', price:89, cat:'School', img:'Class_Attendance_Register-1.png', desc:'Mark P/A/L/S daily. Auto-counts attendance percentage per learner.' },
+    { id:'merchant-agreement', name:'Merchant Agreement Sheet', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>', price:100, cat:'Business', img:'SkyBlueprint_Merchant_Agreement_Sheet-1.png', desc:'Professional merchant onboarding form — company, bank, directors and business profile. Ready for payment providers.' },
+    { id:'instore-details', name:'In-Store Details Sheet', icon:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C4CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5M4 9h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM9 21v-6h6v6"/></svg>', price:100, cat:'Business', img:'SkyBlueprint_Instore_Details_Sheet-1.png', desc:'Capture head office, store branches, bank accounts and POS terminals in one clean sheet.' }
   ];
 
   var bundles = [
@@ -5509,14 +5684,14 @@ function renderTemplates(el) {
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">' +
       '<div style="width:44px;height:44px;border-radius:10px;background:rgba(56,189,248,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">' + t.icon + '</div>' +
       '<div><div style="font-size:15px;font-weight:700;color:#fff">' + t.name + '</div>' +
-      '<span style="font-size:10px;background:rgba(56,189,248,0.15);color:#38bdf8;padding:2px 8px;border-radius:10px">' + t.cat + '</span></div>' +
+      '<span style="font-size:10px;background:rgba(56,189,248,0.15);color:#00C4CC;padding:2px 8px;border-radius:10px">' + t.cat + '</span></div>' +
       '</div>' +
       '<p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px;flex:1">' + t.desc + '</p>' +
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">' +
       '<span style="font-size:22px;font-weight:800;color:#10b981">R' + t.price + '</span>' +
       '<div style="display:flex;gap:6px">' +
-      (t.img ? '<button onclick="previewTemplate(\'' + t.img + '\',\'' + t.name + '\')" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' : '') +
-      '<button onclick="buyTemplate(\'' + t.id + '\',\'' + t.name + '\',' + t.price + ')" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Buy Now</button>' +
+      (t.img ? '<button onclick="previewTemplate(\'' + t.img + '\',\'' + t.name + '\')" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">Preview</button>' : '') +
+      '<button onclick="buyTemplate(\'' + t.id + '\',\'' + t.name + '\',' + t.price + ')" style="background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Buy Now</button>' +
       '</div></div></div>';
   }).join('');
 
@@ -5536,7 +5711,7 @@ function renderTemplates(el) {
     '<div class="tool-screen">' +
     '<h2>Templates Store</h2>' +
     '<p style="color:var(--muted);font-size:14px;margin-bottom:4px">Professional, ready-to-use spreadsheets for business, school and home.</p>' +
-    '<p style="font-size:12px;color:#38bdf8;margin-bottom:8px;font-style:italic">Every template auto-calculates for you. Buy once, keep forever.</p>' +
+    '<p style="font-size:12px;color:#00C4CC;margin-bottom:8px;font-style:italic">Every template auto-calculates for you. Buy once, keep forever.</p>' +
     '<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 14px;margin-bottom:20px;text-align:center"><span style="font-size:12px;color:#10b981;font-weight:600">✅ No subscription needed — just buy the template you want and keep it forever!</span></div>' +
 
     '<div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:14px;margin-bottom:20px">' +
@@ -5570,7 +5745,7 @@ function previewTemplate(img, name) {
     '<div style="color:#fff;font-size:18px;font-weight:700;margin-bottom:12px">' + name + ' — Preview</div>' +
     '<img id="tpl-preview-img" src="' + imgUrl + '" style="max-width:100%;max-height:75vh;border-radius:12px;border:2px solid rgba(56,189,248,0.4);background:#fff">' +
     '<div id="tpl-preview-err" style="display:none;color:#f87171;padding:20px;font-size:13px"></div>' +
-    '<div style="margin-top:14px"><button onclick="document.getElementById(\'tpl-preview-modal\').remove()" style="background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Close</button></div>' +
+    '<div style="margin-top:14px"><button onclick="document.getElementById(\'tpl-preview-modal\').remove()" style="background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Close</button></div>' +
     '</div>';
   document.body.appendChild(modal);
 
@@ -5580,7 +5755,7 @@ function previewTemplate(img, name) {
     imgEl.style.display = 'none';
     var err = document.getElementById('tpl-preview-err');
     err.style.display = 'block';
-    err.innerHTML = 'Could not load the preview image.<br><br>The site looked for it at:<br><span style="color:#38bdf8;word-break:break-all">' + imgUrl + '</span><br><br>Make sure a file with this EXACT name is in your repo.';
+    err.innerHTML = 'Could not load the preview image.<br><br>The site looked for it at:<br><span style="color:#00C4CC;word-break:break-all">' + imgUrl + '</span><br><br>Make sure a file with this EXACT name is in your repo.';
   };
 }
 
@@ -5666,7 +5841,7 @@ function renderLearnerships(el) {
   <div class="tool-screen">
     <h2>Learnerships & Internships</h2>
     <p style="color:var(--muted);font-size:14px;margin-bottom:4px">Find learnerships and internships you qualify for — sent straight to your email.</p>
-    <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">We check if you qualify, then send you the best matching opportunities and apply links.</p>
+    <p style="font-size:12px;color:#00C4CC;margin-bottom:20px;font-style:italic">We check if you qualify, then send you the best matching opportunities and apply links.</p>
 
     <div id="ls-form">
       <div class="cv-sec-title">Your Details</div>
@@ -5809,7 +5984,7 @@ function showLearnershipResult(qualifies, reasons, data) {
       '<div style="font-size:48px;margin-bottom:12px"></div>' +
       '<h3 style="color:#f87171;font-size:18px;margin-bottom:10px">You Do Not Meet the Requirements Yet</h3>' +
       reasons.map(function(r){ return '<p style="color:var(--muted);font-size:13px;margin-bottom:8px">' + r + '</p>'; }).join('') +
-      '<p style="color:#38bdf8;font-size:13px;margin-top:16px">Tip: Keep checking back. New opportunities open every week, and your qualifications may match future ones.</p>' +
+      '<p style="color:#00C4CC;font-size:13px;margin-top:16px">Tip: Keep checking back. New opportunities open every week, and your qualifications may match future ones.</p>' +
       '</div>';
   } else {
     // Qualifies - show opportunities + notes
@@ -5837,7 +6012,7 @@ function showLearnershipResult(qualifies, reasons, data) {
         (opp.dataFree ? '<span style="font-size:10px;background:rgba(16,185,129,0.15);color:#10b981;padding:2px 8px;border-radius:10px">DATA-FREE</span>' : '') +
         '</div>' +
         '<p style="font-size:12px;color:var(--muted);margin-bottom:10px">' + opp.desc + '</p>' +
-        '<a href="' + opp.url + '" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;text-decoration:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600">Apply on ' + opp.name + ' →</a>' +
+        '<a href="' + opp.url + '" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;text-decoration:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600">Apply on ' + opp.name + ' →</a>' +
         '</div>';
     }).join('');
 
@@ -5944,7 +6119,7 @@ function renderReminders(el) {
   <div class="tool-screen">
     <h2>My Reminders & Tasks</h2>
     <p style="color:var(--muted);font-size:14px;margin-bottom:4px">Never miss a meeting, task, habit or family gathering again.</p>
-    <p style="font-size:12px;color:#38bdf8;margin-bottom:20px;font-style:italic">Your personal assistant that reminds you while you focus on what matters.</p>
+    <p style="font-size:12px;color:#00C4CC;margin-bottom:20px;font-style:italic">Your personal assistant that reminds you while you focus on what matters.</p>
 
     <div id="notif-permission" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:14px;margin-bottom:16px">
       <div style="font-size:13px;color:#fff;font-weight:600;margin-bottom:8px">Enable notifications to get reminders</div>
@@ -6075,7 +6250,7 @@ function addReminder() {
 }
 
 var CAT_INFO = {
-  meeting: { icon:'', label:'Meeting', color:'#38bdf8' },
+  meeting: { icon:'', label:'Meeting', color:'#00C4CC' },
   task:    { icon:'✅', label:'Task', color:'#10b981' },
   habit:   { icon:'', label:'Habit', color:'#a855f7' },
   family:  { icon:'', label:'Family', color:'#ec4899' },
@@ -6272,7 +6447,7 @@ function showReminderPopup(r) {
     '</div>' +
     (r.notes ? '<div style="font-size:13px;color:var(--muted);margin:8px 0">' + r.notes + '</div>' : '') +
     '<div style="font-size:12px;color:' + ci.color + ';margin-bottom:14px">' + formatReminderDate(r.date, r.time) + '</div>' +
-    '<button onclick="document.getElementById(\'reminder-popup\').remove()" style="width:100%;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Got it ✓</button>';
+    '<button onclick="document.getElementById(\'reminder-popup\').remove()" style="width:100%;background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Got it ✓</button>';
 
   document.body.appendChild(popup);
   // Auto-remove after 30 seconds
@@ -6831,7 +7006,7 @@ function showJobResults(data, platform, q, l) {
 
   var levelColors = {
     entry: '#10b981', skilled: '#f59e0b',
-    mid: '#38bdf8', executive: '#8b5cf6'
+    mid: '#00C4CC', executive: '#8b5cf6'
   };
 
   var res = document.getElementById('job-res');
@@ -6959,7 +7134,7 @@ function renderAffiliateDashboard(d) {
     // Stats row
     '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">' +
       '<div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:12px 6px;text-align:center">' +
-        '<div style="font-size:18px;font-weight:800;color:#38bdf8">' + d.signups + '</div>' +
+        '<div style="font-size:18px;font-weight:800;color:#00C4CC">' + d.signups + '</div>' +
         '<div style="font-size:9px;color:var(--muted)">Signups</div></div>' +
       '<div style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px 6px;text-align:center">' +
         '<div style="font-size:18px;font-weight:800;color:#10b981">' + d.paidReferrals + '</div>' +
@@ -6976,7 +7151,7 @@ function renderAffiliateDashboard(d) {
     // Referral link
     '<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">YOUR REFERRAL LINK</div>' +
     '<input id="ref-link-input" readonly value="' + d.refLink + '" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid var(--border,rgba(255,255,255,0.12));border-radius:10px;padding:11px 12px;color:var(--text,#fff);font-size:12px;font-family:var(--font);margin-bottom:10px">' +
-    '<button onclick="copyReferralLink(\'' + d.refLink + '\')" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:20px">Copy referral link</button>' +
+    '<button onclick="copyReferralLink(\'' + d.refLink + '\')" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#8B3DFF,#8b5cf6);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:20px">Copy referral link</button>' +
 
     // Payout details
     '<div style="border-top:1px solid var(--border,rgba(255,255,255,0.08));padding-top:18px">' +
@@ -6997,7 +7172,7 @@ function renderAffiliateDashboard(d) {
       '</select></div>' +
     '<div class="form-group"><label style="font-size:12px">Account holder name</label>' +
       '<input type="text" id="ref-account-name" placeholder="Your full name as it appears on your account" value="' + (p.accountName || '') + '"></div>' +
-    '<button onclick="saveAffiliatePayout()" style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.35);color:#38bdf8;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px">Save payout details</button>' +
+    '<button onclick="saveAffiliatePayout()" style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.35);color:#00C4CC;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:10px">Save payout details</button>' +
     '<button onclick="requestAffiliatePayout()" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">Request payout (R' + d.balance + ')</button>' +
     '<p id="ref-method-note" style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6"></p>' +
     '</div>' +
@@ -7257,7 +7432,7 @@ function openToolPage(name) {
   }).join('');
   var stepsHtml = L.steps.map(function(s, i){
     return '<div style="flex:1;min-width:140px;background:var(--surface-1,rgba(255,255,255,0.04));border:1px solid var(--border,rgba(255,255,255,0.08));border-radius:14px;padding:16px 14px;text-align:center">' +
-      '<div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">' + (i+1) + '</div>' +
+      '<div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">' + (i+1) + '</div>' +
       '<div style="font-size:13px;color:var(--muted,#94a3b8);line-height:1.5">' + s + '</div></div>';
   }).join('');
   document.getElementById('tool-page-title').textContent = L.title;
@@ -7268,7 +7443,7 @@ function openToolPage(name) {
       '<div style="margin-bottom:26px">' + benefitsHtml + '</div>' +
       '<div style="font-weight:700;color:var(--text,#e2e8f0);font-size:14px;margin-bottom:12px">How it works</div>' +
       '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:26px">' + stepsHtml + '</div>' +
-      '<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);border-radius:12px;padding:13px 16px;font-size:13px;color:#38bdf8;font-weight:700;margin-bottom:22px;text-align:center">' + L.price + '</div>' +
+      '<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);border-radius:12px;padding:13px 16px;font-size:13px;color:#00C4CC;font-weight:700;margin-bottom:22px;text-align:center">' + L.price + '</div>' +
       '<button class="btn-primary landing-cta" style="width:100%;box-sizing:border-box;font-size:16px;padding:16px" onclick="' + L.action + '">' + L.cta + ' →</button>' +
       '<p style="text-align:center;margin-top:14px"><a href="#" onclick="showPage(\'home\');return false" style="color:var(--muted,#94a3b8);font-size:13px">← Back to all tools</a></p>' +
     '</div>';
@@ -7505,7 +7680,7 @@ async function guideEmailGmail() {
   await guideMsg('3️⃣ <strong>Scroll down</strong> until you see <strong>"2-Step Verification"</strong><br><br>Click on it → follow the steps to turn it ON → verify with your phone number when asked<br><br>Once it shows <strong>"On"</strong> with a green tick — you are ready for the next step');
   await guideMsg('4️⃣ <strong>Go back to the Security page</strong> → scroll down again<br><br>Now you will see <strong>"App Passwords"</strong> listed below 2-Step Verification<br><br>Click on <strong>App Passwords</strong>');
   await guideMsg('5️⃣ You will see a box that says <strong>"App name"</strong><br><br>Type exactly: <strong>Sky Blueprint</strong><br><br>Then click the <strong>Create</strong> button');
-  await guideMsg('6️⃣ Google will show you a <strong>16-character password</strong> like this:<br><br><code style="background:#1a1a2e;padding:6px 10px;border-radius:4px;color:#38bdf8;font-size:14px;letter-spacing:3px">abcd efgh ijkl mnop</code><br><br>⚠️ <strong>Copy it now</strong> — it only shows once! Select all the characters including spaces → copy');
+  await guideMsg('6️⃣ Google will show you a <strong>16-character password</strong> like this:<br><br><code style="background:#1a1a2e;padding:6px 10px;border-radius:4px;color:#00C4CC;font-size:14px;letter-spacing:3px">abcd efgh ijkl mnop</code><br><br>⚠️ <strong>Copy it now</strong> — it only shows once! Select all the characters including spaces → copy');
   await guideMsg('7️⃣ <strong>Come back to Sky Blueprint Email Cleaner</strong><br><br>Click <strong>Gmail</strong> → Enter your Gmail address → In the password box paste the <strong>16-character code</strong> Google gave you → Click <strong>Scan My Inbox</strong><br><br>Your real emails will load and AI will sort Important from Spam automatically! ✅');
   guideOptions([
     { label: '✅ It is working — emails loaded!', action: async function() {

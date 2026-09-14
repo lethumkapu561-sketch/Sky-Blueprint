@@ -1,7 +1,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#060914;--bg2:#0a0f1e;--bg3:#0f1629;
-  --sky:#38bdf8;--indigo:#6366f1;--green:#10b981;
+  --sky:#00C4CC;--indigo:#8B3DFF;--green:#10b981;
+  --cyan-soft:rgba(0,196,204,0.12);--violet-soft:rgba(139,61,255,0.12);
   --text:#e2e8f0;--muted:#64748b;--border:rgba(255,255,255,0.08);
   --card:rgba(255,255,255,0.03);
   --font:'Inter',sans-serif;--display:'Plus Jakarta Sans',sans-serif;
@@ -589,7 +590,7 @@ body {
   padding: 5px 12px;
   border-radius: 20px;
   background: rgba(56,189,248,0.15);
-  color: #38bdf8;
+  color: #00C4CC;
   margin-bottom: 10px;
 }
 .mobile-menu button {
@@ -688,12 +689,12 @@ body {
 .ie-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 12px; }
 .ie-toolbtn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#e2e8f0; border-radius:8px; padding:10px 15px; font-size:13px; font-weight:600; cursor:pointer; font-family:var(--font); transition:all 0.15s; }
 .ie-toolbtn:hover { background:rgba(255,255,255,0.1); }
-.ie-toolbtn.ie-active { background:linear-gradient(135deg,#38bdf8,#6366f1); color:#fff; border-color:transparent; }
+.ie-toolbtn.ie-active { background:linear-gradient(135deg,#00C4CC,#8B3DFF); color:#fff; border-color:transparent; }
 
 /* CV format picker cards */
 .cv-fmt-card { background:rgba(255,255,255,0.03); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; cursor:pointer; transition:all 0.15s; }
 .cv-fmt-card:hover { border-color:rgba(56,189,248,0.4); background:rgba(56,189,248,0.05); }
-.cv-fmt-card.cv-fmt-active { border-color:#38bdf8; background:rgba(56,189,248,0.1); box-shadow:0 0 0 1px #38bdf8; }
+.cv-fmt-card.cv-fmt-active { border-color:#00C4CC; background:rgba(56,189,248,0.1); box-shadow:0 0 0 1px #00C4CC; }
 
 /* ═══════════════════════════════════════════
    THEMES
@@ -719,3 +720,185 @@ body.theme-navy {
 }
 body.theme-navy .tool-card { background:rgba(56,189,248,0.06); border-color:rgba(56,189,248,0.2); }
 body.theme-navy nav { background:rgba(10,22,40,0.97); border-bottom:1px solid rgba(56,189,248,0.15); }
+
+/* ═══════════════════════════════════════════
+   STYLISH POLISH — cyan/violet accents
+   ═══════════════════════════════════════════ */
+
+/* Buttons get a soft glow on hover instead of just fading */
+.btn-primary, .btn-primary-sm, .btn-hero-primary {
+  box-shadow: 0 2px 14px rgba(0,196,204,0.22);
+  transition: box-shadow 0.25s ease, transform 0.15s ease, opacity 0.2s ease;
+}
+.btn-primary:hover, .btn-primary-sm:hover, .btn-hero-primary:hover {
+  box-shadow: 0 6px 26px rgba(0,196,204,0.42);
+  transform: translateY(-1px);
+}
+
+/* Tool cards lift with a cyan edge */
+.tool-card {
+  transition: transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.tool-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0,196,204,0.4) !important;
+  box-shadow: 0 10px 30px rgba(0,196,204,0.13);
+}
+
+/* Section labels in cyan with letter spacing */
+.sec-label {
+  color: #00C4CC;
+  letter-spacing: 2px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+/* Inputs glow cyan when focused */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #00C4CC !important;
+  box-shadow: 0 0 0 3px rgba(0,196,204,0.14);
+}
+
+/* Active tabs get a cyan-to-violet underline */
+.tab.active {
+  position: relative;
+  color: #fff;
+}
+.tab.active::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, #00C4CC, #8B3DFF);
+  border-radius: 2px;
+}
+
+/* Pricing cards: cyan glow on the featured one */
+.price-card.featured {
+  box-shadow: 0 8px 34px rgba(0,196,204,0.16);
+}
+
+/* Gradient text helper */
+.grad-text {
+  background: linear-gradient(90deg, #00C4CC, #8B3DFF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scrollbar in brand colours (desktop) */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0a0f1e; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00C4CC, #8B3DFF);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #00A8B5, #7C3AED); }
+
+/* Selection highlight */
+::selection { background: rgba(0,196,204,0.3); color: #fff; }
+
+/* ═══════════════════════════════════════════
+   STYLISH POLISH — richer use of the cyan/violet palette
+   Appended last so it overrides earlier rules.
+═══════════════════════════════════════════ */
+:root{
+  --grad-main:linear-gradient(135deg,#00C4CC 0%,#3B82F6 50%,#8B3DFF 100%);
+  --grad-soft:linear-gradient(135deg,rgba(0,196,204,0.14),rgba(139,61,255,0.10));
+  --glow-cyan:0 8px 28px rgba(0,196,204,0.28);
+  --glow-violet:0 8px 28px rgba(139,61,255,0.24);
+}
+
+/* Buttons: three-stop gradient + lift on hover */
+.btn-primary,.btn-primary-sm{
+  background:var(--grad-main);
+  box-shadow:0 4px 16px rgba(0,196,204,0.22);
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.btn-primary:hover,.btn-primary-sm:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--glow-cyan);
+  filter:brightness(1.06);
+  opacity:1;
+}
+.btn-primary:active,.btn-primary-sm:active{transform:translateY(0)}
+
+/* Tool cards: cyan edge + lift, with a soft gradient wash on hover */
+.tool-card{transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease}
+.tool-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(0,196,204,0.45);
+  box-shadow:0 12px 32px rgba(0,196,204,0.14);
+  background:var(--grad-soft);
+}
+.tool-card .tc-arrow{transition:color .2s ease, transform .2s ease}
+.tool-card:hover .tc-arrow{color:#00C4CC;transform:translateX(4px)}
+
+/* Section labels and titles pick up the gradient */
+.sec-label{
+  background:var(--grad-main);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-weight:800;letter-spacing:1.4px;
+}
+.grad-text{
+  background:var(--grad-main);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* Pricing: featured card glows in the palette */
+.price-card{transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease}
+.price-card:hover{transform:translateY(-3px);border-color:rgba(0,196,204,0.4)}
+.price-card.featured{
+  border-color:rgba(0,196,204,0.5);
+  box-shadow:0 0 0 1px rgba(0,196,204,0.25), 0 14px 40px rgba(0,196,204,0.16);
+}
+
+/* Inputs: cyan focus ring instead of a flat border */
+input,textarea,select{transition:border-color .18s ease, box-shadow .18s ease}
+input:focus,textarea:focus,select:focus{
+  outline:none;
+  border-color:#00C4CC !important;
+  box-shadow:0 0 0 3px rgba(0,196,204,0.16);
+}
+
+/* Tabs: gradient underline on the active tab */
+.tab{position:relative;transition:color .18s ease}
+.tab.active{color:#fff}
+.tab.active::after{
+  content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;
+  background:var(--grad-main);border-radius:2px;
+}
+
+/* Scrollbar in the palette */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#00C4CC,#8B3DFF);border-radius:6px}
+::-webkit-scrollbar-thumb:hover{filter:brightness(1.15)}
+
+/* Text selection */
+::selection{background:rgba(0,196,204,0.3);color:#fff}
+
+/* Section divider that fades from cyan to violet */
+.grad-divider{height:1px;background:linear-gradient(90deg,transparent,#00C4CC,#8B3DFF,transparent);border:none;margin:40px 0}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce){
+  .btn-primary,.btn-primary-sm,.tool-card,.price-card{transition:none}
+  .btn-primary:hover,.btn-primary-sm:hover,.tool-card:hover,.price-card:hover{transform:none}
+}
+
+/* Keep the light and navy themes clean — the polish above is tuned for the
+   dark theme, so re-assert theme-appropriate surfaces on hover. */
+body.theme-light .tool-card:hover{
+  background:#ffffff;
+  border-color:rgba(0,196,204,0.5);
+  box-shadow:0 12px 30px rgba(0,196,204,0.16);
+}
+body.theme-light ::selection{background:rgba(0,196,204,0.25);color:#0f172a}
+body.theme-light ::-webkit-scrollbar-track{background:#e8eef5}
+
+body.theme-navy .tool-card:hover{
+  background:rgba(0,196,204,0.10);
+  border-color:rgba(0,196,204,0.5);
+}
