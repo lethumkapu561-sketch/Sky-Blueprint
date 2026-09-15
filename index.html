@@ -26,7 +26,7 @@
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=3"><link rel="icon" type="image/svg+xml" href="favicon.svg?v=3"><link rel="apple-touch-icon" href="apple-touch-icon.png?v=3"><link rel="shortcut icon" href="favicon.ico?v=3">
-<link rel="stylesheet" href="style.css?v=19">
+<link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
 
@@ -38,45 +38,33 @@
      Once dismissed it is REMOVED from the DOM (not just hidden),
      so it can never block a click.
 ═══════════════════════════════════════════════════════════ -->
-<div id="sb-splash" style="position:fixed;inset:0;background:#05070d;z-index:99999;overflow:hidden;transition:opacity 0.9s ease">
+<div id="sb-splash" style="position:fixed;inset:0;background:#05070d;z-index:99999;overflow:hidden;transition:opacity 1s ease">
 
-  <!-- Your real photo as the base layer -->
-  <div id="sb-photo" style="position:absolute;inset:0;background:url('eye-bg.jpg') center/cover no-repeat;animation:sbSlowZoom 5s ease-out forwards"></div>
+  <!-- The real photograph, slowly pushing in toward the eye -->
+  <div id="sb-photo" style="position:absolute;inset:-6%;background:url('eye-bg.jpg') 49.8% 39.2%/cover no-repeat;transform-origin:49.8% 39.2%;animation:sbPushIn 4.2s cubic-bezier(.22,.61,.36,1) forwards"></div>
 
-  <!-- The blue eye, revealed as the lid opens.
-       Positioned to sit exactly where the eye is in the photo:
-       centre 48.7% across, 40% down, tilted 4.1 degrees. -->
-  <div id="sb-eyeball" style="position:absolute;left:48.7%;top:40%;width:62%;transform:translate(-50%,-50%) rotate(4.1deg);opacity:0;animation:sbEyeReveal 3.4s ease-out 0.7s forwards">
-    <div style="position:relative;width:100%;clip-path:ellipse(50% 0% at 50% 50%);animation:sbLidOpen 3.4s ease-in-out 0.7s forwards">
-      <img src="eye-open.png" alt="" style="width:100%;display:block">
-    </div>
-    <!-- blue glow bleeding out from the lens -->
-    <div style="position:absolute;left:50%;top:50%;width:34%;padding-bottom:34%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.55),rgba(37,99,235,0.18) 55%,transparent 72%);filter:blur(22px);animation:sbGlowPulse 3s ease-in-out 2s infinite"></div>
-  </div>
+  <!-- Soft light bloom near the lid, so it feels lit rather than flat -->
+  <div style="position:absolute;left:49.8%;top:39.2%;width:46%;padding-bottom:26%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(0,196,204,0.16),rgba(139,61,255,0.07) 55%,transparent 75%);filter:blur(30px);animation:sbBloom 4.2s ease-in-out forwards;pointer-events:none"></div>
 
-  <!-- Cinematic vignette -->
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 48.7% 40%, transparent 30%, rgba(0,0,0,0.55) 70%, rgba(0,0,0,0.92) 100%);pointer-events:none"></div>
+  <!-- Cinematic vignette, tightening as we push in -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 49.8% 39.2%, transparent 26%, rgba(0,0,0,0.5) 62%, rgba(0,0,0,0.94) 100%);animation:sbVig 4.2s ease-out forwards;pointer-events:none"></div>
 
   <!-- Branding -->
-  <div style="position:absolute;left:0;right:0;bottom:11%;text-align:center;pointer-events:none">
-    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.4px;text-shadow:0 2px 24px rgba(0,0,0,0.9);opacity:0;animation:sbFadeUp 1s ease 2.6s forwards">Sky Blueprint</div>
-    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:11px;color:#00C4CC;letter-spacing:4px;margin-top:10px;text-shadow:0 2px 16px rgba(0,0,0,0.9);opacity:0;animation:sbFadeUp 1s ease 3s forwards">YOUR DIGITAL LIFE, UNIFIED</div>
+  <div style="position:absolute;left:0;right:0;bottom:13%;text-align:center;pointer-events:none">
+    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:clamp(20px,4.4vw,30px);font-weight:800;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 30px rgba(0,0,0,0.95);opacity:0;animation:sbRise 1.1s ease 1.5s forwards">Sky Blueprint</div>
+    <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;font-size:clamp(9px,2.2vw,11px);color:#00C4CC;letter-spacing:4px;margin-top:11px;text-shadow:0 2px 18px rgba(0,0,0,0.95);opacity:0;animation:sbRise 1.1s ease 2.1s forwards">YOUR DIGITAL LIFE, UNIFIED</div>
+    <div style="width:0;height:1px;margin:18px auto 0;background:linear-gradient(90deg,transparent,#00C4CC,#8B3DFF,transparent);animation:sbLine 1.4s ease 2.5s forwards"></div>
   </div>
 
   <style>
-    /* Lid opens: closed -> open -> blink -> open wide and stay */
-    @keyframes sbLidOpen {
-      0%   { clip-path: ellipse(50% 0%  at 50% 50%); }
-      26%  { clip-path: ellipse(50% 46% at 50% 50%); }
-      40%  { clip-path: ellipse(50% 8%  at 50% 50%); }
-      56%  { clip-path: ellipse(50% 50% at 50% 50%); }
-      100% { clip-path: ellipse(50% 50% at 50% 50%); }
+    @keyframes sbPushIn { from { transform:scale(1);} to { transform:scale(1.16);} }
+    @keyframes sbBloom  { 0%{opacity:0} 45%{opacity:1} 100%{opacity:0.85} }
+    @keyframes sbVig    { from { opacity:0.55;} to { opacity:1;} }
+    @keyframes sbRise   { from { opacity:0; transform:translateY(14px);} to { opacity:1; transform:translateY(0);} }
+    @keyframes sbLine   { from { width:0; opacity:0;} to { width:min(190px,52vw); opacity:1;} }
+    @media (prefers-reduced-motion: reduce){
+      #sb-photo{animation:none !important;transform:scale(1.04) !important}
     }
-    @keyframes sbEyeReveal { 0% { opacity:0; } 12% { opacity:1; } 100% { opacity:1; } }
-    @keyframes sbSlowZoom  { from { transform:scale(1.14); } to { transform:scale(1); } }
-    @keyframes sbGlowPulse { 0%,100% { opacity:0.75; } 50% { opacity:1; } }
-    @keyframes sbFadeUp    { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-    @media (max-width:600px){ #sb-eyeball { width:82% !important; } }
   </style>
 </div>
 <script>
@@ -100,9 +88,9 @@
   // Sequence: photo fades in, eye opens (0.7s), blinks, opens wide,
   // branding fades in at 2.6s. Dismiss at 4.2s so the whole thing is seen.
   // The hard failsafe below guarantees it can never get stuck.
-  if (document.readyState === 'complete') { setTimeout(killSplash, 4200); }
-  else { window.addEventListener('load', function(){ setTimeout(killSplash, 4200); }); }
-  setTimeout(killSplash, 5500); // hard failsafe — always fires
+  if (document.readyState === 'complete') { setTimeout(killSplash, 3600); }
+  else { window.addEventListener('load', function(){ setTimeout(killSplash, 3600); }); }
+  setTimeout(killSplash, 4800); // hard failsafe — always fires
   document.addEventListener('click', killSplash, { once:true, capture:true });
   document.addEventListener('touchstart', killSplash, { once:true, capture:true });
 
@@ -987,7 +975,7 @@ function showPolicy(type) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<script src="app.js?v=19"></script>
+<script src="app.js?v=20"></script>
 
 <!-- ══════════════════════════════════════
      SKY BLUEPRINT AI GUIDE ASSISTANT
