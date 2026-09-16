@@ -1009,7 +1009,7 @@ body.theme-light .pc-hero{background:linear-gradient(160deg,rgba(0,196,204,0.08)
   transition:color .16s ease,transform .16s ease;
 }
 .tool-card .tc-arrow::after{
-  content:'\\203A';            /* single chevron */
+  content:'›';            /* single chevron, literal character so no escaping issues */
   font-size:22px;line-height:1;font-weight:400;
 }
 .tool-card:hover .tc-arrow{color:#00C4CC;transform:translateX(3px)}
