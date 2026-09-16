@@ -7083,6 +7083,248 @@ function mapCity(c){document.getElementById('ms').value=c;searchM();}
 // THEME SWITCHER
 // ═══════════════════════════════════════════
 // Pricing section: switch between Subscription and Website Services
+// Settings panel open/close + active-theme checkmarks
+function toggleSettingsPanel() {
+  var el = document.getElementById('settings-overlay');
+  if (!el) return;
+  var isOpen = el.style.display === 'block';
+  el.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    updateSettingsChecks();
+    if (typeof renderSettingsWho === 'function') renderSettingsWho();
+  }
+}
+
+function updateSettingsChecks() {
+  var current = (document.body.className.match(/theme-(\w+)/) || [,'dark'])[1];
+  ['dark','light','navy'].forEach(function(t){
+    var check = document.querySelector('[data-check="' + t + '"]');
+    if (check) check.style.display = (t === current) ? 'inline-flex' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════
+// SETTINGS PANEL ACTIONS
+// ═══════════════════════════════════════════
+
+// Fill in who is signed in at the top of the settings panel
+function renderSettingsWho() {
+  var el = document.getElementById('settings-who');
+  if (!el) return;
+  if (!currentUser) {
+    el.innerHTML = '<p style="font-size:13px;color:var(--muted);margin:0 0 10px">You are not signed in.</p>' +
+      '<button onclick="toggleSettingsPanel();showPage(\'login\')" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">Log in</button>';
+    return;
+  }
+  var planNames = { trial:'Free trial', monthly:'All Tools — R55/month', yearly:'Annual Plan — R1,490/year', owner:'Owner' };
+  var plan = planNames[currentUser.plan] || currentUser.plan || 'Free';
+  var initials = ((currentUser.fname||'?')[0] + (currentUser.lname ? currentUser.lname[0] : '')).toUpperCase();
+  el.innerHTML =
+    '<div style="display:flex;align-items:center;gap:12px">' +
+      '<div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#00C4CC,#8B3DFF);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0">' + initials + '</div>' +
+      '<div style="min-width:0;flex:1">' +
+        '<div style="font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + ((currentUser.fname||'') + ' ' + (currentUser.lname||'')).trim() + '</div>' +
+        '<div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (currentUser.email||'') + '</div>' +
+        '<div style="font-size:11px;color:#00C4CC;font-weight:600;margin-top:2px">' + plan + '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+// ---- CANCEL SUBSCRIPTION, capturing the reason ----
+var CANCEL_REASONS = [
+  'Too expensive for me right now',
+  'I am not using it enough',
+  'I found what I needed and I am done',
+  'A tool did not work properly',
+  'I am using something else instead',
+  'I only needed it for one job',
+  'Something else'
+];
+
+function openCancelFlow() {
+  if (!currentUser) { toggleSettingsPanel(); showPage('login'); return; }
+  var existing = document.getElementById('cancel-modal');
+  if (existing) existing.remove();
+  var m = document.createElement('div');
+  m.id = 'cancel-modal';
+  m.className = 'modal-overlay';
+  m.onclick = function(e){ if (e.target === m) m.remove(); };
+  m.innerHTML =
+    '<div style="background:var(--bg,#0f1629);border:1px solid var(--border,rgba(255,255,255,0.12));border-radius:20px;padding:24px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
+        '<h3 style="color:var(--text,#fff);font-size:18px;margin:0">Before you go</h3>' +
+        '<button onclick="document.getElementById(\'cancel-modal\').remove()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 0 0 10px">&#10005;</button>' +
+      '</div>' +
+      '<p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:18px">Could you tell us why you are leaving? It genuinely helps us fix what is not working.</p>' +
+      '<div id="cancel-reasons" style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">' +
+        CANCEL_REASONS.map(function(r, i){
+          return '<label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid var(--border,rgba(255,255,255,0.1));border-radius:9px;padding:11px 13px">' +
+            '<input type="radio" name="cx-reason" value="' + r.replace(/"/g,'&quot;') + '" style="margin-top:2px;accent-color:#00C4CC;cursor:pointer;flex-shrink:0">' +
+            '<span style="font-size:13px;color:var(--text)">' + r + '</span></label>';
+        }).join('') +
+      '</div>' +
+      '<textarea id="cancel-detail" rows="2" placeholder="Anything else you want to tell us? (optional)" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid var(--border,rgba(255,255,255,0.12));border-radius:9px;padding:11px;color:var(--text);font-family:var(--font);font-size:13px;margin-bottom:16px"></textarea>' +
+      '<button onclick="submitCancellation()" style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);color:#f87171;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:9px">Continue to cancel</button>' +
+      '<button onclick="document.getElementById(\'cancel-modal\').remove()" style="width:100%;box-sizing:border-box;background:none;border:1px solid var(--border,rgba(255,255,255,0.15));color:var(--muted);border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Never mind, keep my plan</button>' +
+      '<div id="cancel-msg" style="margin-top:12px"></div>' +
+    '</div>';
+  document.body.appendChild(m);
+}
+
+function submitCancellation() {
+  var picked = document.querySelector('input[name="cx-reason"]:checked');
+  var msg = document.getElementById('cancel-msg');
+  if (!picked) {
+    msg.innerHTML = '<p style="color:#f59e0b;font-size:12px;text-align:center;margin:0">Please choose a reason so we can improve.</p>';
+    return;
+  }
+  var detail = (document.getElementById('cancel-detail') || {value:''}).value.trim();
+
+  // Record the reason so the owner can see why people leave
+  fetch(BACKEND_URL + '/api/cancel-feedback', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      token: safeStorage.getItem('sb_token') || '',
+      email: currentUser ? currentUser.email : '',
+      name: currentUser ? ((currentUser.fname||'') + ' ' + (currentUser.lname||'')).trim() : '',
+      plan: currentUser ? currentUser.plan : '',
+      reason: picked.value,
+      detail: detail
+    })
+  }).catch(function(){});
+
+  // Then show the actual cancellation steps
+  var m = document.getElementById('cancel-modal');
+  if (m) m.remove();
+  toggleSettingsPanel();
+  showPage('account');
+  setTimeout(function(){ if (typeof cancelPlan === 'function') cancelPlan(); }, 150);
+}
+
+// ---- NOTIFICATION PREFERENCES (saved on this device) ----
+function openNotifyPrefs() {
+  var existing = document.getElementById('notify-modal');
+  if (existing) existing.remove();
+  var prefs = {};
+  try { prefs = JSON.parse(safeStorage.getItem('sb_notify') || '{}'); } catch(e) {}
+  var opts = [
+    ['reminders', 'Task &amp; meeting reminders', 'Pop-up alerts from the Reminders tool'],
+    ['jobs', 'New learnership &amp; job alerts', 'Email me when new opportunities match my profile'],
+    ['tips', 'Tips on using the tools', 'Occasional emails showing how to get more out of Sky Blueprint'],
+    ['offers', 'Offers &amp; new tools', 'Let me know when something new launches']
+  ];
+  var m = document.createElement('div');
+  m.id = 'notify-modal';
+  m.className = 'modal-overlay';
+  m.onclick = function(e){ if (e.target === m) m.remove(); };
+  m.innerHTML =
+    '<div style="background:var(--bg,#0f1629);border:1px solid var(--border,rgba(255,255,255,0.12));border-radius:20px;padding:24px;max-width:420px;width:100%" onclick="event.stopPropagation()">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
+        '<h3 style="color:var(--text,#fff);font-size:18px;margin:0">Notifications</h3>' +
+        '<button onclick="document.getElementById(\'notify-modal\').remove()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 0 0 10px">&#10005;</button>' +
+      '</div>' +
+      '<p style="color:var(--muted);font-size:12.5px;margin-bottom:18px">Choose what you want to hear about.</p>' +
+      opts.map(function(o){
+        var on = prefs[o[0]] !== false;
+        return '<label style="display:flex;align-items:flex-start;gap:11px;cursor:pointer;padding:11px 0;border-bottom:1px solid var(--border,rgba(255,255,255,0.07))">' +
+          '<input type="checkbox" class="np-opt" data-key="' + o[0] + '"' + (on ? ' checked' : '') + ' style="width:17px;height:17px;accent-color:#00C4CC;cursor:pointer;margin-top:2px;flex-shrink:0">' +
+          '<span><span style="display:block;font-size:13.5px;color:var(--text);font-weight:600">' + o[1] + '</span>' +
+          '<span style="display:block;font-size:11.5px;color:var(--muted);margin-top:2px">' + o[2] + '</span></span></label>';
+      }).join('') +
+      '<button onclick="saveNotifyPrefs()" style="width:100%;box-sizing:border-box;background:linear-gradient(135deg,#00C4CC,#8B3DFF);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:18px">Save preferences</button>' +
+      '<div id="notify-msg" style="margin-top:10px"></div>' +
+    '</div>';
+  document.body.appendChild(m);
+}
+
+function saveNotifyPrefs() {
+  var prefs = {};
+  document.querySelectorAll('.np-opt').forEach(function(cb){ prefs[cb.getAttribute('data-key')] = cb.checked; });
+  safeStorage.setItem('sb_notify', JSON.stringify(prefs));
+  var msg = document.getElementById('notify-msg');
+  if (msg) msg.innerHTML = '<p style="color:#10b981;font-size:12px;text-align:center;margin:0">Saved.</p>';
+  setTimeout(function(){ var m = document.getElementById('notify-modal'); if (m) m.remove(); }, 900);
+}
+
+// ---- DOWNLOAD MY DATA (POPIA right of access) ----
+function downloadMyData() {
+  if (!currentUser) { toggleSettingsPanel(); showPage('login'); return; }
+  var data = {
+    exported_on: new Date().toISOString(),
+    exported_from: 'Sky Blueprint (skyblueprint.company)',
+    account: {
+      first_name: currentUser.fname || '',
+      last_name: currentUser.lname || '',
+      email: currentUser.email || '',
+      phone: currentUser.phone || '',
+      plan: currentUser.plan || '',
+      joined: currentUser.joined ? new Date(currentUser.joined).toISOString() : ''
+    },
+    saved_on_this_device: {
+      theme: safeStorage.getItem('sb_theme') || 'dark',
+      notification_preferences: (function(){ try { return JSON.parse(safeStorage.getItem('sb_notify') || '{}'); } catch(e){ return {}; } })(),
+      reminders: (function(){ try { return JSON.parse(safeStorage.getItem('sb_reminders') || '[]'); } catch(e){ return []; } })(),
+      last_cv_built: (function(){ try { return window._cvData || null; } catch(e){ return null; } })()
+    },
+    note: 'This file contains the personal information Sky Blueprint holds about you. Under POPIA you may also request deletion at any time.'
+  };
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'sky-blueprint-my-data.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ---- DELETE ACCOUNT (POPIA right to erasure) ----
+function openDeleteAccount() {
+  if (!currentUser) { toggleSettingsPanel(); showPage('login'); return; }
+  var existing = document.getElementById('del-modal');
+  if (existing) existing.remove();
+  var m = document.createElement('div');
+  m.id = 'del-modal';
+  m.className = 'modal-overlay';
+  m.onclick = function(e){ if (e.target === m) m.remove(); };
+  m.innerHTML =
+    '<div style="background:var(--bg,#0f1629);border:1px solid rgba(239,68,68,0.35);border-radius:20px;padding:24px;max-width:420px;width:100%" onclick="event.stopPropagation()">' +
+      '<h3 style="color:#f87171;font-size:18px;margin:0 0 10px">Delete my account</h3>' +
+      '<p style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:14px">This permanently removes your account and personal details from Sky Blueprint. It <strong style="color:var(--text)">cannot be undone</strong>.</p>' +
+      '<div style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:13px;margin-bottom:16px">' +
+        '<p style="color:#f59e0b;font-size:12px;line-height:1.6;margin:0"><strong>Important:</strong> deleting your account does not automatically stop a Paystack subscription. Cancel your subscription first, or you may keep being charged.</p>' +
+      '</div>' +
+      '<p style="color:var(--muted);font-size:12.5px;margin-bottom:8px">Type <strong style="color:var(--text)">DELETE</strong> to confirm:</p>' +
+      '<input id="del-confirm" type="text" placeholder="DELETE" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.04);border:1px solid var(--border,rgba(255,255,255,0.12));border-radius:9px;padding:11px;color:var(--text);font-family:var(--font);font-size:14px;margin-bottom:16px">' +
+      '<button onclick="confirmDeleteAccount()" style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.45);color:#f87171;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:9px">Permanently delete my account</button>' +
+      '<button onclick="document.getElementById(\'del-modal\').remove()" style="width:100%;box-sizing:border-box;background:none;border:1px solid var(--border,rgba(255,255,255,0.15));color:var(--muted);border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Cancel</button>' +
+      '<div id="del-msg" style="margin-top:12px"></div>' +
+    '</div>';
+  document.body.appendChild(m);
+}
+
+function confirmDeleteAccount() {
+  var typed = (document.getElementById('del-confirm') || {value:''}).value.trim().toUpperCase();
+  var msg = document.getElementById('del-msg');
+  if (typed !== 'DELETE') {
+    msg.innerHTML = '<p style="color:#f59e0b;font-size:12px;text-align:center;margin:0">Please type DELETE exactly to confirm.</p>';
+    return;
+  }
+  msg.innerHTML = '<p style="color:var(--muted);font-size:12px;text-align:center;margin:0">Deleting your account...</p>';
+  fetch(BACKEND_URL + '/api/delete-account', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ token: safeStorage.getItem('sb_token') || '' })
+  })
+  .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+  .then(function(res){
+    if (!res.ok) { msg.innerHTML = '<p style="color:#f87171;font-size:12px;text-align:center;margin:0">' + (res.d.error || 'Could not delete the account.') + '</p>'; return; }
+    safeStorage.removeItem('sb_token');
+    safeStorage.removeItem('sb_current');
+    alert('Your account has been deleted. We are sorry to see you go.');
+    window.location.reload();
+  })
+  .catch(function(){ msg.innerHTML = '<p style="color:#f87171;font-size:12px;text-align:center;margin:0">Could not connect. Please try again.</p>'; });
+}
+
 function pricingTab(which, el) {
   document.querySelectorAll('.pcs-btn').forEach(function(b){ b.classList.remove('active'); });
   if (el) el.classList.add('active');
