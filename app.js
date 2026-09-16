@@ -6,7 +6,7 @@ var PAYSTACK_PUBLIC_KEY = 'pk_live_b07f0d8b9ee7305c57362ec9bbb89fe1eb0f9433';
 var OWNER_EMAIL = 'lethumkapu561@gmail.com';
 // Paystack payment links/plans
 var PAYSTACK_MONTHLY_LINK = 'https://paystack.shop/pay/2g6pr6rq0e';  // R55/month recurring
-var PAYSTACK_YEARLY_PLAN = 'PLN_481j8rtfqd47uze';                    // R1,980/year x 3 years
+var PAYSTACK_YEARLY_PLAN = 'PLN_481j8rtfqd47uze';                    // R1,490/year — UPDATE THIS PLAN AMOUNT ON YOUR PAYSTACK DASHBOARD
 
 // ── SAFE STORAGE (never throws, works even if browser blocks localStorage) ──
 var _memStore = {};
@@ -40,14 +40,14 @@ var safeSession = {
 var PLAN_CODES = { pro: 'PLN_xxxxxxxxxx', business: 'PLN_xxxxxxxxxx' };
 var PRICES = {
   monthly: 5500,       // R55/month — all tools
-  yearly: 198000,      // R1,980 — 3 years (R55 x 36 months)
+  yearly: 149000,      // R1,490/year — includes all 16 templates (worth R2,176)
   website_only: 45000, // R450 — website build no domain
   website_com: 75000,  // R750 — website + .com domain
   website_coza: 95000, // R950 — website + .co.za domain
   website_net: 75000,  // R750 — website + .net domain
   website_org: 75000,  // R750 — website + .org domain
   phone: 45000,        // R450 — Find My Phone once-off
-}; // amounts in cents (R450=45000, R55=5500, R1980=198000) // in kobo (R99 = 9900)
+}; // amounts in cents (R450=45000, R55=5500, R1490=149000)
 var currentPlan = 'pro';
 var currentUser = null;
 // ── Backend URL — update this after deploying to Railway ──
@@ -321,12 +321,12 @@ function showAccount() {
   if (u.plan === 'trial' || !u.plan) {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Upgrade now to keep all your tools after your trial ends.</p>' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;margin-bottom:10px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>';
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="startPaystack(\'yearly\')">Annual Plan — R1,490/year</button>';
   } else if (u.plan === 'monthly' || u.plan === 'pro' || u.plan === 'paid' || u.plan === 'business') {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">Your monthly plan is active. R55 is debited on your subscription date each month.</p>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
   } else if (u.plan === 'yearly') {
-    html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">You have the 3-Year Plan (R1,980/year). Enjoy all tools.</p>' +
+    html += '<p style="font-size:13px;color:var(--muted);margin-bottom:16px">You are on the Annual Plan (R1,490/year). All 16 templates are included free — open the Templates Store to download them.</p>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:14px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="cancelPlan()">Cancel My Subscription</button>';
   } else if (u.plan === 'owner') {
     html += '<p style="font-size:13px;color:#f59e0b">You are the owner. You have full free access to everything, forever.</p>';
@@ -448,7 +448,7 @@ function showTrialExpired() {
       '<p style="color:var(--muted);font-size:14px;margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto">Get full access to all premium Sky Blueprint tools for just <strong style="color:#00C4CC">R55/month</strong>. Cancel anytime. SA Map stays free forever.</p>' +
       '<div style="max-width:360px;margin:0 auto;display:flex;flex-direction:column;gap:10px">' +
       '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:15px" onclick="startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
+      '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:10px;padding:15px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:15px" onclick="startPaystack(\'yearly\')">Annual Plan — R1,490/year</button>' +
       '<button style="width:100%;box-sizing:border-box;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:600;font-size:14px;margin-top:6px" onclick="openTool(\'sa-map\')">Use SA Map (Free)</button>' +
       '</div></div>';
     showPage('tool');
@@ -473,7 +473,7 @@ function requirePaidAction(actionLabel) {
     '<p style="color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6">You can build and preview for free. To ' + (actionLabel || 'use this') + ', subscribe to Sky Blueprint — just <strong style="color:#00C4CC">R55/month</strong>, cancel anytime.</p>' +
     '<div style="display:flex;flex-direction:column;gap:10px">' +
     '<button class="btn-primary" style="width:100%;box-sizing:border-box;font-size:15px;padding:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'monthly\')">Subscribe — R55/month</button>' +
-    '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'yearly\')">3-Year Plan — R1,980/year</button>' +
+    '<button style="width:100%;box-sizing:border-box;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#00C4CC;border-radius:10px;padding:13px;font-family:var(--font);cursor:pointer;font-weight:700;font-size:14px" onclick="document.getElementById(\'pay-action-modal\').remove();startPaystack(\'yearly\')">Annual Plan — R1,490/year</button>' +
     '<button style="width:100%;box-sizing:border-box;background:transparent;border:none;color:var(--muted);padding:8px;font-family:var(--font);cursor:pointer;font-size:13px" onclick="document.getElementById(\'pay-action-modal\').remove()">Maybe later</button>' +
     '</div></div>';
   document.body.appendChild(modal);
@@ -5766,7 +5766,14 @@ function previewTemplate(img, name) {
 }
 
 function buyTemplate(id, name, price) {
-  // No subscription needed - just need an email to send the file to
+  // Annual Plan subscribers get every template free — that is the whole
+  // reason the annual plan costs more, so it must actually work.
+  if (currentUser && (currentUser.plan === 'yearly' || currentUser.plan === 'owner')) {
+    deliverTemplate(id, name, currentUser.email || '', 'ANNUAL-PLAN-INCLUDED');
+    return;
+  }
+
+  // Everyone else: no subscription needed, just an email to send the file to
   var email = (currentUser && currentUser.email) ? currentUser.email : '';
   if (!email) {
     email = prompt('Enter your email address so we can send you "' + name + '" after payment:');
@@ -6490,12 +6497,12 @@ function startPaystack(plan) {
   var titles = {
     website: 'Order Your Website — R450',
     monthly: 'Subscribe Monthly — R55/month',
-    yearly: '3-Year Plan — R1,980/year'
+    yearly: 'Annual Plan — R1,490/year'
   };
   var subs = {
     website: 'R450 once-off · We build your professional website in 24-48 hours',
     monthly: 'R55/month · All 11 tools · Auto-debit via Paystack · Cancel anytime',
-    yearly: 'R1,980 per year for 3 years · Auto-renews yearly · All tools'
+    yearly: 'R1,490 per year · All 13 tools PLUS all 16 templates free (worth R2,176) · Auto-renews yearly'
   };
   document.getElementById('modal-title').textContent = titles[plan] || 'Subscribe to Sky Blueprint';
   document.getElementById('modal-sub').textContent = subs[plan] || '';
@@ -6543,7 +6550,7 @@ function processPayment() {
     return;
   }
 
-  // YEARLY - use Paystack subscription plan (R1,980/year for 3 years) via popup
+  // YEARLY - use Paystack subscription plan (R1,490/year) via popup
   if (currentPlan === 'yearly') {
     if (typeof PaystackPop === 'undefined') {
       // Popup not loaded - open checkout but do NOT grant access until confirmed
@@ -7075,6 +7082,16 @@ function mapCity(c){document.getElementById('ms').value=c;searchM();}
 // ═══════════════════════════════════════════
 // THEME SWITCHER
 // ═══════════════════════════════════════════
+// Pricing section: switch between Subscription and Website Services
+function pricingTab(which, el) {
+  document.querySelectorAll('.pcs-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  var subs = document.getElementById('pc-subs');
+  var sites = document.getElementById('pc-sites');
+  if (subs)  subs.style.display  = (which === 'subs')  ? 'grid' : 'none';
+  if (sites) sites.style.display = (which === 'sites') ? 'grid' : 'none';
+}
+
 function setTheme(theme) {
   document.body.className = document.body.className
     .replace(/\btheme-\w+\b/g, '').trim();
@@ -7618,7 +7635,7 @@ async function startGuide() {
 }
 
 async function explainPlatform() {
-  await guideMsg('Sky Blueprint is a South African digital platform with <strong>13 powerful tools</strong> in one place:<br><br><strong>Website Builder</strong> — build your business website<br><strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br><strong>CV Builder</strong> — build your CV and find matching jobs<br><strong>Learnerships & Internships</strong> — find opportunities you qualify for<br><strong>Find My Phone</strong> — track your phone if lost or stolen<br><strong>AI Business Mentor</strong> — get business advice 24/7<br><strong>Reminders & Tasks</strong> — never miss a meeting or task<br><strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month or R1,980/year!');
+  await guideMsg('Sky Blueprint is a South African digital platform with <strong>13 powerful tools</strong> in one place:<br><br><strong>Website Builder</strong> — build your business website<br><strong>AI Email Secretary</strong> — sort your real Gmail, Outlook or Yahoo inbox<br><strong>CV Builder</strong> — build your CV and find matching jobs<br><strong>Learnerships & Internships</strong> — find opportunities you qualify for<br><strong>Find My Phone</strong> — track your phone if lost or stolen<br><strong>AI Business Mentor</strong> — get business advice 24/7<br><strong>Reminders & Tasks</strong> — never miss a meeting or task<br><strong>SA Map</strong> — explore South Africa (FREE for everyone)<br><br>All tools in one subscription — R55/month, or R1,490/year which includes all 16 templates free!');
   guideOptions([
     { label: 'Let me start using the tools!', action: showToolMenu },
     { label: 'Tell me about pricing', action: explainPricing },
@@ -7626,7 +7643,7 @@ async function explainPlatform() {
 }
 
 async function explainPricing() {
-  await guideMsg('Sky Blueprint has 3 simple plans:<br><br><strong>Free Trial</strong> — 7 days full access, no credit card needed<br><br><strong>Monthly Plan — R55/month</strong><br>Pay every month via Paystack. Cancel anytime. Auto-debit from your card.<br><br><strong>3-Year Plan — R1,980 once-off</strong><br>Pay once, use for 3 full years. Save money long term!<br><br><strong>Find My Phone — R450 once-off</strong><br>One time activation fee to register and track your device.<br><br>Payments are processed securely by <strong>Paystack</strong> — Visa, Mastercard, EFT, Ozow all accepted.');
+  await guideMsg('Sky Blueprint has 3 simple plans:<br><br><strong>Free Trial</strong> — 7 days full access, no credit card needed<br><br><strong>Monthly Plan — R55/month</strong><br>Pay every month via Paystack. Cancel anytime. Auto-debit from your card.<br><br><strong>Annual Plan — R1,490/year</strong><br>All 13 tools PLUS all 16 templates free (worth R2,176 on their own). One payment a year.<br><br><strong>Find My Phone — R450 once-off</strong><br>One time activation fee to register and track your device.<br><br>Payments are processed securely by <strong>Paystack</strong> — Visa, Mastercard, EFT, Ozow all accepted.');
   guideOptions([
     { label: '✅ Start my free trial!', action: function() { showPage('signup'); toggleGuide(); } },
     { label: 'Show me the tools', action: showToolMenu },
